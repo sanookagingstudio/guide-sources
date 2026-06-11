@@ -1,65 +1,119 @@
-import Image from "next/image";
+'use client';
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
-export default function Home() {
+// ข้อมูลอ้างอิงมาตรฐาน (Baseline)
+const PROVINCES = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ลำปาง', 'ลำพูน', 'เชียงราย', 'แม่ฮ่องสอน', 'พะเยา', 'แพร่', 'น่าน', 'ตาก', 'สุโขทัย', 'อุตรดิตถ์', 'พิษณุโลก', 'พิจิตร', 'กำแพงเพชร', 'เพชรบูรณ์', 'นครสวรรค์', 'อุทัยธานี', 'กาญจนบุรี', 'ราชบุรี', 'สุพรรณบุรี', 'นครปฐม', 'สมุทรสาคร', 'สมุทรสงคราม', 'เพชรบุรี', 'ประจวบคีรีขันธ์', 'ชลบุรี', 'ระยอง', 'จันทบุรี', 'ตราด', 'ฉะเชิงเทรา', 'ปราจีนบุรี', 'นครนายก', 'สระแก้ว', 'นครราชสีมา', 'บุรีรัมย์', 'สุรินทร์', 'ศรีสะเกษ', 'อุบลราชธานี', 'ยโสธร', 'ชัยภูมิ', 'อำนาจเจริญ', 'บึงกาฬ', 'หนองคาย', 'เลย', 'อุดรธานี', 'นครพนม', 'สกลนคร', 'มุกดาหาร', 'กาฬสินธุ์', 'มหาสารคาม', 'ร้อยเอ็ด', 'หนองบัวลำภู', 'ขอนแก่น', 'ชุมพร', 'ระนอง', 'สุราษฎร์ธานี', 'พังงา', 'ภูเก็ต', 'กระบี่', 'นครศรีธรรมราช', 'ตรัง', 'พัทลุง', 'สตูล', 'สงขลา', 'ปัตตานี', 'ยะลา', 'นราธิวาส'];
+const CATEGORIES = ['อาหารและเครื่องดื่ม', 'ที่พักและรีสอร์ต', 'แหล่งท่องเที่ยวเชิงสุขภาพ', 'กิจกรรมสันทนาการ', 'ศูนย์บำบัดและดูแลผู้สูงอายุ', 'การเรียนรู้และเวิร์กชอป', 'รถเช่าบริการพิเศษ', 'อื่นๆ (โปรดระบุ)'];
+const AMENITIES = ['♿ รองรับรถเข็น', '🚌 จอดรถบัสได้', '⏳ ทางเรียบ/ราวจับ', '🐾 ห้องน้ำคนพิการ', '🏥 มีเครื่อง AED', '📶 Wi-Fi ฟรี', '🦮 รองรับผู้พิการทางสายตา'];
+const ALERTS = ['🚗 จอดรถยาก', '⏳ คิวยาว', '📞 ต้องสำรองล่วงหน้า', '📐 บันไดเยอะ', '📶 สัญญาณโทรศัพท์ไม่ดี', '☀️ พื้นที่โล่ง/ร้อนจัด'];
+
+export default function GuideSourcesApp() {
+  const [activeTab, setActiveTab] = useState<'search' | 'member' | 'admin'>('member');
+  const [rating, setRating] = useState(5);
+  const [form, setForm] = useState({
+    name: '', province: '', category: CATEGORIES[0], other_cat: '', sub_cat: '',
+    map_url: '', phone: '', recommender: '', suggestion: '', amenities: [] as string[], alerts: [] as string[]
+  });
+
+  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRating(Number(e.target.value));
+  };
+
+  const handleFileAttach = (type: string) => {
+    alert(`ระบบแนบ ${type} พร้อมทำงาน กรุณาเชื่อมต่อกับ Supabase Storage ในขั้นตอนถัดไป`);
+  };
+
+  const toggleCheck = (item: string, field: 'amenities' | 'alerts') => {
+    setForm(prev => ({
+      ...prev,
+      [field]: prev[field].includes(item) ? prev[field].filter(i => i !== item) : [...prev[field], item]
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const dataToInsert = {
+      name: form.name || '',
+      province: form.province || '',
+      category: form.category || '',
+      other_category: form.other_cat || '',
+      sub_category: form.sub_cat || '',
+      google_maps_url: form.map_url || '',
+      phone: form.phone || '',
+      recommender: form.recommender || '',
+      suggestion: form.suggestion || '',
+      rating: Number(rating),
+      amenities: form.amenities,
+      alerts: form.alerts,
+      status: 'pending'
+    };
+
+    try {
+      const { error } = await supabase.from('staging_places').insert([dataToInsert]);
+      if (error) throw error;
+      alert("บันทึกข้อมูลเรียบร้อย!");
+      setForm({ name: '', province: '', category: CATEGORIES[0], other_cat: '', sub_cat: '', map_url: '', phone: '', recommender: '', suggestion: '', amenities: [], alerts: [] });
+    } catch (err: any) {
+      console.error("Supabase Error:", err);
+      alert("เกิดข้อผิดพลาด: " + err.message);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="max-w-md mx-auto p-4 bg-gray-900 text-white min-h-screen">
+      <nav className="flex bg-gray-800 p-2 rounded-lg mb-4">
+        <button onClick={() => setActiveTab('search')} className={`flex-1 p-2 rounded ${activeTab === 'search' ? 'bg-blue-600' : ''}`}>🔍 ค้นหา</button>
+        <button onClick={() => setActiveTab('member')} className={`flex-1 p-2 rounded ${activeTab === 'member' ? 'bg-blue-600' : ''}`}>👤 Member</button>
+        <button onClick={() => setActiveTab('admin')} className={`flex-1 p-2 rounded ${activeTab === 'admin' ? 'bg-blue-600' : ''}`}>⚙️ Admin</button>
+      </nav>
+
+      {activeTab === 'member' && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อสถานที่" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+          <div className="flex gap-2">
+            <input list="provinces" className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="จังหวัด" value={form.province} onChange={e => setForm({...form, province: e.target.value})} />
+            <datalist id="provinces">{PROVINCES.map(p => <option key={p} value={p} />)}</datalist>
+            <select className="w-full p-2 bg-gray-700 rounded border border-gray-600" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
+              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          {form.category === 'อื่นๆ (โปรดระบุ)' && <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ระบุหมวดหมู่" value={form.other_cat} onChange={e => setForm({...form, other_cat: e.target.value})} />}
+          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="หมวดหมู่ย่อย" value={form.sub_cat} onChange={e => setForm({...form, sub_cat: e.target.value})} />
+          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ลิงก์ Google Maps" value={form.map_url} onChange={e => setForm({...form, map_url: e.target.value})} />
+          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="เบอร์โทร/ไลน์" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อผู้แนะนำ" value={form.recommender} onChange={e => setForm({...form, recommender: e.target.value})} />
+          <textarea className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ช่องใส่ข้อแนะนำ/เหตุผล" value={form.suggestion} onChange={e => setForm({...form, suggestion: e.target.value})} />
+          
+          <div className="flex gap-2">
+            <button type="button" onClick={() => handleFileAttach('รูป')} className="flex-1 p-2 bg-gray-700 rounded text-sm border border-gray-600">📸 แนบรูป</button>
+            <button type="button" onClick={() => handleFileAttach('VDO')} className="flex-1 p-2 bg-gray-700 rounded text-sm border border-gray-600">🎥 แนบ VDO</button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm">Rating (ดาว):</span>
+            <select 
+              className="w-full p-2 bg-gray-700 rounded border border-gray-600" 
+              onChange={handleRatingChange} 
+              value={rating}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+              <option value="5">⭐⭐⭐⭐⭐</option>
+              <option value="4">⭐⭐⭐⭐</option>
+              <option value="3">⭐⭐⭐</option>
+              <option value="2">⭐⭐</option>
+              <option value="1">⭐</option>
+            </select>
+          </div>
+
+          <div className="text-xs font-bold text-gray-400">สิ่งอำนวยความสะดวก:</div>
+          <div className="grid grid-cols-2 gap-2 text-xs">{AMENITIES.map(a => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.amenities.includes(a)} onChange={() => toggleCheck(a, 'amenities')} /> {a}</label>)}</div>
+          <div className="text-xs font-bold text-gray-400">ข้อควรระวัง:</div>
+          <div className="grid grid-cols-2 gap-2 text-xs">{ALERTS.map(a => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.alerts.includes(a)} onChange={() => toggleCheck(a, 'alerts')} /> {a}</label>)}</div>
+          
+          <button type="submit" className="w-full p-3 bg-blue-600 rounded font-bold hover:bg-blue-700">🚀 บันทึกเข้าคลัง</button>
+        </form>
+      )}
     </div>
   );
 }
