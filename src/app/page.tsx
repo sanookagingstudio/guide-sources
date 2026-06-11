@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import SearchTab from '../components/SearchTab';
+import AdminTab from '../components/AdminTab';
 
 // ข้อมูลอ้างอิงมาตรฐาน (Baseline)
 const PROVINCES = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ลำปาง', 'ลำพูน', 'เชียงราย', 'แม่ฮ่องสอน', 'พะเยา', 'แพร่', 'น่าน', 'ตาก', 'สุโขทัย', 'อุตรดิตถ์', 'พิษณุโลก', 'พิจิตร', 'กำแพงเพชร', 'เพชรบูรณ์', 'นครสวรรค์', 'อุทัยธานี', 'กาญจนบุรี', 'ราชบุรี', 'สุพรรณบุรี', 'นครปฐม', 'สมุทรสาคร', 'สมุทรสงคราม', 'เพชรบุรี', 'ประจวบคีรีขันธ์', 'ชลบุรี', 'ระยอง', 'จันทบุรี', 'ตราด', 'ฉะเชิงเทรา', 'ปราจีนบุรี', 'นครนายก', 'สระแก้ว', 'นครราชสีมา', 'บุรีรัมย์', 'สุรินทร์', 'ศรีสะเกษ', 'อุบลราชธานี', 'ยโสธร', 'ชัยภูมิ', 'อำนาจเจริญ', 'บึงกาฬ', 'หนองคาย', 'เลย', 'อุดรธานี', 'นครพนม', 'สกลนคร', 'มุกดาหาร', 'กาฬสินธุ์', 'มหาสารคาม', 'ร้อยเอ็ด', 'หนองบัวลำภู', 'ขอนแก่น', 'ชุมพร', 'ระนอง', 'สุราษฎร์ธานี', 'พังงา', 'ภูเก็ต', 'กระบี่', 'นครศรีธรรมราช', 'ตรัง', 'พัทลุง', 'สตูล', 'สงขลา', 'ปัตตานี', 'ยะลา', 'นราธิวาส'];
@@ -69,6 +71,8 @@ export default function GuideSourcesApp() {
         <button onClick={() => setActiveTab('admin')} className={`flex-1 p-2 rounded ${activeTab === 'admin' ? 'bg-blue-600' : ''}`}>⚙️ Admin</button>
       </nav>
 
+      {activeTab === 'search' && <SearchTab />}
+
       {activeTab === 'member' && (
         <form onSubmit={handleSubmit} className="space-y-4">
           <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อสถานที่" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
@@ -114,6 +118,8 @@ export default function GuideSourcesApp() {
           <button type="submit" className="w-full p-3 bg-blue-600 rounded font-bold hover:bg-blue-700">🚀 บันทึกเข้าคลัง</button>
         </form>
       )}
+
+      {activeTab === 'admin' && <AdminTab />}
     </div>
   );
 }
