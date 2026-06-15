@@ -1,125 +1,46 @@
-'use client';
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import SearchTab from '../components/SearchTab';
-import AdminTab from '../components/AdminTab';
+import { useEffect, useState } from 'react';
+import SearchTab from '@/components/SearchTab';
+import AdminTab from '@/components/AdminTab';
+import MemberTab, { emptyMemberPlace } from '@/components/MemberTab';
+import { MEDIA_UPLOAD_ENABLED } from '@/lib/constants';
+import { findDuplicatePlaceName, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+import { uploadPlaceMedia } from '@/services/mediaService';
 
-// ข้อมูลอ้างอิงมาตรฐาน (Baseline)
-const PROVINCES = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ลำปาง', 'ลำพูน', 'เชียงราย', 'แม่ฮ่องสอน', 'พะเยา', 'แพร่', 'น่าน', 'ตาก', 'สุโขทัย', 'อุตรดิตถ์', 'พิษณุโลก', 'พิจิตร', 'กำแพงเพชร', 'เพชรบูรณ์', 'นครสวรรค์', 'อุทัยธานี', 'กาญจนบุรี', 'ราชบุรี', 'สุพรรณบุรี', 'นครปฐม', 'สมุทรสาคร', 'สมุทรสงคราม', 'เพชรบุรี', 'ประจวบคีรีขันธ์', 'ชลบุรี', 'ระยอง', 'จันทบุรี', 'ตราด', 'ฉะเชิงเทรา', 'ปราจีนบุรี', 'นครนายก', 'สระแก้ว', 'นครราชสีมา', 'บุรีรัมย์', 'สุรินทร์', 'ศรีสะเกษ', 'อุบลราชธานี', 'ยโสธร', 'ชัยภูมิ', 'อำนาจเจริญ', 'บึงกาฬ', 'หนองคาย', 'เลย', 'อุดรธานี', 'นครพนม', 'สกลนคร', 'มุกดาหาร', 'กาฬสินธุ์', 'มหาสารคาม', 'ร้อยเอ็ด', 'หนองบัวลำภู', 'ขอนแก่น', 'ชุมพร', 'ระนอง', 'สุราษฎร์ธานี', 'พังงา', 'ภูเก็ต', 'กระบี่', 'นครศรีธรรมราช', 'ตรัง', 'พัทลุง', 'สตูล', 'สงขลา', 'ปัตตานี', 'ยะลา', 'นราธิวาส'];
-const CATEGORIES = ['อาหารและเครื่องดื่ม', 'ที่พักและรีสอร์ต', 'แหล่งท่องเที่ยวเชิงสุขภาพ', 'กิจกรรมสันทนาการ', 'ศูนย์บำบัดและดูแลผู้สูงอายุ', 'การเรียนรู้และเวิร์กชอป', 'รถเช่าบริการพิเศษ', 'อื่นๆ (โปรดระบุ)'];
-const AMENITIES = ['♿ รองรับรถเข็น', '🚌 จอดรถบัสได้', '⏳ ทางเรียบ/ราวจับ', '🐾 ห้องน้ำคนพิการ', '🏥 มีเครื่อง AED', '📶 Wi-Fi ฟรี', '🦮 รองรับผู้พิการทางสายตา'];
-const ALERTS = ['🚗 จอดรถยาก', '⏳ คิวยาว', '📞 ต้องสำรองล่วงหน้า', '📐 บันไดเยอะ', '📶 สัญญาณโทรศัพท์ไม่ดี', '☀️ พื้นที่โล่ง/ร้อนจัด'];
+type Tab = 'search' | 'member' | 'admin';
 
-export default function GuideSourcesApp() {
-  const [activeTab, setActiveTab] = useState<'search' | 'member' | 'admin'>('member');
-  const [rating, setRating] = useState(5);
-  const [form, setForm] = useState({
-    name: '', province: '', category: CATEGORIES[0], other_cat: '', sub_cat: '',
-    map_url: '', phone: '', recommender: '', suggestion: '', amenities: [] as string[], alerts: [] as string[]
-  });
+export default function App() {
+  const [activeTab, setActiveTab] = useState<Tab>('member');
+  const [form, setForm] = useState<PlaceRecord>(emptyMemberPlace);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [message, setMessage] = useState('');
+  const [pendingFiles, setPendingFiles] = useState<{file: File; type: 'image' | 'video'}[]>([]);
 
-  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setRating(Number(e.target.value));
-  };
-
-  const handleFileAttach = (type: string) => {
-    alert(`ระบบแนบ ${type} พร้อมทำงาน กรุณาเชื่อมต่อกับ Supabase Storage ในขั้นตอนถัดไป`);
-  };
-
-  const toggleCheck = (item: string, field: 'amenities' | 'alerts') => {
-    setForm(prev => ({
-      ...prev,
-      [field]: prev[field].includes(item) ? prev[field].filter(i => i !== item) : [...prev[field], item]
-    }));
-  };
+  useEffect(() => { setMessage(form.id ? `กำลังแก้ไข: ${form.name}` : ''); }, [form.id, form.name]);
+  const editPlace = (place: PlaceRecord) => { setForm({ ...emptyMemberPlace, ...place, status: 'pending' }); setActiveTab('member'); };
+  const attachFile = (file: File | undefined, type: 'image' | 'video') => { if (!file) return; if (!MEDIA_UPLOAD_ENABLED) { setMessage('Media upload not enabled yet — ตั้งค่า VITE_MEDIA_UPLOAD_ENABLED=true และ Supabase Storage ก่อนใช้งาน'); return; } setPendingFiles((prev) => [...prev, { file, type }]); };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const dataToInsert = {
-      name: form.name || '',
-      province: form.province || '',
-      category: form.category || '',
-      other_category: form.other_cat || '',
-      sub_category: form.sub_cat || '',
-      google_maps_url: form.map_url || '',
-      phone: form.phone || '',
-      recommender: form.recommender || '',
-      suggestion: form.suggestion || '',
-      rating: Number(rating),
-      amenities: form.amenities,
-      alerts: form.alerts,
-      status: 'pending'
-    };
-
+    e.preventDefault(); setMessage('');
+    if (!form.name.trim() || !form.province.trim() || !form.category.trim()) { setMessage('กรุณากรอกชื่อสถานที่ จังหวัด และหมวดหมู่'); return; }
+    const duplicate = await findDuplicatePlaceName(form.name, form.id);
+    if (duplicate && !confirm(`พบชื่อสถานที่ซ้ำ: ${duplicate.name} ต้องการบันทึกต่อหรือไม่?`)) return;
     try {
-      const { error } = await supabase.from('staging_places').insert([dataToInsert]);
-      if (error) throw error;
-      alert("บันทึกข้อมูลเรียบร้อย!");
-      setForm({ name: '', province: '', category: CATEGORIES[0], other_cat: '', sub_cat: '', map_url: '', phone: '', recommender: '', suggestion: '', amenities: [], alerts: [] });
-    } catch (err: any) {
-      console.error("Supabase Error:", err);
-      alert("เกิดข้อผิดพลาด: " + err.message);
-    }
+      const saved = await saveStagingPlace(form);
+      for (const pending of pendingFiles) await uploadPlaceMedia(saved.id!, pending.file, pending.type, true);
+      setMessage('บันทึกข้อมูลเรียบร้อย และส่งเข้าคิวตรวจสอบแล้ว');
+      setForm(emptyMemberPlace); setPendingFiles([]); setRefreshKey((v) => v + 1); setActiveTab('search');
+    } catch (err) { setMessage(`เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : 'unknown error'}`); }
   };
 
-  return (
-    <div className="max-w-md mx-auto p-4 bg-gray-900 text-white min-h-screen">
-      <nav className="flex bg-gray-800 p-2 rounded-lg mb-4">
-        <button onClick={() => setActiveTab('search')} className={`flex-1 p-2 rounded ${activeTab === 'search' ? 'bg-blue-600' : ''}`}>🔍 ค้นหา</button>
-        <button onClick={() => setActiveTab('member')} className={`flex-1 p-2 rounded ${activeTab === 'member' ? 'bg-blue-600' : ''}`}>👤 Member</button>
-        <button onClick={() => setActiveTab('admin')} className={`flex-1 p-2 rounded ${activeTab === 'admin' ? 'bg-blue-600' : ''}`}>⚙️ Admin</button>
-      </nav>
-
-      {activeTab === 'search' && <SearchTab />}
-
-      {activeTab === 'member' && (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อสถานที่" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-          <div className="flex gap-2">
-            <input list="provinces" className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="จังหวัด" value={form.province} onChange={e => setForm({...form, province: e.target.value})} />
-            <datalist id="provinces">{PROVINCES.map(p => <option key={p} value={p} />)}</datalist>
-            <select className="w-full p-2 bg-gray-700 rounded border border-gray-600" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
-              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-          {form.category === 'อื่นๆ (โปรดระบุ)' && <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ระบุหมวดหมู่" value={form.other_cat} onChange={e => setForm({...form, other_cat: e.target.value})} />}
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="หมวดหมู่ย่อย" value={form.sub_cat} onChange={e => setForm({...form, sub_cat: e.target.value})} />
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ลิงก์ Google Maps" value={form.map_url} onChange={e => setForm({...form, map_url: e.target.value})} />
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="เบอร์โทร/ไลน์" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อผู้แนะนำ" value={form.recommender} onChange={e => setForm({...form, recommender: e.target.value})} />
-          <textarea className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ช่องใส่ข้อแนะนำ/เหตุผล" value={form.suggestion} onChange={e => setForm({...form, suggestion: e.target.value})} />
-          
-          <div className="flex gap-2">
-            <button type="button" onClick={() => handleFileAttach('รูป')} className="flex-1 p-2 bg-gray-700 rounded text-sm border border-gray-600">📸 แนบรูป</button>
-            <button type="button" onClick={() => handleFileAttach('VDO')} className="flex-1 p-2 bg-gray-700 rounded text-sm border border-gray-600">🎥 แนบ VDO</button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Rating (ดาว):</span>
-            <select 
-              className="w-full p-2 bg-gray-700 rounded border border-gray-600" 
-              onChange={handleRatingChange} 
-              value={rating}
-            >
-              <option value="5">⭐⭐⭐⭐⭐</option>
-              <option value="4">⭐⭐⭐⭐</option>
-              <option value="3">⭐⭐⭐</option>
-              <option value="2">⭐⭐</option>
-              <option value="1">⭐</option>
-            </select>
-          </div>
-
-          <div className="text-xs font-bold text-gray-400">สิ่งอำนวยความสะดวก:</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">{AMENITIES.map(a => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.amenities.includes(a)} onChange={() => toggleCheck(a, 'amenities')} /> {a}</label>)}</div>
-          <div className="text-xs font-bold text-gray-400">ข้อควรระวัง:</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">{ALERTS.map(a => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.alerts.includes(a)} onChange={() => toggleCheck(a, 'alerts')} /> {a}</label>)}</div>
-          
-          <button type="submit" className="w-full p-3 bg-blue-600 rounded font-bold hover:bg-blue-700">🚀 บันทึกเข้าคลัง</button>
-        </form>
-      )}
-
-      {activeTab === 'admin' && <AdminTab />}
-    </div>
-  );
+  return <div className="max-w-5xl mx-auto p-4 bg-gray-900 text-white min-h-screen">
+    <nav className="flex bg-gray-800 p-2 rounded-lg mb-4 sticky top-0 z-10">
+      <button onClick={() => setActiveTab('search')} className={`flex-1 p-2 rounded ${activeTab === 'search' ? 'bg-blue-600' : ''}`}>🔍 ค้นหา</button>
+      <button onClick={() => setActiveTab('member')} className={`flex-1 p-2 rounded ${activeTab === 'member' ? 'bg-blue-600' : ''}`}>👤 Member</button>
+      <button onClick={() => setActiveTab('admin')} className={`flex-1 p-2 rounded ${activeTab === 'admin' ? 'bg-blue-600' : ''}`}>⚙️ Admin</button>
+    </nav>
+    {message && <div className="mb-4 rounded border border-blue-700 bg-blue-950/50 p-3 text-sm">{message}</div>}
+    {activeTab === 'search' && <SearchTab refreshKey={refreshKey} onEdit={editPlace} />}
+    {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
+    {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+  </div>;
 }
