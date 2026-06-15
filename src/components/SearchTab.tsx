@@ -5,9 +5,38 @@ import { listApprovedPlaces, type PlaceRecord } from '@/services/placesService';
 import { listPlaceMedia, type PlaceMedia } from '@/services/mediaService';
 
 export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; onEdit: (place: PlaceRecord) => void }) {
-  const [places, setPlaces] = useState<PlaceRecord[]>([]); const [media, setMedia] = useState<Record<string, PlaceMedia[]>>({}); const [error, setError] = useState('');
+  const [places, setPlaces] = useState<PlaceRecord[]>([]);
+  const [media, setMedia] = useState<Record<string, PlaceMedia[]>>({});
+  const [warning, setWarning] = useState('');
   const [filters, setFilters] = useState({ keyword: '', province: '', category: '', sub_category: '', amenity: '', alert: '', rating: 0 });
-  useEffect(() => { listApprovedPlaces({ keyword: filters.keyword, province: filters.province, category: filters.category, sub_category: filters.sub_category, amenities: filters.amenity ? [filters.amenity] : [], alerts: filters.alert ? [filters.alert] : [], rating: filters.rating || undefined }).then(async (rows) => { setPlaces(rows); setError(''); const pairs = await Promise.all(rows.filter((p) => p.id).map(async (p) => [p.id!, await listPlaceMedia(p.id!)] as const).slice(0, 20)); setMedia(Object.fromEntries(pairs)); }).catch((e) => setError(e.message)); }, [filters, refreshKey]);
+
+  const loadPlaces = async () => {
+    try {
+      setWarning('');
+      const rows = await listApprovedPlaces({ keyword: filters.keyword, province: filters.province, category: filters.category, sub_category: filters.sub_category, amenities: filters.amenity ? [filters.amenity] : [], alerts: filters.alert ? [filters.alert] : [], rating: filters.rating || undefined }, { onWarning: setWarning });
+      setPlaces(rows);
+      try {
+        const pairs = await Promise.all(rows.filter((p) => p.id).map(async (p) => [p.id!, await listPlaceMedia(p.id!)] as const).slice(0, 20));
+        setMedia(Object.fromEntries(pairs));
+      } catch {
+        setMedia({});
+      }
+    } catch (e) {
+      setWarning(e instanceof Error ? e.message : 'ไม่สามารถโหลดข้อมูลค้นหาได้ในตอนนี้ แต่จะใช้ข้อมูลในเบราว์เซอร์แทน');
+      setPlaces([]);
+    }
+  };
+
+  useEffect(() => { void loadPlaces(); }, [filters, refreshKey]);
+  useEffect(() => {
+    const onRefresh = () => { void loadPlaces(); };
+    window.addEventListener('guide-sources-updated', onRefresh);
+    window.addEventListener('guide-sources:refresh', onRefresh);
+    return () => {
+      window.removeEventListener('guide-sources-updated', onRefresh);
+      window.removeEventListener('guide-sources:refresh', onRefresh);
+    };
+  }, [filters, refreshKey]);
   const suggestions = useMemo(() => [...new Set(places.flatMap((p) => [p.name, p.province, p.category, p.sub_category].filter(Boolean) as string[]))], [places]);
   const share = async (p: PlaceRecord) => { const text = `${p.name} (${p.province}) ${p.google_maps_url || ''}`; await navigator.clipboard?.writeText(text); alert('คัดลอกข้อมูลสำหรับแชร์แล้ว'); };
   return <div className="space-y-6 animate-fade-in">
@@ -15,7 +44,7 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
       <input list="search-suggestions" placeholder="🔍 ค้นหาสถานที่, หมวดหมู่, จุดเด่น..." className="w-full p-3 bg-gray-900 rounded border border-gray-600" value={filters.keyword} onChange={(e) => setFilters({...filters, keyword: e.target.value})} /><datalist id="search-suggestions">{suggestions.map((s) => <option key={s} value={s} />)}</datalist>
       <div className="grid md:grid-cols-3 gap-2 text-sm"><select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.province} onChange={(e) => setFilters({...filters, province: e.target.value})}><option value="">ทุกจังหวัด</option>{PROVINCES.map((p) => <option key={p}>{p}</option>)}</select><select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}><option value="">ทุกหมวดหมู่</option>{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select><select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.sub_category} onChange={(e) => setFilters({...filters, sub_category: e.target.value})}><option value="">ทุกหมวดย่อย</option>{SUBCATEGORIES.map((s) => <option key={s}>{s}</option>)}</select><select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.amenity} onChange={(e) => setFilters({...filters, amenity: e.target.value})}><option value="">ทุกสิ่งอำนวยความสะดวก</option>{AMENITIES.map((a) => <option key={a}>{a}</option>)}</select><select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.alert} onChange={(e) => setFilters({...filters, alert: e.target.value})}><option value="">ทุกข้อควรระวัง</option>{ALERTS.map((a) => <option key={a}>{a}</option>)}</select><select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.rating} onChange={(e) => setFilters({...filters, rating: Number(e.target.value)})}><option value="0">ทุกดาว</option>{[5,4,3,2,1].map((r) => <option key={r} value={r}>{r}+ ดาว</option>)}</select></div>
     </div>
-    {error && <div className="bg-red-950 border border-red-700 rounded p-3 text-sm">Search runtime blocked: {error}</div>}
+    {warning && <div className="bg-amber-950 border border-amber-700 rounded p-3 text-sm">{warning}</div>}
     <h3 className="text-sm font-bold text-gray-300">ผลการค้นหา {places.length} รายการ</h3>
     <div className="grid md:grid-cols-2 gap-3">{places.map((p) => <article key={p.id} className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
       <div className="h-36 bg-gray-700 flex items-center justify-center text-gray-400 text-xs">{media[p.id || '']?.[0]?.public_url ? <img src={media[p.id || ''][0].public_url!} alt="" className="h-full w-full object-cover" /> : '[รูปภาพ/VDO สถานที่]'}</div>

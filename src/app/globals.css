@@ -1,7 +1,237 @@
 @import "tailwindcss";
 
-:root { --background: #111827; --foreground: #ffffff; }
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; }
-button, input, select, textarea { font: inherit; }
-a { color: inherit; text-decoration: none; }
+:root {
+  --denim-deep: #081326;
+  --denim-mid: #10284f;
+  --denim-washed: #1f5fbf;
+  --panel: #101b2e;
+  --panel-soft: #17263d;
+  --thread: #f8f1d9;
+  --copper: #f59e0b;
+  --copper-soft: #ffd27a;
+  --danger: #ff7a7a;
+  --mint: #60ffd2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0 1px, transparent 1px 5px),
+    radial-gradient(circle at top, #173c7a 0%, var(--denim-deep) 55%, #050b16 100%);
+  color: var(--thread);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+main,
+body > div {
+  width: 100%;
+}
+
+nav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 10px;
+  background: rgba(15, 29, 54, .9);
+  border: 1px solid rgba(255, 210, 122, .18);
+  border-radius: 14px;
+}
+
+nav button {
+  min-height: 52px;
+  flex: 1;
+  border: 2px solid rgba(0,0,0,.65);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #17345e, #091631);
+  color: var(--thread);
+  font-weight: 800;
+  box-shadow: 0 5px 0 rgba(0,0,0,.65);
+}
+
+nav button[class*="bg-blue"],
+nav button:hover {
+  background: linear-gradient(180deg, #287cff, #1552d4);
+}
+
+form,
+.space-y-4,
+.space-y-6 {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 2px solid rgba(245, 158, 11, .35);
+  background: #050a1f;
+  color: var(--thread);
+  outline: none;
+}
+
+textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--copper);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, .18);
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px;
+  border: 1px dashed rgba(245, 158, 11, .35);
+  border-radius: 8px;
+  background: rgba(0,0,0,.18);
+  font-size: 12px;
+}
+
+label input {
+  width: auto;
+  min-height: auto;
+}
+
+button[type="submit"],
+form > button,
+.bg-blue-600,
+.bg-yellow-600 {
+  min-height: 46px;
+  border: 2px solid rgba(0,0,0,.65);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffb13b, #e88700);
+  color: #081326;
+  font-weight: 900;
+  box-shadow: 0 4px 0 rgba(0,0,0,.55);
+}
+
+.max-w-md {
+  width: min(100vw, 430px);
+  min-height: 100vh;
+  padding: 18px;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0 1px, transparent 1px 5px),
+    linear-gradient(180deg, #0e2b63, #081326 45%);
+  border-left: 1px solid rgba(255,255,255,.06);
+  border-right: 1px solid rgba(255,255,255,.06);
+}
+
+.bg-gray-900,
+.bg-gray-800,
+.bg-gray-700 {
+  background: var(--panel) !important;
+}
+
+.border-gray-600,
+.border-gray-700 {
+  border-color: rgba(245, 158, 11, .28) !important;
+}
+
+.text-blue-400 {
+  color: #38bdf8 !important;
+}
+
+.text-gray-400,
+.text-gray-300 {
+  color: rgba(248,241,217,.75) !important;
+}
+
+.text-yellow-500 {
+  color: var(--copper-soft) !important;
+}
+
+.rounded-xl,
+.rounded-lg,
+.rounded {
+  border-radius: 12px;
+}
+
+.shadow-xl {
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+[class*="grid"] {
+  display: grid;
+  gap: 8px;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.flex {
+  display: flex;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+.p-2 {
+  padding: 8px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.text-xs {
+  font-size: 12px;
+}
+
+.text-sm {
+  font-size: 14px;
+}
+
+.font-bold {
+  font-weight: 800;
+}
+
+@media (min-width: 768px) {
+  .max-w-md {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 18px;
+    min-height: auto;
+  }
+}
