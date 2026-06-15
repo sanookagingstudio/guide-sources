@@ -1,0 +1,5 @@
+export const env = {
+  VITE_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
+  VITE_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '',
+  VITE_MEDIA_UPLOAD_ENABLED: process.env.NEXT_PUBLIC_MEDIA_UPLOAD_ENABLED || process.env.VITE_MEDIA_UPLOAD_ENABLED || 'false',
+};

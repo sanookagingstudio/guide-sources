@@ -1,0 +1,40 @@
+Guide Sources MVP Patch Report
+
+Scope:
+- Restored the app to a Next.js App Router runtime shape.
+- Split/kept Member UI in src/components/MemberTab.tsx.
+- Preserved SearchTab, AdminTab, services, migrations, tests, and Supabase/local fallback service contracts.
+
+Files changed:
+- package.json: restored Next dev/build/start scripts and Next dependencies.
+- tsconfig.json: restored Next-compatible TypeScript settings.
+- src/app/layout.tsx: restored App Router root layout.
+- src/app/page.tsx: restored client app shell that renders Search / Member / Admin tabs.
+- src/app/globals.css: restored global dark UI stylesheet entry for Next/Tailwind.
+- src/components/AdminTab.tsx: added visible pending/approved/rejected counts.
+- src/lib/env.ts: restored Next public env compatibility while keeping VITE key fallback names.
+- scripts/build-check.mjs: restored contract check to Next App Router files.
+- Removed Vite-only runtime files from this Next repo: index.html, vite.config.ts, src/main.tsx, src/App.tsx, src/styles.css.
+
+Feature matrix:
+- Member Save: implemented through saveStagingPlace from src/app/page.tsx.
+- Member Edit: implemented via editPlace callback into MemberTab with same id.
+- Duplicate Warning: implemented before save through findDuplicatePlaceName.
+- Province Autocomplete: implemented via datalist in MemberTab.
+- Category Select: implemented in MemberTab.
+- Amenities/Alerts: implemented in MemberTab and persisted through PlaceRecord.
+- Media Placeholder: implemented as disabled/future-ready file attach controls.
+- Search Filters: keyword/province/category/subcategory/rating/amenities/alerts implemented in SearchTab.
+- Search Detail Card: displays name/province/category/subcategory/map navigation/phone/recommender/suggestion/rating/amenities/alerts/media placeholder/edit/share.
+- Admin List: lists staging and approved production records.
+- Admin Approve: calls approvePlace.
+- Admin Reject: calls rejectPlace.
+- Admin Delete: calls deletePlace.
+- Admin Import CSV/JSON: textarea calls importPlaces.
+- Admin Counts: pending/approved/rejected counts displayed.
+
+Validation:
+- npm run build attempted in Codex container.
+
+Blockers:
+- This Codex container does not have Next dependencies installed and npm registry installation has previously been blocked. Local Windows proof states next build/runtime pass; this patch restores the repo to the requested Next App Router structure for that environment.
