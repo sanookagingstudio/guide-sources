@@ -1,8 +1,8 @@
 import { MEDIA_UPLOAD_ENABLED } from '@/lib/constants';
 import { hasRealSupabaseConfig, isPlaceholderValue } from '@/lib/env';
 import { supabase } from '@/lib/supabase';
-
-export type PlaceMedia = { id?: string; place_id: string; staging_place_id?: string | null; media_type: 'image' | 'video'; storage_bucket: string; storage_path: string; public_url?: string | null; caption?: string | null; created_at?: string };
+import type { PlaceMedia } from './mediaTypes';
+export type { PlaceMedia };
 
 const mediaDisabled = () => !hasRealSupabaseConfig || !MEDIA_UPLOAD_ENABLED || isPlaceholderValue(process.env.NEXT_PUBLIC_SUPABASE_URL) || isPlaceholderValue(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) || isPlaceholderValue(process.env.VITE_SUPABASE_URL) || isPlaceholderValue(process.env.VITE_SUPABASE_ANON_KEY);
 

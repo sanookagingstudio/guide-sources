@@ -8,6 +8,15 @@ const canUseStorage = () => typeof window !== 'undefined' && Boolean(window.loca
 
 const text = (value?: string | null) => (value || '').trim();
 
+export type LocalUser = {
+  user_id: string;
+  display_name?: string;
+  email?: string;
+  role: 'admin' | 'editor' | 'viewer';
+  status: 'active' | 'disabled';
+  created_at: string;
+};
+
 export const readPlaces = (): PlaceRecord[] => {
   if (!canUseStorage()) return [];
   try {
@@ -21,16 +30,24 @@ const writePlaces = (rows: PlaceRecord[]) => {
   if (canUseStorage()) window.localStorage.setItem(PLACE_KEY, JSON.stringify(rows));
 };
 
-const readRoles = () => {
+const readRoles = (): LocalUser[] => {
   if (!canUseStorage()) return [];
   try {
-    return JSON.parse(window.localStorage.getItem(ROLE_KEY) || '[]') as Array<{ user_id: string; role: string; created_at?: string }>;
+    const raw = JSON.parse(window.localStorage.getItem(ROLE_KEY) || '[]');
+    return raw.map((item: any) => ({
+      user_id: item.user_id,
+      display_name: item.display_name || '',
+      email: item.email || '',
+      role: item.role || 'viewer',
+      status: item.status || 'active',
+      created_at: item.created_at || new Date().toISOString(),
+    })) as LocalUser[];
   } catch {
     return [];
   }
 };
 
-const writeRoles = (rows: Array<{ user_id: string; role: string; created_at?: string }>) => {
+const writeRoles = (rows: LocalUser[]) => {
   if (canUseStorage()) window.localStorage.setItem(ROLE_KEY, JSON.stringify(rows));
 };
 
@@ -56,11 +73,13 @@ export function applyLocalFilters<T extends PlaceRecord>(places: T[], filters: P
 }
 
 export function listLocalPlaces(filters: PlaceFilters = {}) {
-  return applyLocalFilters(readPlaces().filter((p) => p.status === 'approved' || p.status === 'pending'), filters);
+  return applyLocalFilters(readPlaces().filter((p) => p.status === 'approved'), filters);
 }
 
 export function listLocalStagingPlaces() {
-  return [...readPlaces()].sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
+  return readPlaces()
+    .filter((p) => (p.status || 'pending') === 'pending')
+    .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
 }
 
 export function findLocalDuplicatePlaceName(name: string, excludeId?: string) {
@@ -133,14 +152,67 @@ export function listLocalUserRoles() {
   return readRoles();
 }
 
+export function listLocalUsers(): LocalUser[] {
+  return readRoles().filter((u) => u.status === 'active');
+}
+
+export function addLocalUser(display_name: string, email: string, role: 'admin' | 'editor' | 'viewer'): LocalUser {
+  const rows = readRoles();
+  const user_id = `user-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const newUser: LocalUser = {
+    user_id,
+    display_name: text(display_name),
+    email: text(email),
+    role,
+    status: 'active',
+    created_at: new Date().toISOString(),
+  };
+  rows.unshift(newUser);
+  writeRoles(rows);
+  logLocalAdminAction('add_user', 'user', user_id, { display_name, email, role });
+  return newUser;
+}
+
+export function updateLocalUserRole(user_id: string, role: 'admin' | 'editor' | 'viewer'): LocalUser | null {
+  const rows = readRoles();
+  const index = rows.findIndex((item) => item.user_id === user_id);
+  if (index < 0) return null;
+  rows[index] = { ...rows[index], role };
+  writeRoles(rows);
+  logLocalAdminAction('update_user_role', 'user', user_id, { role });
+  return rows[index];
+}
+
+export function disableLocalUser(user_id: string): LocalUser | null {
+  const rows = readRoles();
+  const index = rows.findIndex((item) => item.user_id === user_id);
+  if (index < 0) return null;
+  rows[index] = { ...rows[index], status: 'disabled' };
+  writeRoles(rows);
+  logLocalAdminAction('disable_user', 'user', user_id, {});
+  return rows[index];
+}
+
+export function deleteLocalUser(user_id: string): boolean {
+  const rows = readRoles();
+  const filtered = rows.filter((item) => item.user_id !== user_id);
+  if (filtered.length === rows.length) return false;
+  writeRoles(filtered);
+  logLocalAdminAction('delete_user', 'user', user_id, {});
+  return true;
+}
+
 export function upsertLocalUserRole(user_id: string, role: 'admin' | 'editor' | 'viewer') {
   const rows = readRoles();
   const index = rows.findIndex((item) => item.user_id === user_id);
-  const updated = { user_id, role, created_at: rows[index]?.created_at || new Date().toISOString() };
-  if (index >= 0) rows[index] = updated; else rows.unshift(updated);
+  if (index >= 0) {
+    rows[index] = { ...rows[index], role };
+  } else {
+    rows.unshift({ user_id, display_name: '', email: '', role, status: 'active', created_at: new Date().toISOString() });
+  }
   writeRoles(rows);
   logLocalAdminAction('upsert_role', 'user_role', user_id, { role });
-  return updated;
+  return rows[index >= 0 ? index : 0];
 }
 
 export function logLocalAdminAction(action: string, entityType: string, entityId?: string, details?: unknown) {
@@ -162,4 +234,13 @@ export function clearLocalStorageForDemo() {
     window.localStorage.removeItem(ROLE_KEY);
     window.localStorage.removeItem(AUDIT_KEY);
   }
+}
+
+
+
+
+export function listLocalRejectedPlaces() {
+  return readPlaces()
+    .filter((p) => p.status === 'rejected')
+    .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
 }
