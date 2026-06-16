@@ -15,7 +15,7 @@ import {
   listUsers,
   type LocalUser,
 } from '@/services/adminService';
-import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, listDuplicateSuggestions, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
 import { importPlaces } from '@/services/importService';
 
 export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => void }) {
@@ -23,6 +23,7 @@ export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => v
   const [staging, setStaging] = useState<PlaceRecord[]>([]);
   const [approved, setApproved] = useState<PlaceRecord[]>([]);
   const [rejected, setRejected] = useState<PlaceRecord[]>([]);
+  const [duplicateSuggestions, setDuplicateSuggestions] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
   const [roles, setRoles] = useState<LocalUser[]>([]);
   const [message, setMessage] = useState('');
@@ -36,7 +37,7 @@ export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => v
   const [addUserEmail, setAddUserEmail] = useState('');
   const [addUserRole, setAddUserRole] = useState<'admin'|'editor'|'viewer'>('viewer');
   const isLocalMode = !isSupabaseConfigured;
-  const load = async () => { try { if (isLocalMode) { setRole('admin'); } else { setRole(await getCurrentAdminRole()); } setStaging(await listStagingPlaces()); setApproved(await listApprovedPlaces()); setRejected(await listRejectedPlaces()); setLogs(await listAuditLogs()); setRoles(await listUserRoles()); } catch (e) { setMessage(e instanceof Error ? e.message : 'Admin load failed'); } };
+  const load = async () => { try { if (isLocalMode) { setRole('admin'); } else { setRole(await getCurrentAdminRole()); } setStaging(await listStagingPlaces()); setApproved(await listApprovedPlaces()); setRejected(await listRejectedPlaces()); setDuplicateSuggestions(await listDuplicateSuggestions()); setLogs(await listAuditLogs()); setRoles(await listUserRoles()); } catch (e) { setMessage(e instanceof Error ? e.message : 'Admin load failed'); } };
   const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
   useEffect(() => { load(); }, []);
   const guarded = async (fn: () => Promise<void>) => { try { await fn(); await load(); } catch (e) { setMessage(e instanceof Error ? e.message : 'Action failed'); } };
@@ -46,6 +47,34 @@ export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => v
     {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
     <div className="grid grid-cols-3 gap-2 text-xs"><div className="travel-stat-card p-3">Pending: {statusCounts.pending || 0}</div><div className="travel-stat-card p-3">Approved: {(statusCounts.approved || 0) + approved.length}</div><div className="travel-stat-card p-3">Rejected: {rejected.length}</div></div>
     <div className="travel-card p-4 flex justify-between items-center"><div><h3 className="travel-section-title">🧠 สมองส่วนกลาง (AI Routing)</h3><p className="travel-meta text-xs">Jarvis/Sentinel/Foresight provider agnostic monitoring readiness</p></div><select className="travel-input bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}><option value="jarvis-gpt4o">Jarvis</option><option value="sentinel-claude">Sentinel</option><option value="foresight-gemini">Foresight</option></select></div>
+
+    <section className="travel-card p-4">
+      <h3 className="travel-section-title mb-3">Duplicate Suggestions ({duplicateSuggestions.length})</h3>
+      <p className="travel-meta text-xs mb-3">ระบบแนะนำรายการที่อาจเป็นสถานที่เดียวกัน ยังไม่รวมให้อัตโนมัติ ต้องให้ Admin ตรวจเอง</p>
+      <div className="space-y-2">
+        {duplicateSuggestions.length === 0 ? <p className="text-sm text-slate-400">No possible duplicates.</p> : duplicateSuggestions.map((item) => (
+          <div key={item.id} className="bg-amber-950/30 p-3 rounded-xl text-sm border border-amber-800/60 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-bold text-amber-100">Possible Duplicate {item.score}%</span>
+              <span className="text-xs text-amber-200">{item.reasons.join(', ')}</span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-2">
+              <div className="rounded-lg bg-slate-950/40 p-2">
+                <div className="text-xs text-slate-400">Primary</div>
+                <div className="text-slate-100">{item.primary.name} — {item.primary.province}</div>
+                <button className="travel-btn travel-btn--purple px-2 py-1 rounded mt-2" onClick={() => onEdit(item.primary)}>แก้ไข Primary</button>
+              </div>
+              <div className="rounded-lg bg-slate-950/40 p-2">
+                <div className="text-xs text-slate-400">Candidate</div>
+                <div className="text-slate-100">{item.candidate.name} — {item.candidate.province}</div>
+                <button className="travel-btn travel-btn--purple px-2 py-1 rounded mt-2" onClick={() => onEdit(item.candidate)}>แก้ไข Candidate</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
     <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { await approvePlace(p); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'staging_places'); })}>ลบ</button></div></div>)}</div></section>
     <section className="travel-card p-4">
       <h3 className="travel-section-title mb-3">Rejected Queue ({rejected.length})</h3>

@@ -1,7 +1,7 @@
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { normalizeCategoryLabel } from '@/lib/constants';
 import { findLocalDuplicatePlaceName, listLocalPlaces, saveLocalPlace } from './localStorageProvider';
-import { listLocalStagingPlaces, listLocalRejectedPlaces } from './localStorageProvider';
+import { listLocalStagingPlaces, listLocalRejectedPlaces, listLocalDuplicateSuggestions } from './localStorageProvider';
 
 export type PlaceStatus = 'pending' | 'approved' | 'rejected';
 export type LocalMediaRecord = {
@@ -89,3 +89,9 @@ export async function deletePlace(id: string, table: 'staging_places' | 'product
   const { error } = await supabase.from(table).delete().eq('id', id); if (error) throw error;
 }
 
+
+
+export async function listDuplicateSuggestions() {
+  if (!isSupabaseConfigured) return listLocalDuplicateSuggestions();
+  return [];
+}
