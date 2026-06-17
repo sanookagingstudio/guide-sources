@@ -1,0 +1,1092 @@
+========== PRODUCT COMPLETION SOURCE SYNC RCE ==========
+========== HEAD ==========
+6662c7d Baseline admin auth user management and role persistence
+8ecf02c Guide Sources duplicate intelligence lock
+df52fd1 Guide Sources functional MVP lock
+27ed055 Lock Guide Sources local save baseline
+b34c64b Complete Guide Sources Next MVP workflow
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+?? GUIDE_SOURCES_ADMIN_ME_DEBUG_PATCH.txt
+?? GUIDE_SOURCES_ADMIN_ME_DIRECT_HTTP_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RESPONSE_CAPTURE.txt
+?? GUIDE_SOURCES_ADMIN_ROLE_GATE_FINAL_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SESSION_SHARED_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_ADMIN_TAB_BEARER_FIX.txt
+?? GUIDE_SOURCES_ADMIN_TAB_ROLE_GATE_DIRECT_FIX.txt
+?? GUIDE_SOURCES_ADMIN_USE_AUTH_CONTEXT_FINAL_FIX.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_ROLE_GATE_EXHAUSTIVE_RCE.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_AUTH_TOKEN_DEBUG_LOG_PATCH.txt
+?? GUIDE_SOURCES_BASELINE_COMMIT_BEFORE_PUBLIC_LINE_FEATURES.txt
+?? GUIDE_SOURCES_DEV_EXPLICIT_ENV.log
+?? GUIDE_SOURCES_DEV_SERVER_RCE.log
+?? GUIDE_SOURCES_DUPLICATE_DEFAULT_EXPORT_FIX.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_ROUTE_RCE_NOTEPAD.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_FINAL_DETACHED_DEV.log
+?? GUIDE_SOURCES_FINAL_EXHAUSTIVE_ROOTCAUSE_PROOF.txt
+?? GUIDE_SOURCES_FINAL_RCE_NO_HANG.txt
+?? GUIDE_SOURCES_FIX_STALE_PROCESS_ENV_FINAL.txt
+?? GUIDE_SOURCES_FORCE_KILL_PID_13248.txt
+?? GUIDE_SOURCES_FORCE_KILL_PORT_3000.txt
+?? GUIDE_SOURCES_FORCE_SERVER_ENV_FILE_ROOTCAUSE_FIX.txt
+?? GUIDE_SOURCES_FULL_AUTH_ROLE_GATE_RCE_AUTOMATED.txt
+?? GUIDE_SOURCES_KILL_STALE_DEV_SERVER_AND_VERIFY.txt
+?? GUIDE_SOURCES_LOCAL_VERIFY_AFTER_CODEX_PRODUCT_COMPLETION.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_P3A_USER_CRUD_AND_P3B_SEARCH_EXPORT.txt
+?? GUIDE_SOURCES_P3_USER_MANAGEMENT_REAL_FLOW_FIX.txt
+?? GUIDE_SOURCES_P4_ADMIN_BUTTONS_ROLE_EXPORT_RCE_FIX.txt
+?? GUIDE_SOURCES_P4_FULL_CHAIN_AUTO_RCE_FIX.txt
+?? GUIDE_SOURCES_P4_FULL_CHAIN_DEV.log
+?? GUIDE_SOURCES_P4_ROLE_DROPDOWN_STATE_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_DUPLICATE_ROWS_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_PATCH_VERIFY_WRITE_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_SAVE_BUTTON_FIX.txt
+?? GUIDE_SOURCES_PAGE_EXPORT_FINAL_FIX.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_PRODUCT_COMPLETION_SOURCE_SYNC_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_RUNTIME_API_PROBE_ONLY.txt
+?? GUIDE_SOURCES_SAFE_ERROR_CAPTURE.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_KEY_REPAIR_AND_VERIFY.txt
+?? GUIDE_SOURCES_START_FRESH_AFTER_KILL.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+========== FILE CONTENT CHECK ==========
+'use client';
+import { ALERTS, AMENITIES, CATEGORIES, MEDIA_UPLOAD_ENABLED, PROVINCES, getSubcategoriesForCategory, normalizeCategoryLabel } from '@/lib/constants';
+import type { PlaceRecord } from '@/services/placesService';
+
+export const emptyMemberPlace: PlaceRecord = { name: '', province: '', category: CATEGORIES[0], other_category: '', sub_category: '', google_maps_url: '', phone: '', recommender: '', suggestion: '', rating: 5, amenities: [], alerts: [], status: 'pending' };
+
+type MemberTabProps = {
+  form: PlaceRecord;
+  setForm: (place: PlaceRecord | ((prev: PlaceRecord) => PlaceRecord)) => void;
+  onSubmit: (event: React.FormEvent) => void;
+  attachFile: (file: File | undefined, type: 'image' | 'video') => void;
+};
+
+export default function MemberTab({ form, setForm, onSubmit, attachFile }: MemberTabProps) {
+  const currentSubcategories = getSubcategoriesForCategory(form.category || '');
+  const handleCategoryChange = (category: string) => {
+    const normalized = normalizeCategoryLabel(category);
+    const options = getSubcategoriesForCategory(normalized);
+    setForm((prev) => ({
+      ...prev,
+      category,
+      sub_category: options.includes(prev.sub_category || '') ? prev.sub_category : '',
+    }));
+  };
+
+  const toggleCheck = (item: string, field: 'amenities' | 'alerts') => setForm((prev) => ({
+    ...prev,
+    [field]: prev[field].includes(item) ? prev[field].filter((i) => i !== item) : [...prev[field], item],
+  }));
+
+  return <form onSubmit={onSubmit} className="travel-card space-y-4 p-4" data-media-enabled={MEDIA_UPLOAD_ENABLED}>
+    <div className="space-y-1"><h2 className="travel-section-title">Travel Listing</h2><p className="travel-meta text-sm">Create a clear, accessible destination entry for discovery.</p></div>
+    <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อสถานที่ *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+    <div className="grid md:grid-cols-2 gap-2">
+      <input list="provinces" className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="จังหวัด *" value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })} />
+      <datalist id="provinces">{PROVINCES.map((p) => <option key={p} value={p} />)}</datalist>
+      <select className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" value={form.category} onChange={(e) => handleCategoryChange(e.target.value)}>
+        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+      </select>
+    </div>
+    {form.category === 'อื่นๆ' && <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ระบุหมวดหมู่" value={form.other_category || ''} onChange={(e) => setForm({ ...form, other_category: e.target.value })} />}
+    <select className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" value={form.sub_category || ''} onChange={(e) => setForm({ ...form, sub_category: e.target.value })} disabled={!currentSubcategories.length || form.category === '-- เลือกหมวดหมู่หลัก --'}>
+      <option value="">{form.category && form.category !== '-- เลือกหมวดหมู่หลัก --' ? 'เลือกหมวดย่อย' : 'เลือกหมวดหมู่ก่อน'}</option>
+      {currentSubcategories.map((item) => <option key={item} value={item}>{item}</option>)}
+    </select>
+    <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ลิงก์ Google Maps" value={form.google_maps_url || ''} onChange={(e) => setForm({ ...form, google_maps_url: e.target.value })} />
+    <div className="grid md:grid-cols-2 gap-2">
+      <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="เบอร์โทร/ไลน์" value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+      <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อผู้แนะนำ" value={form.recommender || ''} onChange={(e) => setForm({ ...form, recommender: e.target.value })} />
+    </div>
+    <textarea className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ช่องใส่ข้อแนะนำ/เหตุผล" value={form.suggestion || ''} onChange={(e) => setForm({ ...form, suggestion: e.target.value })} />
+    <div className="grid md:grid-cols-2 gap-2">
+      <label className="p-2 bg-gray-700 rounded text-sm border border-gray-600 cursor-pointer">📸 แนบรูป<input hidden type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={(e) => attachFile(e.target.files?.[0], 'image')} /></label>
+      <label className="p-2 bg-gray-700 rounded text-sm border border-gray-600 cursor-pointer">🎥 แนบ VDO<input hidden type="file" accept="video/mp4,video/webm" onChange={(e) => attachFile(e.target.files?.[0], 'video')} /></label>
+    </div>
+    {form.local_media?.length ? <div className="text-xs text-slate-300">ไฟล์แนบ: {form.local_media.map((m) => m.file_name).join(', ')}</div> : null}
+    {!MEDIA_UPLOAD_ENABLED && <p className="text-xs text-yellow-300">Media upload not enabled yet. Set VITE_MEDIA_UPLOAD_ENABLED=true after Supabase Storage is ready.</p>}
+    <select className="w-full p-2 bg-gray-700 rounded border border-gray-600" onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })} value={form.rating}>{[5, 4, 3, 2, 1].map((r) => <option key={r} value={r}>{'⭐'.repeat(r)}</option>)}</select>
+    <div className="text-xs font-bold text-gray-400">สิ่งอำนวยความสะดวก:</div>
+    <div className="grid md:grid-cols-3 grid-cols-2 gap-2 text-xs">{AMENITIES.map((a) => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.amenities.includes(a)} onChange={() => toggleCheck(a, 'amenities')} /> {a}</label>)}</div>
+    <div className="text-xs font-bold text-gray-400">ข้อควรระวัง:</div>
+    <div className="grid md:grid-cols-3 grid-cols-2 gap-2 text-xs">{ALERTS.map((a) => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.alerts.includes(a)} onChange={() => toggleCheck(a, 'alerts')} /> {a}</label>)}</div>
+    <button type="submit" className="travel-btn travel-btn--primary w-full p-3 rounded font-bold">🚀 {form.id ? 'อัปเดตข้อมูล' : 'บันทึกเข้าคลัง'}</button>
+  </form>;
+}
+========== SEARCHTAB ==========
+'use client';
+import { useEffect, useMemo, useState } from 'react';
+import { ALERTS, AMENITIES, CATEGORIES, PROVINCES, SUBCATEGORIES, CATEGORY_ICONS, getSubcategoriesForCategory, normalizeCategoryLabel } from '@/lib/constants';
+import { listApprovedPlaces, type PlaceRecord } from '@/services/placesService';
+import { listPlaceMedia, type PlaceMedia } from '@/services/mediaService';
+
+export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; onEdit: (place: PlaceRecord) => void }) {
+  const [places, setPlaces] = useState<PlaceRecord[]>([]);
+  const [media, setMedia] = useState<Record<string, PlaceMedia[]>>({});
+  const [warning, setWarning] = useState('');
+  const [filters, setFilters] = useState({ keyword: '', province: '', category: '', sub_category: '', amenity: '', alert: '', rating: 0 });
+
+  const loadPlaces = async () => {
+    try {
+      setWarning('');
+      const rows = await listApprovedPlaces({ keyword: filters.keyword, province: filters.province, category: filters.category, sub_category: filters.sub_category, amenities: filters.amenity ? [filters.amenity] : [], alerts: filters.alert ? [filters.alert] : [], rating: filters.rating || undefined }, { onWarning: setWarning });
+      setPlaces(rows);
+      try {
+        const pairs = await Promise.all(rows.filter((p) => p.id).map(async (p) => [p.id!, await listPlaceMedia(p.id!)] as const).slice(0, 20));
+        setMedia(Object.fromEntries(pairs));
+      } catch {
+        setMedia({});
+      }
+    } catch (e) {
+      setWarning(e instanceof Error ? e.message : 'ไม่สามารถโหลดข้อมูลค้นหาได้ในตอนนี้ แต่จะใช้ข้อมูลในเบราว์เซอร์แทน');
+      setPlaces([]);
+    }
+  };
+
+  useEffect(() => { void loadPlaces(); }, [filters, refreshKey]);
+  useEffect(() => {
+    const onRefresh = () => { void loadPlaces(); };
+    window.addEventListener('guide-sources-updated', onRefresh);
+    window.addEventListener('guide-sources:refresh', onRefresh);
+    return () => {
+      window.removeEventListener('guide-sources-updated', onRefresh);
+      window.removeEventListener('guide-sources:refresh', onRefresh);
+    };
+  }, [filters, refreshKey]);
+  const suggestions = useMemo(() => [...new Set(places.flatMap((p) => [p.name, p.province, p.category, p.sub_category].filter(Boolean) as string[]))], [places]);
+  const subcategoryOptions = useMemo(() => (filters.category ? getSubcategoriesForCategory(filters.category) : SUBCATEGORIES), [filters.category]);
+  const share = async (p: PlaceRecord) => { const text = `${p.name} (${p.province}) ${p.google_maps_url || ''}`; await navigator.clipboard?.writeText(text); alert('คัดลอกข้อมูลสำหรับแชร์แล้ว'); };
+  return <div className="space-y-6 animate-fade-in">
+    <div className="travel-card p-4 space-y-3">
+      <div className="space-y-1"><h2 className="travel-section-title">SEARCH RESULTS</h2><p className="travel-meta text-sm">Clear travel discovery cards with stronger contrast and easier scanning.</p></div>
+      <input list="search-suggestions" placeholder="🔍 ค้นหาสถานที่, หมวดหมู่, จุดเด่น..." className="travel-input w-full p-3 bg-gray-900 rounded border border-gray-600" value={filters.keyword} onChange={(e) => setFilters({...filters, keyword: e.target.value})} /><datalist id="search-suggestions">{suggestions.map((s) => <option key={s} value={s} />)}</datalist>
+      <div className="grid md:grid-cols-3 gap-2 text-sm">
+        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.province} onChange={(e) => setFilters({ ...filters, province: e.target.value })}>
+          <option value="">ทุกจังหวัด</option>
+          {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+        </select>
+        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value, sub_category: '' })}>
+          <option value="">ทุกหมวดหมู่</option>
+          {CATEGORIES.slice(1).map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.sub_category} onChange={(e) => setFilters({ ...filters, sub_category: e.target.value })} disabled={!filters.category}>
+          <option value="">{filters.category ? 'ทุกหมวดย่อย' : 'เลือกหมวดหมู่ก่อน'}</option>
+          {subcategoryOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.amenity} onChange={(e) => setFilters({ ...filters, amenity: e.target.value })}>
+          <option value="">ทุกสิ่งอำนวยความสะดวก</option>
+          {AMENITIES.map((a) => <option key={a} value={a}>{a}</option>)}
+        </select>
+        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.alert} onChange={(e) => setFilters({ ...filters, alert: e.target.value })}>
+          <option value="">ทุกข้อควรระวัง</option>
+          {ALERTS.map((a) => <option key={a} value={a}>{a}</option>)}
+        </select>
+        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.rating} onChange={(e) => setFilters({ ...filters, rating: Number(e.target.value) })}>
+          <option value="0">ทุกดาว</option>
+          {[5, 4, 3, 2, 1].map((r) => <option key={r} value={r}>{r}+ ดาว</option>)}
+        </select>
+      </div>
+    </div>
+    {warning && <div className="bg-amber-950/80 border border-amber-700 rounded-xl p-3 text-sm text-amber-100">{warning}</div>}
+    <h3 className="travel-section-title">ผลการค้นหา {places.length} รายการ</h3>
+    <div className="grid md:grid-cols-2 gap-4">
+      {places.map((p) => {
+        const normalizedCategory = normalizeCategoryLabel(p.category || '');
+        const categoryIcon = CATEGORY_ICONS[normalizedCategory] || '📍';
+        const availableMedia = media[p.id || ''] || [];
+        const localImage = p.local_media?.find((item) => item.media_type === 'image');
+        const remoteImage = availableMedia.find((item) => item.media_type === 'image');
+        const imageSource = localImage?.data_url || remoteImage?.public_url;
+        const localVideo = !imageSource ? p.local_media?.find((item) => item.media_type === 'video') : undefined;
+        const remoteVideo = !imageSource ? availableMedia.find((item) => item.media_type === 'video') : undefined;
+        const videoLabel = localVideo?.file_name || remoteVideo?.storage_path?.split('/').pop();
+        return <article key={p.id || p.name} className="search-card">
+          <div className="search-card__media">
+            {imageSource ? (
+              <img src={imageSource} alt={p.name} className="search-card__image" />
+            ) : (localVideo || remoteVideo) ? (
+              <div className="search-card__video-placeholder">
+                <span>▶ Video Available</span>
+                <p className="text-xs text-slate-300">{videoLabel || 'มีวิดีโอแนบ'}</p>
+              </div>
+            ) : (
+              <div className="search-card__placeholder">
+                <div className="search-card__placeholder-icon">{categoryIcon}</div>
+                <div className="text-sm text-slate-300">{normalizedCategory || p.category || 'สถานที่'}</div>
+              </div>
+            )}
+            <div className="search-card__media-top">
+              <div className="search-card__category-badge">
+                <span>{categoryIcon}</span>
+                <span>{normalizedCategory || p.category || 'สถานที่'}</span>
+              </div>
+              <div className="search-card__rating-badge">⭐ {p.rating || 0}</div>
+            </div>
+            <div className="search-card__subcategory">{p.sub_category || 'หมวดย่อยยังไม่ระบุ'}</div>
+          </div>
+          <div className="search-card__body">
+            <div className="search-card__main">
+              <h3 className="search-card__title">{p.name}</h3>
+              <p className="search-card__meta">{p.province || 'จังหวัดไม่ระบุ'}</p>
+              <p className="search-card__summary">{p.suggestion || 'คำแนะนำยังไม่ระบุ'}</p>
+            </div>
+            <div className="search-card__info-grid">
+              <div className="search-card__info-block"><span>Phone</span><p>{p.phone || '-'}</p></div>
+              <div className="search-card__info-block"><span>Line</span><p>{p.line || '-'}</p></div>
+              <div className="search-card__info-block"><span>Recommender</span><p>{p.recommender || '-'}</p></div>
+            </div>
+            {p.amenities?.length ? (
+              <div className="search-card__badges">
+                {p.amenities.map((a) => <span key={a} className="search-card__amenity">{a}</span>)}
+              </div>
+            ) : null}
+            {p.alerts?.length ? (
+              <div className="search-card__badges search-card__badges--alerts">
+                {p.alerts.map((a) => <span key={a} className="search-card__alert">{a}</span>)}
+              </div>
+            ) : null}
+            <div className="search-card__actions">
+              <a className="travel-btn travel-btn--primary search-card__action" href={p.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' ' + p.province)}`} target="_blank" rel="noreferrer">📍 Maps</a>
+              <button className="travel-btn travel-btn--secondary search-card__action" type="button" onClick={() => share(p)}>🔗 Share</button>
+              <button className="travel-btn travel-btn--warning search-card__action" type="button" onClick={() => onEdit(p)}>✏ Edit</button>
+            </div>
+          </div>
+        </article>;
+      })}
+    </div>
+  </div>;
+}
+
+
+
+
+
+
+
+========== ADMINTAB ==========
+'use client';
+import { useEffect, useState } from 'react';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { useAuth } from '@/components/AuthContext';
+import { 
+  approvePlace, 
+  listAuditLogs, 
+  listUserRoles, 
+  rejectPlace, 
+  upsertUserRole,
+  addUser,
+  updateUserRole,
+  disableUser,
+  deleteUser,
+  listUsers,
+  type LocalUser,
+} from '@/services/adminService';
+import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, listDuplicateSuggestions, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+import { importPlaces } from '@/services/importService';
+
+async function getRoleFromServer(token: string) {
+  if (!token) {
+    return { role: null, email: '', user_id: '', error: 'Missing AuthContext session token' };
+  }
+
+  const response = await fetch('/api/admin/me', {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    return {
+      role: null,
+      email: payload.email || '',
+      user_id: payload.user_id || '',
+      error: payload.error || 'Admin role check failed',
+    };
+  }
+
+  return {
+    role: payload.role || null,
+    email: payload.email || '',
+    user_id: payload.user_id || '',
+    error: '',
+  };
+}
+
+export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => void }) {
+  const auth = useAuth();
+  const [role, setRole] = useState<string | null>('checking');
+const [authUserId, setAuthUserId] = useState<string>('');
+const [authEmail, setAuthEmail] = useState<string>('');
+  const [staging, setStaging] = useState<PlaceRecord[]>([]);
+  const [approved, setApproved] = useState<PlaceRecord[]>([]);
+  const [rejected, setRejected] = useState<PlaceRecord[]>([]);
+  const [duplicateSuggestions, setDuplicateSuggestions] = useState<any[]>([]);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [roles, setRoles] = useState<LocalUser[]>([]);
+  const [message, setMessage] = useState('');
+  const [busyUserId, setBusyUserId] = useState<string>('');
+  const [draftRoles, setDraftRoles] = useState<Record<string, string>>({});
+  const setBusyMessage = (text: string) => setMessage(text);
+  const [showAuditLogs, setShowAuditLogs] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [newRole, setNewRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+  const [aiProvider, setAiProvider] = useState('jarvis-gpt4o');
+  
+  // User management form
+  const [addUserDisplayName, setAddUserDisplayName] = useState('');
+  const [addUserEmail, setAddUserEmail] = useState('');
+  const [addUserPassword, setAddUserPassword] = useState('');
+  const [addUserRole, setAddUserRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+  const isLocalMode = !isSupabaseConfigured;
+  const load = async () => {
+  try {
+    if (isLocalMode) {
+      setRole('admin');
+    } else {
+      if (auth.loading) return;
+
+      const token = auth.session?.access_token || '';
+
+      console.log('AUTH_DEBUG_ADMIN_TAB', {
+        auth_loading: auth.loading,
+        auth_email: auth.email,
+        auth_user_id: auth.user?.id || '',
+        has_session: Boolean(auth.session),
+        token_length: token.length,
+        session_user_id: auth.session?.user?.id || '',
+        session_email: auth.session?.user?.email || '',
+      });
+
+      console.log('AUTH_TOKEN_LENGTH', token.length);
+      setAuthUserId(auth.user?.id || '');
+      setAuthEmail(auth.email || '');
+
+      if (!token) {
+        setRole(null);
+        setMessage('Missing AuthContext session token');
+        return;
+      }
+
+      const roleResult = await getRoleFromServer(token);
+      setAuthUserId(roleResult.user_id || auth.user?.id || '');
+      setAuthEmail(roleResult.email || auth.email || '');
+
+      if (!roleResult.role) {
+        setRole(null);
+        setMessage(roleResult.error || 'Admin role required');
+        return;
+      }
+
+      setRole(roleResult.role);
+    }
+
+    setStaging(await listStagingPlaces());
+    setApproved(await listApprovedPlaces());
+    setRejected(await listRejectedPlaces());
+    setDuplicateSuggestions(await listDuplicateSuggestions());
+    setLogs(await listAuditLogs());
+
+    const realUsers = await listUsers();
+    setRoles(realUsers);
+  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
+  setDraftRoles(nextDraftRoles);
+    setMessage('');
+  } catch (e) {
+    setRole(null);
+    setMessage(e instanceof Error ? e.message : 'Admin load failed');
+  }
+};
+
+const reloadRealUsers = async () => {
+  const realUsers = await listUsers();
+  setRoles(realUsers);
+  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
+  setDraftRoles(nextDraftRoles);
+};
+  const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
+  useEffect(() => { load(); }, [auth.loading, auth.session?.access_token]);
+  const guarded = async (fn: () => Promise<void>) => { try { await fn(); await load(); } catch (e) { setMessage(e instanceof Error ? e.message : 'Action failed'); } };
+  if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required or role API failed.
+Email: {authEmail || '(unknown)'}
+UID: {authUserId || '(unknown)'}</div>;
+  return <div className="space-y-6 animate-fade-in">
+    {message && <div className="bg-yellow-950 border border-yellow-700 rounded p-2 text-sm">{message}</div>}
+    {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
+    <div className="grid grid-cols-3 gap-2 text-xs"><div className="travel-stat-card p-3">Pending: {statusCounts.pending || 0}</div><div className="travel-stat-card p-3">Approved: {(statusCounts.approved || 0) + approved.length}</div><div className="travel-stat-card p-3">Rejected: {rejected.length}</div></div>
+    <div className="travel-card p-4 flex justify-between items-center"><div><h3 className="travel-section-title">🧠 สมองส่วนกลาง (AI Routing)</h3><p className="travel-meta text-xs">Jarvis/Sentinel/Foresight provider agnostic monitoring readiness</p></div><select className="travel-input bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}><option value="jarvis-gpt4o">Jarvis</option><option value="sentinel-claude">Sentinel</option><option value="foresight-gemini">Foresight</option></select></div>
+
+    <section className="travel-card p-4">
+      <h3 className="travel-section-title mb-3">Duplicate Suggestions ({duplicateSuggestions.length})</h3>
+      <p className="travel-meta text-xs mb-3">ระบบแนะนำรายการที่อาจเป็นสถานที่เดียวกัน ยังไม่รวมให้อัตโนมัติ ต้องให้ Admin ตรวจเอง</p>
+      <div className="space-y-2">
+        {duplicateSuggestions.length === 0 ? <p className="text-sm text-slate-400">No possible duplicates.</p> : duplicateSuggestions.map((item) => (
+          <div key={item.id} className="bg-amber-950/30 p-3 rounded-xl text-sm border border-amber-800/60 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-bold text-amber-100">Possible Duplicate {item.score}%</span>
+              <span className="text-xs text-amber-200">{item.reasons.join(', ')}</span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-2">
+              <div className="rounded-lg bg-slate-950/40 p-2">
+                <div className="text-xs text-slate-400">Primary</div>
+                <div className="text-slate-100">{item.primary.name} — {item.primary.province}</div>
+                <button className="travel-btn travel-btn--purple px-2 py-1 rounded mt-2" onClick={() => onEdit(item.primary)}>แก้ไข Primary</button>
+              </div>
+              <div className="rounded-lg bg-slate-950/40 p-2">
+                <div className="text-xs text-slate-400">Candidate</div>
+                <div className="text-slate-100">{item.candidate.name} — {item.candidate.province}</div>
+                <button className="travel-btn travel-btn--purple px-2 py-1 rounded mt-2" onClick={() => onEdit(item.candidate)}>แก้ไข Candidate</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Approving...'); setMessage('Approving...'); await approvePlace(p); setMessage('Approved and reloaded'); setMessage('Approved and reloaded'); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Rejecting...'); setMessage('Rejecting...'); await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); setMessage('Rejected and reloaded'); setMessage('Rejected and reloaded'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); setMessage('Deleted and reloaded'); })}>ลบ</button></div></div>)}</div></section>
+    <section className="travel-card p-4">
+      <h3 className="travel-section-title mb-3">Rejected Queue ({rejected.length})</h3>
+      <div className="space-y-2">
+        {rejected.length === 0 ? <p className="text-sm text-slate-400">No rejected records.</p> : rejected.map((p) => (
+          <div key={p.id} className="bg-red-950/30 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-red-800/60">
+            <span className="text-slate-100">{p.name} — {p.province} — rejected{p.rejection_reason ? ` — ${p.rejection_reason}` : ''}</span>
+            <div className="flex gap-2 flex-wrap">
+              <button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button>
+              <button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); setMessage('Deleted and reloaded'); })}>ลบ</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Production Search Data ({approved.length})</h3>{approved.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex justify-between mb-2 border border-slate-700"><span className="text-slate-100">{p.name} — {p.category}</span><div className="flex gap-2"><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'production_places'); })}>ลบ</button></div></div>)}<button className="travel-btn travel-btn--primary mt-2 px-3 py-2 rounded text-sm" onClick={() => guarded(async () => { await saveStagingPlace({ name: 'New place', province: 'กรุงเทพมหานคร', category: 'อื่นๆ (โปรดระบุ)', rating: 5, amenities: [], alerts: [], status: 'pending' }); })}>เพิ่มข้อมูลตัวอย่างเพื่อแก้ไข</button></section>
+    <section className="travel-card p-4"><h3 className="travel-section-title mb-2">Import CSV/JSON</h3><textarea className="travel-input w-full h-28 bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="name,province,category,rating" /><button className="travel-btn travel-btn--primary mt-2 px-3 py-2 rounded" onClick={() => guarded(async () => { const result = await importPlaces(importText); setMessage(`Imported ${result.imported}/${result.total}`); })}>Import</button></section>
+    <section className="travel-card p-4">
+      <h3 className="travel-section-title mb-3">👥 REAL USER MANAGEMENT</h3>
+      <p className="text-xs text-amber-200 mb-3">Runtime action status: {message || 'Ready'}</p>
+      <div className="mb-4 p-3 bg-gray-900 rounded border border-gray-700">
+        <h4 className="text-sm font-semibold mb-2 text-slate-100">Create / Update Auth User</h4>
+        <div className="space-y-2">
+          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Display name" value={addUserDisplayName} onChange={(e) => setAddUserDisplayName(e.target.value)} />
+          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Email" type="email" value={addUserEmail} onChange={(e) => setAddUserEmail(e.target.value)} />
+          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Temporary password / new password" type="password" value={addUserPassword} onChange={(e) => setAddUserPassword(e.target.value)} />
+          <div className="flex gap-2">
+            <select className="travel-input flex-1 bg-gray-800 border border-gray-600 rounded p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as any)}>
+              <option value="viewer">Viewer</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserEmail.trim()) { setMessage('Email required'); return; }
+              if (!addUserPassword.trim() || addUserPassword.trim().length < 6) { setMessage('Password required, minimum 6 characters'); return; }
+              setBusyMessage('Creating/updating auth user...');
+              await addUser(addUserDisplayName || addUserEmail.split('@')[0], addUserEmail, addUserRole, addUserPassword);
+              setAddUserDisplayName('');
+              setAddUserEmail('');
+              setAddUserPassword('');
+              setAddUserRole('viewer');
+              await reloadRealUsers();
+              setMessage('Auth user created/updated and verified after reload'); })}>Add</button>
+          </div>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <h4 className="text-sm font-semibold text-slate-100">Users ({roles.length})</h4>
+        {roles.length === 0 ? (
+          <div className="text-xs text-slate-400 italic">No users yet</div>
+        ) : (
+          roles.map((user) => (
+            <div key={user.user_id} className="bg-gray-900 p-4 rounded border border-slate-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Left: User Info */}
+                <div className="space-y-1">
+                  <p className="text-slate-100 font-semibold text-sm">{user.display_name || user.email || 'User'}</p>
+                  <p className="text-slate-400 text-xs break-all">{user.email || 'EMAIL_MISSING_FROM_API'}</p>
+                  <p className="text-slate-500 text-xs break-all">ID: {user.user_id.substring(0, 16)}...</p>
+                  <p className="text-slate-600 text-xs pt-2">Created: {new Date(user.created_at).toLocaleDateString()}</p>
+                </div>
+
+                {/* Middle: Status & Role Badges */}
+                <div className="flex flex-col gap-2">
+                  <span className={`inline-flex w-fit px-3 py-1 rounded text-xs font-semibold ${user.status === 'active' ? 'bg-emerald-900 text-emerald-100' : 'bg-red-900 text-red-100'}`}>
+                    {user.status}
+                  </span>
+                  <span className="inline-flex w-fit px-3 py-1 rounded text-xs font-semibold bg-blue-900 text-blue-100">{user.role}</span>
+                </div>
+
+                {/* Right: Controls */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <select
+                      className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full"
+                      value={draftRoles[user.user_id] || user.role}
+                      onChange={(e) => {
+                        const nextRole = e.target.value;
+                        setDraftRoles((prev) => ({ ...prev, [user.user_id]: nextRole }));
+                        setMessage('Role selected: ' + nextRole + '. Click Save Role to apply.');
+                      }}
+                    >
+                      <option value="viewer">Viewer</option>
+                      <option value="editor">Editor</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    <button
+                      className="travel-btn travel-btn--primary px-3 py-2 rounded text-xs"
+                      type="button"
+                      onClick={() => guarded(async () => {
+                        const nextRole = (draftRoles[user.user_id] || user.role) as any;
+                        setBusyUserId(user.user_id);
+                        setMessage('Saving role...');
+                        await updateUserRole(user.user_id, nextRole);
+                        await reloadRealUsers();
+                        setBusyUserId('');
+                        setMessage('Role saved as ' + nextRole + ' and verified after reload');
+                      })}
+                    >
+                      Save Role
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    {user.status === 'active' && (
+                      <button className="travel-btn travel-btn--warning px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { await disableUser(user.user_id); })}>Disable</button>
+                    )}
+                    <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { if (confirm('Delete user?')) { setBusyUserId(user.user_id);
+                        setMessage('Deleting user role...');
+                        await deleteUser(user.user_id);
+                        await reloadRealUsers();
+                        setBusyUserId('');
+                        setMessage('User role deleted and verified after reload'); } })}>Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </section>
+    <section className="travel-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="travel-section-title mb-2">Audit logs ({logs.length})</h3>
+        <button className="travel-btn travel-btn--secondary px-3 py-2 rounded text-xs" type="button" onClick={() => setShowAuditLogs((value) => !value)}>
+          {showAuditLogs ? 'Hide Audit' : 'Show Audit'}
+        </button>
+      </div>
+      {showAuditLogs ? (
+        <div className="mt-3 max-h-64 overflow-auto rounded-xl border border-slate-700 bg-slate-950/40 p-3">
+          {logs.slice(0, 10).map((l) => <div className="text-xs text-slate-200" key={l.id}>{l.created_at} — {l.action} — {l.entity_type}</div>)}
+          {logs.length > 10 ? <p className="mt-2 text-xs text-slate-500">Showing latest 10 of {logs.length}. Full audit search later.</p> : null}
+        </div>
+      ) : (
+        <p className="text-sm text-slate-400">Audit logs hidden. Click Show Audit when needed.</p>
+      )}
+    </section>
+  </div>;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+========== PLACES SERVICE ==========
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { normalizeCategoryLabel } from '@/lib/constants';
+import { findLocalDuplicatePlaceName, listLocalPlaces, saveLocalPlace } from './localStorageProvider';
+import { listLocalStagingPlaces, listLocalRejectedPlaces, listLocalDuplicateSuggestions } from './localStorageProvider';
+
+export type PlaceStatus = 'pending' | 'approved' | 'rejected';
+export type LocalMediaRecord = {
+  id?: string;
+  media_type: 'image' | 'video';
+  file_name: string;
+  data_url?: string;
+  created_at?: string;
+};
+export type PlaceRecord = {
+  id?: string; source_staging_id?: string | null; name: string; province: string; category: string; other_category?: string | null; sub_category?: string | null; google_maps_url?: string | null; phone?: string | null; line?: string | null; recommender?: string | null; suggestion?: string | null; rejection_reason?: string | null; rating: number; amenities: string[]; alerts: string[]; status?: PlaceStatus; created_at?: string; updated_at?: string; local_media?: LocalMediaRecord[];
+};
+export type PlaceFilters = { keyword?: string; province?: string; category?: string; sub_category?: string; amenities?: string[]; alerts?: string[]; rating?: number };
+
+const text = (v?: string | null) => (v || '').trim();
+export function applyLocalFilters<T extends PlaceRecord>(places: T[], filters: PlaceFilters) {
+  const keyword = text(filters.keyword).toLowerCase();
+  return places.filter((p) => {
+    const haystack = [p.name, p.province, p.category, p.other_category, p.sub_category, p.phone, p.recommender, p.suggestion, ...(p.amenities || []), ...(p.alerts || [])].join(' ').toLowerCase();
+    const normalizedCategory = normalizeCategoryLabel(p.category || '');
+    return (
+      (!keyword || haystack.includes(keyword))
+      && (!filters.province || p.province === filters.province)
+      && (!filters.category || normalizedCategory === filters.category)
+      && (!filters.sub_category || p.sub_category === filters.sub_category)
+      && (!filters.rating || Number(p.rating) >= filters.rating)
+      && (!filters.amenities?.length || filters.amenities.every((a) => p.amenities?.includes(a)))
+      && (!filters.alerts?.length || filters.alerts.every((a) => p.alerts?.includes(a)))
+    );
+  });
+}
+export async function listApprovedPlaces(filters: PlaceFilters = {}, options?: { onWarning?: (message: string) => void }) {
+  const localRows = listLocalPlaces(filters);
+  if (!isSupabaseConfigured) return localRows;
+
+  try {
+    const { data, error } = await supabase.from('production_places').select('*').eq('status', 'approved').order('updated_at', { ascending: false });
+    if (error) throw error;
+    const remoteRows = applyLocalFilters((data || []) as PlaceRecord[], filters);
+    const mergedRemote = remoteRows.map((remote) => {
+      const local = localRows.find((place) => place.id === remote.id);
+      return local?.local_media ? { ...remote, local_media: local.local_media } : remote;
+    });
+    const merged = [...mergedRemote, ...localRows.filter((place) => !remoteRows.some((row) => row.id === place.id))];
+    return merged;
+  } catch (error) {
+    options?.onWarning?.('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ จึงใช้ข้อมูลในเบราว์เซอร์แทน');
+    return localRows;
+  }
+}
+export async function listStagingPlaces() { if (!isSupabaseConfigured) return listLocalStagingPlaces(); const { data, error } = await supabase.from('staging_places').select('*').order('updated_at', { ascending: false }); if (error) throw error; return (data || []) as PlaceRecord[]; }
+
+export async function listRejectedPlaces() {
+  if (!isSupabaseConfigured) return listLocalRejectedPlaces();
+  const { data, error } = await supabase
+    .from('staging_places')
+    .select('*')
+    .eq('status', 'rejected')
+    .order('updated_at', { ascending: false });
+  if (error) throw error;
+  return (data || []) as PlaceRecord[];
+}
+export async function getPlaceById(id: string, table: 'staging_places' | 'production_places' = 'production_places') { const { data, error } = await supabase.from(table).select('*').eq('id', id).single(); if (error) throw error; return data as PlaceRecord; }
+export async function findDuplicatePlaceName(name: string, excludeId?: string) { if (!isSupabaseConfigured) return findLocalDuplicatePlaceName(name, excludeId); let query = supabase.from('staging_places').select('id,name,status').ilike('name', text(name)); if (excludeId) query = query.neq('id', excludeId); const { data, error } = await query.limit(1); if (error) throw error; return data?.[0] || null; }
+export async function saveStagingPlace(place: PlaceRecord) {
+  const localSaved = saveLocalPlace({ ...place, status: place.status || 'pending' });
+  if (!isSupabaseConfigured) return localSaved;
+  try {
+    const payload = { ...place, status: place.status || 'pending', updated_at: new Date().toISOString() } as Omit<PlaceRecord, 'local_media'>;
+    delete (payload as any).local_media;
+    const { data, error } = place.id
+      ? await supabase.from('staging_places').update(payload).eq('id', place.id).select().single()
+      : await supabase.from('staging_places').insert(payload).select().single();
+    if (error) throw error;
+    return data as PlaceRecord;
+  } catch (error) {
+    return localSaved;
+  }
+}
+export async function deletePlace(id: string, table: 'staging_places' | 'production_places') {
+  if (!isSupabaseConfigured) {
+    const { deleteLocalPlace } = await import('./localStorageProvider');
+    return deleteLocalPlace(id, table);
+  }
+  const { error } = await supabase.from(table).delete().eq('id', id); if (error) throw error;
+}
+
+
+
+export async function listDuplicateSuggestions() {
+  if (!isSupabaseConfigured) return listLocalDuplicateSuggestions();
+  return [];
+}
+========== ADMIN SERVICE ==========
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import type { PlaceRecord } from './placesService';
+import { 
+  approveLocalPlace, 
+  listLocalAuditLogs, 
+  listLocalUserRoles, 
+  logLocalAdminAction, 
+  rejectLocalPlace, 
+  upsertLocalUserRole,
+  addLocalUser,
+  updateLocalUserRole,
+  disableLocalUser,
+  deleteLocalUser,
+  listLocalUsers,
+  type LocalUser,
+} from './localStorageProvider';
+export type AdminRole = 'admin' | 'editor' | 'viewer';
+
+async function getAccessToken() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token || '';
+}
+
+async function adminUsersApi(method: string, body?: unknown) {
+  const token = await getAccessToken();
+  const response = await fetch('/api/admin/users', {
+    method,
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || 'Admin users API failed');
+  return payload;
+}
+export type { LocalUser };
+export async function getCurrentAdminRole() {
+  if (!isSupabaseConfigured) return 'admin';
+
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token || '';
+
+  if (!token) return null;
+
+  const response = await fetch('/api/admin/me', {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload.error || 'Admin role check failed');
+  }
+
+  return (payload.role || null) as AdminRole | null;
+}
+export async function logAdminAction(action: string, entityType: string, entityId?: string, details?: unknown) {
+  if (!isSupabaseConfigured) { logLocalAdminAction(action, entityType, entityId, details); return; }
+  const { data: userData } = await supabase.auth.getUser();
+  await supabase.from('admin_audit_logs').insert({ admin_user_id: userData.user?.id, action, entity_type: entityType, entity_id: entityId, details });
+}
+export async function approvePlace(place: PlaceRecord) {
+  if (!isSupabaseConfigured) return approveLocalPlace(place);
+  const payload = { ...place, source_staging_id: place.id, status: 'approved', updated_at: new Date().toISOString() }; delete payload.id; const { data, error } = await supabase.from('production_places').upsert(payload, { onConflict: 'source_staging_id' }).select().single(); if (error) throw error; await supabase.from('staging_places').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', place.id); await logAdminAction('approve', 'place', place.id, { name: place.name }); return data as PlaceRecord;
+}
+export async function rejectPlace(id: string, reason: string) {
+  if (!isSupabaseConfigured) return rejectLocalPlace(id, reason);
+  const { error } = await supabase.from('staging_places').update({ status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error; await logAdminAction('reject', 'place', id, { reason });
+}
+export async function listAuditLogs() { if (!isSupabaseConfigured) return listLocalAuditLogs(); const { data, error } = await supabase.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; }
+export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const { data, error } = await supabase.from('user_roles').select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
+export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const { error } = await supabase.from('user_roles').upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
+
+export async function addUser(display_name: string, email: string, role: AdminRole, password?: string): Promise<LocalUser> {
+  if (!isSupabaseConfigured) return addLocalUser(display_name, email, role);
+
+  const payload = await adminUsersApi('POST', { display_name, email, role, password });
+  await logAdminAction('create_or_update_auth_user_role', 'user_role', payload.user?.user_id, { email, role });
+  return payload.user as LocalUser;
+}
+
+export async function updateUserRole(user_id: string, role: AdminRole): Promise<LocalUser | null> {
+  if (!isSupabaseConfigured) return updateLocalUserRole(user_id, role);
+
+  await adminUsersApi('PATCH', { user_id, role });
+  await logAdminAction('update_user_role', 'user_role', user_id, { role });
+
+  return {
+    user_id,
+    display_name: '',
+    email: '',
+    role,
+    status: 'active',
+    created_at: new Date().toISOString(),
+  };
+}
+
+export async function disableUser(user_id: string): Promise<LocalUser | null> {
+  if (!isSupabaseConfigured) return disableLocalUser(user_id);
+
+  await adminUsersApi('PUT', { user_id, action: 'disable' });
+  await logAdminAction('disable_auth_user', 'user', user_id, {});
+
+  return {
+    user_id,
+    display_name: '',
+    email: '',
+    role: 'viewer',
+    status: 'disabled',
+    created_at: new Date().toISOString(),
+  };
+}
+
+export async function deleteUser(user_id: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return deleteLocalUser(user_id);
+
+  await adminUsersApi('DELETE', { user_id });
+  await logAdminAction('delete_user_role', 'user_role', user_id, {});
+
+  return true;
+}
+
+export async function listUsers(): Promise<LocalUser[]> {
+  if (!isSupabaseConfigured) return listLocalUsers();
+
+  const payload = await adminUsersApi('GET');
+  const rows = Array.isArray(payload.users) ? payload.users : [];
+
+  return rows.map((user: any) => {
+    const email = String(user.email || '').trim();
+    const displayName = String(user.display_name || '').trim() || email.split('@')[0] || 'User';
+    return {
+      user_id: String(user.user_id || ''),
+      display_name: displayName,
+      email,
+      role: (user.role || 'viewer') as AdminRole,
+      status: user.status || 'active',
+      created_at: user.created_at || new Date().toISOString(),
+    };
+  });
+}
+
+
+
+
+
+
+========== CONSTANTS ==========
+import { env } from './env';
+
+export const PROVINCES = ['กรุงเทพมหานคร','เชียงใหม่','ลำปาง','ลำพูน','เชียงราย','แม่ฮ่องสอน','พะเยา','แพร่','น่าน','ตาก','สุโขทัย','อุตรดิตถ์','พิษณุโลก','พิจิตร','กำแพงเพชร','เพชรบูรณ์','นครสวรรค์','อุทัยธานี','กาญจนบุรี','ราชบุรี','สุพรรณบุรี','นครปฐม','สมุทรสาคร','สมุทรสงคราม','เพชรบุรี','ประจวบคีรีขันธ์','ชลบุรี','ระยอง','จันทบุรี','ตราด','ฉะเชิงเทรา','ปราจีนบุรี','นครนายก','สระแก้ว','นครราชสีมา','บุรีรัมย์','สุรินทร์','ศรีสะเกษ','อุบลราชธานี','ยโสธร','ชัยภูมิ','อำนาจเจริญ','บึงกาฬ','หนองคาย','เลย','อุดรธานี','นครพนม','สกลนคร','มุกดาหาร','กาฬสินธุ์','มหาสารคาม','ร้อยเอ็ด','หนองบัวลำภู','ขอนแก่น','ชุมพร','ระนอง','สุราษฎร์ธานี','พังงา','ภูเก็ต','กระบี่','นครศรีธรรมราช','ตรัง','พัทลุง','สตูล','สงขลา','ปัตตานี','ยะลา','นราธิวาส'];
+
+// ==================================================
+// TAXONOMY LOCK: Core Categories (12)
+// ==================================================
+export const MAIN_CATEGORIES = [
+  'สถานที่ท่องเที่ยว',
+  'อาหาร',
+  'ที่พัก',
+  'คมนาคม',
+  'สถานพยาบาล',
+  'ห้องน้ำ',
+  'เชื้อเพลิง / EV',
+  'ช้อปปิ้ง',
+  'บริการท่องเที่ยว',
+  'หน่วยงานรัฐ',
+  'ฉุกเฉิน',
+  'อื่นๆ',
+] as const;
+
+export const CATEGORIES = [
+  '-- เลือกหมวดหมู่หลัก --',
+  ...MAIN_CATEGORIES,
+];
+
+// ==================================================
+// SUBCATEGORIES: Complete mapping per main category
+// ==================================================
+export const SUBCATEGORIES_MAP: Record<string, string[]> = {
+  'สถานที่ท่องเที่ยว': [
+    'ธรรมชาติ',
+    'วัด / ศาสนสถาน',
+    'พิพิธภัณฑ์',
+    'แหล่งวัฒนธรรม',
+    'จุดชมวิว',
+    'กิจกรรมท่องเที่ยว',
+  ],
+  'อาหาร': [
+    'ร้านอาหาร',
+    'คาเฟ่',
+    'อาหารท้องถิ่น',
+    'Street Food',
+    'Buffet',
+    'Halal',
+    'Vegetarian',
+    'อาหารเหมาะกับผู้สูงอายุ',
+  ],
+  'ที่พัก': [
+    'โรงแรม',
+    'รีสอร์ต',
+    'โฮมสเตย์',
+    'เกสต์เฮาส์',
+    'ที่พักรถเข็นเข้าได้',
+  ],
+  'คมนาคม': [
+    'สนามบิน',
+    'สถานีรถไฟ',
+    'สถานีขนส่ง',
+    'ท่าเรือ',
+    'รถตู้',
+    'รถเช่า',
+    'จุดจอดรถ',
+  ],
+  'สถานพยาบาล': [
+    'โรงพยาบาล',
+    'คลินิก',
+    'ร้านขายยา',
+    'กายภาพบำบัด',
+    'Wellness',
+    'AED',
+  ],
+  'ห้องน้ำ': [
+    'ห้องน้ำสาธารณะ',
+    'ห้องน้ำคนพิการ',
+    'ห้องน้ำในปั๊ม',
+    'ห้องน้ำในห้าง',
+    'ห้องน้ำในวัด',
+  ],
+  'เชื้อเพลิง / EV': [
+    'ปั๊มน้ำมัน',
+    'LPG',
+    'NGV',
+    'EV Charging',
+    'จุดพักรถ',
+  ],
+  'ช้อปปิ้ง': [
+    'ตลาด',
+    'ของฝาก / OTOP',
+    'ห้าง',
+    'ร้านสะดวกซื้อ',
+    'ซูเปอร์มาร์เก็ต',
+  ],
+  'บริการท่องเที่ยว': [
+    'ไกด์',
+    'บริษัททัวร์',
+    'ผู้ให้บริการรถ',
+    'ร้านเช่าอุปกรณ์',
+    'จุดบริการนักท่องเที่ยว',
+  ],
+  'หน่วยงานรัฐ': [
+    'ตำรวจ',
+    'ตำรวจท่องเที่ยว',
+    'เทศบาล',
+    'อุทยาน',
+    'ตรวจคนเข้าเมือง',
+  ],
+  'ฉุกเฉิน': [
+    'กู้ภัย',
+    'โรงพัก',
+    'สายด่วน',
+    'จุดปลอดภัย',
+    'AED',
+  ],
+  'อื่นๆ': [
+    'อื่นๆ',
+  ],
+};
+
+// Backward compatibility: old categories mapped to new main categories
+const CATEGORY_NORMALIZATION_MAP: Record<string, string> = {
+  // Fuel & EV
+  'ปั๊มน้ำมัน': 'เชื้อเพลิง / EV',
+  'ปั๊ม LPG / NGV': 'เชื้อเพลิง / EV',
+  'EV Charging': 'เชื้อเพลิง / EV',
+  'จุดพักรถ / Rest Area': 'เชื้อเพลิง / EV',
+
+  // Food
+  'อาหารและเครื่องดื่ม': 'อาหาร',
+
+  // Health
+  'โรงพยาบาล / คลินิก / ฉุกเฉิน': 'สถานพยาบาล',
+  'ร้านขายยา / เวชภัณฑ์': 'สถานพยาบาล',
+  'ศูนย์ดูแลผู้สูงอายุ': 'สถานพยาบาล',
+  'กายภาพบำบัด / Wellness': 'สถานพยาบาล',
+
+  // Bathroom
+  'ห้องน้ำ / จุดบริการสุขา': 'ห้องน้ำ',
+
+  // Accommodation
+  'ที่พัก / โรงแรม / รีสอร์ต': 'ที่พัก',
+
+  // Tourism
+  'แหล่งท่องเที่ยว': 'สถานที่ท่องเที่ยว',
+  'วัด / ศาสนสถาน': 'สถานที่ท่องเที่ยว',
+
+  // Transportation
+  'สถานีขนส่ง / สนามบิน / รถไฟ': 'คมนาคม',
+  'รถเช่า / รถตู้ / Mobility': 'คมนาคม',
+  'จุดจอดรถ / ลานจอดรถ': 'คมนาคม',
+
+  // Shopping
+  'ร้านสะดวกซื้อ / ซูเปอร์มาร์เก็ต': 'ช้อปปิ้ง',
+  'ตลาด / ของฝาก / OTOP': 'ช้อปปิ้ง',
+
+  // Government
+  'หน่วยงานราชการ / เบอร์ติดต่อสำคัญ': 'หน่วยงานรัฐ',
+};
+
+// ==================================================
+// CATEGORY ICONS
+// ==================================================
+export const CATEGORY_ICONS: Record<string, string> = {
+  'สถานที่ท่องเที่ยว': '🗺️',
+  'อาหาร': '🍜',
+  'ที่พัก': '🏨',
+  'คมนาคม': '🚌',
+  'สถานพยาบาล': '🏥',
+  'ห้องน้ำ': '🚻',
+  'เชื้อเพลิง / EV': '⛽',
+  'ช้อปปิ้ง': '🛍️',
+  'บริการท่องเที่ยว': '🧭',
+  'หน่วยงานรัฐ': '🏛️',
+  'ฉุกเฉิน': '🚓',
+  'อื่นๆ': '📌',
+};
+
+// ==================================================
+// BACKWARD COMPATIBILITY: Flat subcategories list
+// ==================================================
+export const SUBCATEGORIES = Array.from(
+  new Set(Object.values(SUBCATEGORIES_MAP).flat())
+).sort();
+
+// ==================================================
+// BACKWARD COMPATIBILITY HELPER
+// ==================================================
+export function normalizeCategoryLabel(category: string): string {
+  if (!category || category === '-- เลือกหมวดหมู่หลัก --') {
+    return category;
+  }
+  const normalized = CATEGORY_NORMALIZATION_MAP[category] || category;
+  // Ensure it's a valid main category
+  if (MAIN_CATEGORIES.includes(normalized as any)) {
+    return normalized;
+  }
+  // Fallback to original if not found
+  return category;
+}
+
+// Get subcategories for a given main category
+export function getSubcategoriesForCategory(category: string): string[] {
+  const normalized = normalizeCategoryLabel(category);
+  return SUBCATEGORIES_MAP[normalized] || [];
+}
+
+export const AMENITIES = ['♿ รองรับรถเข็น','🚌 จอดรถบัสได้','⏳ ทางเรียบ/ราวจับ','🐾 ห้องน้ำคนพิการ','🏥 มีเครื่อง AED','📶 Wi-Fi ฟรี','🦮 รองรับผู้พิการทางสายตา'];
+export const ALERTS = ['🚗 จอดรถยาก','⏳ คิวยาว','📞 ต้องสำรองล่วงหน้า','📐 บันไดเยอะ','📶 สัญญาณโทรศัพท์ไม่ดี','☀️ พื้นที่โล่ง/ร้อนจัด'];
+export const MEDIA_UPLOAD_ENABLED = env.VITE_MEDIA_UPLOAD_ENABLED === 'true';

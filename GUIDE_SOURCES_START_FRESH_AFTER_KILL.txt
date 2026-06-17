@@ -1,0 +1,8 @@
+========== START FRESH AFTER KILL ==========
+========== LISTENING CHECK ==========
+PORT_3000_LISTENING=NONE_PASS
+========== START DEV SERVER ==========
+========== VERIFY SERVER ==========
+HTTP_STATUS=200
+========== NEXT ==========
+Open browser Ctrl+F5, login, Admin.

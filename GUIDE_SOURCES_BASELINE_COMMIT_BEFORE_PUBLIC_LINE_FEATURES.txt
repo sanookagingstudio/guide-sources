@@ -1,0 +1,324 @@
+========== BASELINE COMMIT BEFORE PUBLIC LINE FEATURES ==========
+OBJECTIVE=Commit current working baseline before adding guest submit, LINE usage flow, export, media policy
+========== STATUS BEFORE ==========
+ M .env.example
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/components/SearchTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_ADMIN_ME_DEBUG_PATCH.txt
+?? GUIDE_SOURCES_ADMIN_ME_DIRECT_HTTP_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RESPONSE_CAPTURE.txt
+?? GUIDE_SOURCES_ADMIN_ROLE_GATE_FINAL_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SESSION_SHARED_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_ADMIN_TAB_BEARER_FIX.txt
+?? GUIDE_SOURCES_ADMIN_TAB_ROLE_GATE_DIRECT_FIX.txt
+?? GUIDE_SOURCES_ADMIN_USE_AUTH_CONTEXT_FINAL_FIX.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_ROLE_GATE_EXHAUSTIVE_RCE.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_AUTH_TOKEN_DEBUG_LOG_PATCH.txt
+?? GUIDE_SOURCES_BASELINE_COMMIT_BEFORE_PUBLIC_LINE_FEATURES.txt
+?? GUIDE_SOURCES_DEV_EXPLICIT_ENV.log
+?? GUIDE_SOURCES_DEV_SERVER_RCE.log
+?? GUIDE_SOURCES_DUPLICATE_DEFAULT_EXPORT_FIX.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_ROUTE_RCE_NOTEPAD.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_FINAL_DETACHED_DEV.log
+?? GUIDE_SOURCES_FINAL_EXHAUSTIVE_ROOTCAUSE_PROOF.txt
+?? GUIDE_SOURCES_FINAL_RCE_NO_HANG.txt
+?? GUIDE_SOURCES_FIX_STALE_PROCESS_ENV_FINAL.txt
+?? GUIDE_SOURCES_FORCE_KILL_PID_13248.txt
+?? GUIDE_SOURCES_FORCE_KILL_PORT_3000.txt
+?? GUIDE_SOURCES_FORCE_SERVER_ENV_FILE_ROOTCAUSE_FIX.txt
+?? GUIDE_SOURCES_FULL_AUTH_ROLE_GATE_RCE_AUTOMATED.txt
+?? GUIDE_SOURCES_KILL_STALE_DEV_SERVER_AND_VERIFY.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_P3A_USER_CRUD_AND_P3B_SEARCH_EXPORT.txt
+?? GUIDE_SOURCES_P3_USER_MANAGEMENT_REAL_FLOW_FIX.txt
+?? GUIDE_SOURCES_P4_ADMIN_BUTTONS_ROLE_EXPORT_RCE_FIX.txt
+?? GUIDE_SOURCES_P4_FULL_CHAIN_AUTO_RCE_FIX.txt
+?? GUIDE_SOURCES_P4_FULL_CHAIN_DEV.log
+?? GUIDE_SOURCES_P4_ROLE_DROPDOWN_STATE_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_DUPLICATE_ROWS_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_PATCH_VERIFY_WRITE_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_SAVE_BUTTON_FIX.txt
+?? GUIDE_SOURCES_PAGE_EXPORT_FINAL_FIX.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_RUNTIME_API_PROBE_ONLY.txt
+?? GUIDE_SOURCES_SAFE_ERROR_CAPTURE.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_KEY_REPAIR_AND_VERIFY.txt
+?? GUIDE_SOURCES_START_FRESH_AFTER_KILL.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/api/
+?? src/app/auth/
+?? src/app/page.tsx.authbak
+?? src/app/page.tsx.rootrecoverybak
+?? src/app/page.tsx.sharedauthbak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.directrolegatebak
+?? src/components/AdminTab.tsx.finalbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AdminTab.tsx.p2bbindingbak
+?? src/components/AdminTab.tsx.p3acrudbak
+?? src/components/AdminTab.tsx.p3flowbak
+?? src/components/AdminTab.tsx.p4buttonsbak
+?? src/components/AdminTab.tsx.p4fullchainbak
+?? src/components/AdminTab.tsx.p4roledraftbak
+?? src/components/AdminTab.tsx.p4rolesavebak
+?? src/components/AdminTab.tsx.tokendebugbak
+?? src/components/AdminTab.tsx.useauthcontextbak
+?? src/components/AuthContext.tsx
+?? src/components/AuthContext.tsx.sharedauthbak
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/components/AuthPanel.tsx.finalbak
+?? src/components/AuthPanel.tsx.sharedauthbak
+?? src/components/SearchTab.tsx.p3bexportbak
+?? src/components/SearchTab.tsx.p4exportbak
+?? src/components/SearchTab.tsx.p4fullchainbak
+?? src/lib/serverEnv.ts
+?? src/services/adminService.ts.finalbak
+?? src/services/adminService.ts.p2abak
+?? src/services/adminService.ts.p2bbak
+?? src/services/adminService.ts.p2bbindingbak
+?? src/services/adminService.ts.p2bsyntaxbak
+?? src/services/adminService.ts.p3acrudbak
+?? src/services/adminService.ts.p3flowbak
+?? src/services/adminService.ts.p4buttonsbak
+?? src/services/adminService.ts.p4fullchainbak
+?? src/services/adminService.ts.rolegatebak
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1813ms
+  Running TypeScript ...
+  Finished TypeScript in 2.3s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 432ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== ADD ==========
+warning: in the working copy of '.env.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/diag/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/me/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/me/route.ts.debugbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/me/route.ts.envfilebak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts.envfilebak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts.finalbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts.p3acrudbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts.p3flowbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts.p4duprolesbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts.p4fullchainbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/api/admin/users/route.ts.p4roleverifybak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/auth/callback/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/auth/update-password/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/page.tsx.sharedauthbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.authdiagbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.directrolegatebak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.finalbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p2abak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p2bbindingbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p3acrudbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p3flowbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p4buttonsbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p4fullchainbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p4roledraftbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.p4rolesavebak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.tokendebugbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AdminTab.tsx.useauthcontextbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AuthContext.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AuthContext.tsx.sharedauthbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AuthPanel.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AuthPanel.tsx.authdiagbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AuthPanel.tsx.finalbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AuthPanel.tsx.sharedauthbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/lib/serverEnv.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.finalbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.p2bbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.p2bbindingbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.p2bsyntaxbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.p3acrudbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.p3flowbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.p4buttonsbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.p4fullchainbak', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/adminService.ts.rolegatebak', LF will be replaced by CRLF the next time Git touches it
+========== COMMIT ==========
+[codex-mvp 6662c7d] Baseline admin auth user management and role persistence
+ 55 files changed, 8283 insertions(+), 33 deletions(-)
+ create mode 100644 src/app/api/admin/diag/route.ts
+ create mode 100644 src/app/api/admin/me/route.ts
+ create mode 100644 src/app/api/admin/me/route.ts.debugbak
+ create mode 100644 src/app/api/admin/me/route.ts.envfilebak
+ create mode 100644 src/app/api/admin/users/route.ts
+ create mode 100644 src/app/api/admin/users/route.ts.envfilebak
+ create mode 100644 src/app/api/admin/users/route.ts.finalbak
+ create mode 100644 src/app/api/admin/users/route.ts.p3acrudbak
+ create mode 100644 src/app/api/admin/users/route.ts.p3flowbak
+ create mode 100644 src/app/api/admin/users/route.ts.p4duprolesbak
+ create mode 100644 src/app/api/admin/users/route.ts.p4fullchainbak
+ create mode 100644 src/app/api/admin/users/route.ts.p4roleverifybak
+ create mode 100644 src/app/auth/callback/page.tsx
+ create mode 100644 src/app/auth/update-password/page.tsx
+ create mode 100644 src/app/page.tsx.authbak
+ create mode 100644 src/app/page.tsx.rootrecoverybak
+ create mode 100644 src/app/page.tsx.sharedauthbak
+ create mode 100644 src/components/AdminTab.tsx.authdiagbak
+ create mode 100644 src/components/AdminTab.tsx.directrolegatebak
+ create mode 100644 src/components/AdminTab.tsx.finalbak
+ create mode 100644 src/components/AdminTab.tsx.p2abak
+ create mode 100644 src/components/AdminTab.tsx.p2bbindingbak
+ create mode 100644 src/components/AdminTab.tsx.p3acrudbak
+ create mode 100644 src/components/AdminTab.tsx.p3flowbak
+ create mode 100644 src/components/AdminTab.tsx.p4buttonsbak
+ create mode 100644 src/components/AdminTab.tsx.p4fullchainbak
+ create mode 100644 src/components/AdminTab.tsx.p4roledraftbak
+ create mode 100644 src/components/AdminTab.tsx.p4rolesavebak
+ create mode 100644 src/components/AdminTab.tsx.tokendebugbak
+ create mode 100644 src/components/AdminTab.tsx.useauthcontextbak
+ create mode 100644 src/components/AuthContext.tsx
+ create mode 100644 src/components/AuthContext.tsx.sharedauthbak
+ create mode 100644 src/components/AuthPanel.tsx
+ create mode 100644 src/components/AuthPanel.tsx.authdiagbak
+ create mode 100644 src/components/AuthPanel.tsx.finalbak
+ create mode 100644 src/components/AuthPanel.tsx.sharedauthbak
+ create mode 100644 src/components/SearchTab.tsx.p3bexportbak
+ create mode 100644 src/components/SearchTab.tsx.p4exportbak
+ create mode 100644 src/components/SearchTab.tsx.p4fullchainbak
+ create mode 100644 src/lib/serverEnv.ts
+ create mode 100644 src/services/adminService.ts.finalbak
+ create mode 100644 src/services/adminService.ts.p2abak
+ create mode 100644 src/services/adminService.ts.p2bbak
+ create mode 100644 src/services/adminService.ts.p2bbindingbak
+ create mode 100644 src/services/adminService.ts.p2bsyntaxbak
+ create mode 100644 src/services/adminService.ts.p3acrudbak
+ create mode 100644 src/services/adminService.ts.p3flowbak
+ create mode 100644 src/services/adminService.ts.p4buttonsbak
+ create mode 100644 src/services/adminService.ts.p4fullchainbak
+ create mode 100644 src/services/adminService.ts.rolegatebak
+========== TAG ==========
+========== STATUS AFTER ==========
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+?? GUIDE_SOURCES_ADMIN_ME_DEBUG_PATCH.txt
+?? GUIDE_SOURCES_ADMIN_ME_DIRECT_HTTP_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RESPONSE_CAPTURE.txt
+?? GUIDE_SOURCES_ADMIN_ROLE_GATE_FINAL_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SESSION_SHARED_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_ADMIN_TAB_BEARER_FIX.txt
+?? GUIDE_SOURCES_ADMIN_TAB_ROLE_GATE_DIRECT_FIX.txt
+?? GUIDE_SOURCES_ADMIN_USE_AUTH_CONTEXT_FINAL_FIX.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_ROLE_GATE_EXHAUSTIVE_RCE.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_AUTH_TOKEN_DEBUG_LOG_PATCH.txt
+?? GUIDE_SOURCES_BASELINE_COMMIT_BEFORE_PUBLIC_LINE_FEATURES.txt
+?? GUIDE_SOURCES_DEV_EXPLICIT_ENV.log
+?? GUIDE_SOURCES_DEV_SERVER_RCE.log
+?? GUIDE_SOURCES_DUPLICATE_DEFAULT_EXPORT_FIX.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_ROUTE_RCE_NOTEPAD.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_FINAL_DETACHED_DEV.log
+?? GUIDE_SOURCES_FINAL_EXHAUSTIVE_ROOTCAUSE_PROOF.txt
+?? GUIDE_SOURCES_FINAL_RCE_NO_HANG.txt
+?? GUIDE_SOURCES_FIX_STALE_PROCESS_ENV_FINAL.txt
+?? GUIDE_SOURCES_FORCE_KILL_PID_13248.txt
+?? GUIDE_SOURCES_FORCE_KILL_PORT_3000.txt
+?? GUIDE_SOURCES_FORCE_SERVER_ENV_FILE_ROOTCAUSE_FIX.txt
+?? GUIDE_SOURCES_FULL_AUTH_ROLE_GATE_RCE_AUTOMATED.txt
+?? GUIDE_SOURCES_KILL_STALE_DEV_SERVER_AND_VERIFY.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_P3A_USER_CRUD_AND_P3B_SEARCH_EXPORT.txt
+?? GUIDE_SOURCES_P3_USER_MANAGEMENT_REAL_FLOW_FIX.txt
+?? GUIDE_SOURCES_P4_ADMIN_BUTTONS_ROLE_EXPORT_RCE_FIX.txt
+?? GUIDE_SOURCES_P4_FULL_CHAIN_AUTO_RCE_FIX.txt
+?? GUIDE_SOURCES_P4_FULL_CHAIN_DEV.log
+?? GUIDE_SOURCES_P4_ROLE_DROPDOWN_STATE_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_DUPLICATE_ROWS_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_PATCH_VERIFY_WRITE_FIX.txt
+?? GUIDE_SOURCES_P4_ROLE_SAVE_BUTTON_FIX.txt
+?? GUIDE_SOURCES_PAGE_EXPORT_FINAL_FIX.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_RUNTIME_API_PROBE_ONLY.txt
+?? GUIDE_SOURCES_SAFE_ERROR_CAPTURE.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_KEY_REPAIR_AND_VERIFY.txt
+?? GUIDE_SOURCES_START_FRESH_AFTER_KILL.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+6662c7d Baseline admin auth user management and role persistence
+8ecf02c Guide Sources duplicate intelligence lock
+df52fd1 Guide Sources functional MVP lock
+GUIDE_SOURCES_BASELINE_ADMIN_AUTH_USER_MGMT

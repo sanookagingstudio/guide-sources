@@ -1,0 +1,64 @@
+========== AUTH PANEL REPAIR ==========
+OBJECTIVE=Remove bad AuthPanel injection from tab button and keep only one valid AuthPanel render
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? src/app/page.tsx.authbak
+?? src/components/AuthContext.tsx
+?? src/components/AuthPanel.tsx
+========== RESTORE PAGE FROM BACKUP ==========
+RESTORE_FROM_BACKUP=YES
+========== PATCH PAGE SAFELY ==========
+========== VERIFY ==========
+
+src\app\page.tsx:3:import AuthPanel from '@/components/AuthPanel';
+src\app\page.tsx:17:  const [activeTab, setActiveTab] = useState<Tab>('search');
+src\app\page.tsx:24:  const editPlace = (place: PlaceRecord) => { setForm({ ...emptyMemberPlace, ...place, status: 'pending' }); setActiveTab('member'); };
+src\app\page.tsx:100:      setActiveTab('search');
+src\app\page.tsx:121:      <button onClick={() => setActiveTab('search')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'search' ? 'travel-tab--search bg-sky-500 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>🔍 Search</button>
+src\app\page.tsx:122:      <button onClick={() => setActiveTab('member')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'member' ? 'travel-tab--member bg-emerald-400 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>👤 Member</button>
+src\app\page.tsx:123:      <button onClick={() => setActiveTab('admin')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'admin' ? 'travel-tab--admin bg-amber-400 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>⚙️ Admin</button>
+src\app\page.tsx:126:    <AuthPanel />
+src\app\page.tsx:127:      {activeTab === 'search' && <SearchTab refreshKey={refreshKey} onEdit={editPlace} />}
+src\app\page.tsx:128:    {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
+src\app\page.tsx:129:    {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+
+AUTH_PANEL_RENDER_COUNT=1
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1581ms
+  Running TypeScript ...
+  Finished TypeScript in 1965ms ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 337ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+BUILD=PASS
+========== NEXT RUNTIME PROOF ==========
+1. npm run dev
+2. Confirm Sign in panel appears once
+3. Sign in with Supabase user
+4. Confirm email visible
+5. Admin tab role gate works
+6. Sign out works

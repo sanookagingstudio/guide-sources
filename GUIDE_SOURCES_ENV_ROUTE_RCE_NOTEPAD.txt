@@ -1,0 +1,232 @@
+========== ENV ROUTE RCE NOTEPAD ==========
+OBJECTIVE=Capture env + route source without hanging dev server
+========== ENV LINES MASKED ==========
+NEXT_PUBLIC_SUPABASE_URL=https://hfoliiqijjkmarggjawp.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...l1NCo4sg LENGTH=208
+NEXT_PUBLIC_MEDIA_UPLOAD_ENABLED=false
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...7SSGF1Jg LENGTH=219
+========== DOTENV READ ==========
+โ— injected env (3) from .env.local // tip: โ suppress logs { quiet: true }
+DOTENV_URL=https://hfoliiqijjkmarggjawp.supabase.co
+DOTENV_ANON_LENGTH=208
+DOTENV_ANON_HASH=cb0d8a56d1d9f584
+DOTENV_SERVICE_LENGTH=219
+DOTENV_SERVICE_HASH=73be29a8d23f1861
+DOTENV_SERVICE_FIRST8=eyJhbGci
+DOTENV_SERVICE_LAST8=iItZbOZA
+DOTENV_SERVICE_HAS_QUOTE=false
+DOTENV_SERVICE_HAS_SPACE=false
+========== ROUTE ADMIN ME ==========
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+function json(status: number, body: unknown) {
+  return NextResponse.json(body, { status });
+}
+
+export async function GET(request: NextRequest) {
+  try {
+  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+    return json(500, { error: 'Supabase server env missing' });
+  }
+
+  const authHeader = request.headers.get('authorization') || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+  if (!token) return json(401, { error: 'Missing bearer token', role: null });
+
+  const userClient = createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: userData, error: userError } = await userClient.auth.getUser(token);
+
+  if (userError || !userData.user) {
+    return json(401, { error: userError?.message || 'Invalid session', role: null });
+  }
+
+  const service = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: roleRows, error: roleError } = await service
+    .from('user_roles')
+    .select('user_id, role')
+    .eq('user_id', userData.user.id);
+
+  if (roleError) return json(500, { error: roleError.message, role: null });
+
+  const roles = (roleRows || []).map((row) => row.role);
+  const role = roles.includes('admin')
+    ? 'admin'
+    : roles.includes('editor')
+      ? 'editor'
+      : roles.includes('viewer')
+        ? 'viewer'
+        : null;
+
+  console.log('ADMIN_ME_DEBUG', { roleRows, roles, userId: userData.user.id });
+
+    return json(200, {
+    user_id: userData.user.id,
+    email: userData.user.email || '',
+    role,
+    roles,
+    debug: {
+      requested_user_id: userData.user.id,
+      requested_email: userData.user.email || '',
+      role_rows: roleRows || [],
+      role_count: (roleRows || []).length
+    },
+  });
+  } catch (e) {
+    console.error('ADMIN_ME_FATAL', e);
+    return json(500,{error:String(e)});
+  }
+}
+========== ROUTE ADMIN USERS ==========
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+type AdminRole = 'admin' | 'editor' | 'viewer';
+
+function json(status: number, body: unknown) {
+  return NextResponse.json(body, { status });
+}
+
+async function requireAdmin(request: NextRequest) {
+  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+    return { error: json(500, { error: 'Supabase server env missing. Set SUPABASE_SERVICE_ROLE_KEY.' }) };
+  }
+
+  const authHeader = request.headers.get('authorization') || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+  if (!token) return { error: json(401, { error: 'Missing bearer token' }) };
+
+  const userClient = createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: userData, error: userError } = await userClient.auth.getUser(token);
+  if (userError || !userData.user) {
+    return { error: json(401, { error: userError?.message || 'Invalid session' }) };
+  }
+
+  const service = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: roleRows, error: roleError } = await service
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userData.user.id);
+
+  if (roleError) return { error: json(500, { error: roleError.message }) };
+
+  const roles = (roleRows || []).map((row) => row.role);
+  if (!roles.includes('admin')) return { error: json(403, { error: 'Admin role required' }) };
+
+  return { service };
+}
+
+export async function GET(request: NextRequest) {
+  const gate = await requireAdmin(request);
+  if ('error' in gate) return gate.error;
+
+  const { service } = gate;
+
+  const { data: authData, error: authError } = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (authError) return json(500, { error: authError.message });
+
+  const { data: roleRows, error: roleError } = await service
+    .from('user_roles')
+    .select('user_id, role, created_at, updated_at')
+    .order('created_at', { ascending: false });
+
+  if (roleError) return json(500, { error: roleError.message });
+
+  const roleByUserId = new Map((roleRows || []).map((row) => [row.user_id, row]));
+
+  const users = authData.users.map((user) => {
+    const roleRow = roleByUserId.get(user.id);
+    const email = user.email || '';
+    const displayName =
+      (user.user_metadata?.display_name as string | undefined) ||
+      (user.user_metadata?.full_name as string | undefined) ||
+      email.split('@')[0] ||
+      'User';
+
+    return {
+      user_id: user.id,
+      display_name: displayName,
+      email,
+      role: (roleRow?.role || 'viewer') as AdminRole,
+      status: user.banned_until ? 'disabled' : 'active',
+      created_at: user.created_at || new Date().toISOString(),
+      updated_at: roleRow?.updated_at || user.updated_at || user.created_at || new Date().toISOString(),
+    };
+  });
+
+  return json(200, { users });
+}
+
+export async function PATCH(request: NextRequest) {
+  const gate = await requireAdmin(request);
+  if ('error' in gate) return gate.error;
+
+  const { service } = gate;
+  const body = await request.json();
+
+  const user_id = String(body.user_id || '');
+  const role = String(body.role || '') as AdminRole;
+
+  if (!user_id || !['admin', 'editor', 'viewer'].includes(role)) {
+    return json(400, { error: 'Invalid user_id or role' });
+  }
+
+  const { error } = await service.from('user_roles').upsert({
+    user_id,
+    role,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) return json(500, { error: error.message });
+
+  return json(200, { ok: true });
+}
+
+export async function DELETE(request: NextRequest) {
+  const gate = await requireAdmin(request);
+  if ('error' in gate) return gate.error;
+
+  const { service } = gate;
+  const body = await request.json();
+
+  const user_id = String(body.user_id || '');
+  if (!user_id) return json(400, { error: 'Invalid user_id' });
+
+  const { error } = await service.from('user_roles').delete().eq('user_id', user_id);
+  if (error) return json(500, { error: error.message });
+
+  return json(200, { ok: true });
+}
+========== ROUTE FILE EXISTENCE ==========
+
+FullName
+--------
+C:\Users\akemo\guide-sources\src\app\api\admin\diag\route.ts
+C:\Users\akemo\guide-sources\src\app\api\admin\me\route.ts
+C:\Users\akemo\guide-sources\src\app\api\admin\me\route.ts.debugbak
+C:\Users\akemo\guide-sources\src\app\api\admin\users\route.ts
+C:\Users\akemo\guide-sources\src\app\api\admin\users\route.ts.finalbak
+
+========== DONE ==========

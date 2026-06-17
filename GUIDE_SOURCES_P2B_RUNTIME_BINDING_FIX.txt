@@ -1,0 +1,151 @@
+========== GUIDE SOURCES P2B RUNTIME BINDING FIX ==========
+OBJECTIVE=Force AdminTab Users section to load real users from listUsers() API response and render real email/display name
+SCOPE=Runtime binding only
+NO_COMMIT=TRUE
+ M .env.example
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/api/
+?? src/app/auth/
+?? src/app/page.tsx.authbak
+?? src/app/page.tsx.rootrecoverybak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.finalbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AuthContext.tsx
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/components/AuthPanel.tsx.finalbak
+?? src/services/adminService.ts.finalbak
+?? src/services/adminService.ts.p2abak
+?? src/services/adminService.ts.p2bbak
+?? src/services/adminService.ts.p2bsyntaxbak
+========== PRE BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1849ms
+  Running TypeScript ...
+  Finished TypeScript in 2.5s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/6) ...
+  Generating static pages using 7 workers (1/6) 
+  Generating static pages using 7 workers (2/6) 
+  Generating static pages using 7 workers (4/6) 
+โ“ Generating static pages using 7 workers (6/6) in 435ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+========== BACKUP ==========
+========== HARDEN listUsers NORMALIZATION ==========
+========== REWRITE ADMIN USER SECTION RENDER ==========
+========== SOURCE VERIFY ==========
+
+src\services\adminService.ts:72:export async function updateUserRole(user_id: string, role: AdminRole): Promise<LocalUser | null> {
+src\services\adminService.ts:104:export async function deleteUser(user_id: string): Promise<boolean> {
+src\services\adminService.ts:113:export async function listUsers(): Promise<LocalUser[]> {
+src\services\adminService.ts:117:  const rows = Array.isArray(payload.users) ? payload.users : [];
+src\services\adminService.ts:121:    const displayName = String(user.display_name || '').trim() || email.split('@')[0] || 'User';
+src\services\adminService.ts:124:      display_name: displayName,
+src\components\AdminTab.tsx:12:  updateUserRole,
+src\components\AdminTab.tsx:14:  deleteUser,
+src\components\AdminTab.tsx:15:  listUsers,
+src\components\AdminTab.tsx:30:  const [roles, setRoles] = useState<LocalUser[]>([]);
+src\components\AdminTab.tsx:38:  const [addUserDisplayName, setAddUserDisplayName] = useState('');
+src\components\AdminTab.tsx:54:    const realUsers = await listUsers();
+src\components\AdminTab.tsx:55:    setRoles(realUsers);
+src\components\AdminTab.tsx:58:const reloadRealUsers = async () => {
+src\components\AdminTab.tsx:59:  const realUsers = await listUsers();
+src\components\AdminTab.tsx:60:  setRoles(realUsers);
+src\components\AdminTab.tsx:123:          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Display name" value={addUserDisplayName} onChange={(e) => setAddUserDisplayName(e.target.value)} />
+src\components\AdminTab.tsx:131:            <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserDisplayName.trim()) { setMessage('Display name required'); return; } await addUser(addUserDisplayName, addUserEmail, addUserRole); setAddUserDisplayName(''); setAddUserEmail(''); setAddUserRole('viewer'); await reloadRealUsers(); setMessage('User role action completed'); })}>Add</button>
+src\components\AdminTab.tsx:146:                  <p className="text-slate-400 text-xs break-all">{user.email || 'EMAIL_MISSING_FROM_API'}</p>
+src\components\AdminTab.tsx:161:                  <select className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full" value={user.role} onChange={(e) => guarded(async () => { await updateUserRole(user.user_id, e.target.value as any); await reloadRealUsers(); })}>
+src\components\AdminTab.tsx:170:                    <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { if (confirm('Delete user?')) { await deleteUser(user.user_id); await reloadRealUsers(); } })}>Delete</button>
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1652ms
+  Running TypeScript ...
+  Finished TypeScript in 1989ms ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/6) ...
+  Generating static pages using 7 workers (1/6) 
+  Generating static pages using 7 workers (2/6) 
+  Generating static pages using 7 workers (4/6) 
+โ“ Generating static pages using 7 workers (6/6) in 431ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== FINAL RUNTIME PROOF ==========
+1. Restart dev server: Ctrl+C then npm run dev
+2. Login as sanookagingstudio@gmail.com
+3. Open Admin
+4. Users section must show real email values:
+   akemontree@gmail.com
+   sanookagingstudio@gmail.com
+5. It must NOT show (no email), Unnamed, or EMAIL_MISSING_FROM_API
+6. Sign out button text must be clear

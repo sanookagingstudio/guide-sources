@@ -1,0 +1,346 @@
+========== GUIDE SOURCES PRODUCTION ARCHITECTURE RCE ==========
+OBJECTIVE=Inspect real production readiness before Supabase/Auth/DB patch
+SCOPE=RCE only, no patch, no commit, no tag
+DO_NOT_TOUCH=UI polish, review system, merge workflow, deploy
+
+========== REALITY LOCK ==========
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+8ecf02c Guide Sources duplicate intelligence lock
+df52fd1 Guide Sources functional MVP lock
+27ed055 Lock Guide Sources local save baseline
+b34c64b Complete Guide Sources Next MVP workflow
+fce2163 FIX: เธญเธฑเธเน€เธ”เธ• Path เธเธญเธ Components เนเธซเนเธ—เธณเธเธฒเธเนเธ”เน
+65932e0 ONEPACK: Deploy codebase updates
+401428a Initial commit from Create Next App
+df52fd1d74aec6ceb8fde17ea911fe66d8a1a385
+8ecf02cc87ee38970b2ed2d3b4c3ff39ad19f5ee
+
+========== BUILD LOCK ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1498ms
+  Running TypeScript ...
+  Finished TypeScript in 2.0s ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 334ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+BUILD=PASS
+
+========== FILE INVENTORY ==========
+EXISTS=src/lib/env.ts
+EXISTS=src/lib/supabase.ts
+EXISTS=src/services/localStorageProvider.ts
+EXISTS=src/services/placesService.ts
+EXISTS=src/services/adminService.ts
+EXISTS=src/services/importService.ts
+EXISTS=src/services/mediaService.ts
+EXISTS=src/components/AdminTab.tsx
+EXISTS=src/components/MemberTab.tsx
+EXISTS=src/components/SearchTab.tsx
+EXISTS=src/lib/constants.ts
+EXISTS=.env.example
+EXISTS=.env.local
+EXISTS=package.json
+
+========== SUPABASE / LOCAL MODE SIGNALS ==========
+C:\Users\akemo\guide-sources\src\integrations\mainWebAdapter.ts:1: export { listApprovedPlaces, getPlaceById, listApprovedPlaces as searchPlaces } from '@/services/placesService';
+C:\Users\akemo\guide-sources\src\integrations\mainWebAdapter.ts:2: export { listPlaceMedia as getPlaceMedia } from '@/services/mediaService';
+C:\Users\akemo\guide-sources\src\lib\constants.ts:210: export const MEDIA_UPLOAD_ENABLED = env.VITE_MEDIA_UPLOAD_ENABLED === 'true';
+C:\Users\akemo\guide-sources\src\lib\env.ts:1: const PLACEHOLDER_MARKERS = ['your-project-id', 'your_supabase', 'example', 'placeholder'];
+C:\Users\akemo\guide-sources\src\lib\env.ts:11: VITE_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
+C:\Users\akemo\guide-sources\src\lib\env.ts:12: VITE_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '',
+C:\Users\akemo\guide-sources\src\lib\env.ts:13: VITE_MEDIA_UPLOAD_ENABLED: process.env.NEXT_PUBLIC_MEDIA_UPLOAD_ENABLED || process.env.VITE_MEDIA_UPLOAD_ENABLED || 'false',
+C:\Users\akemo\guide-sources\src\lib\env.ts:16: export const hasRealSupabaseConfig = !isPlaceholderValue(env.VITE_SUPABASE_URL) && !isPlaceholderValue(env.VITE_SUPABASE_ANON_KEY) && Boolean(env.VITE_SUPABASE_URL && env.VITE_SUPABASE_ANON_KEY);
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:1: import { createClient } from '@supabase/supabase-js';
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:2: import { env, hasRealSupabaseConfig } from './env';
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:4: const supabaseUrl = env.VITE_SUPABASE_URL;
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:5: const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY;
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:7: export const isSupabaseConfigured = hasRealSupabaseConfig;
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:9: export const supabase = createClient(
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:10: isSupabaseConfigured ? supabaseUrl : 'https://placeholder.supabase.co',
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:11: isSupabaseConfigured ? supabaseAnonKey : 'placeholder-anon-key',
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:12: { auth: { persistSession: typeof window !== 'undefined' } },
+C:\Users\akemo\guide-sources\src\services\adminService.ts:1: import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+C:\Users\akemo\guide-sources\src\services\adminService.ts:6: listLocalUserRoles,
+C:\Users\akemo\guide-sources\src\services\adminService.ts:9: upsertLocalUserRole,
+C:\Users\akemo\guide-sources\src\services\adminService.ts:11: updateLocalUserRole,
+C:\Users\akemo\guide-sources\src\services\adminService.ts:16: } from './localStorageProvider';
+C:\Users\akemo\guide-sources\src\services\adminService.ts:17: export type AdminRole = 'admin' | 'editor' | 'viewer';
+C:\Users\akemo\guide-sources\src\services\adminService.ts:19: export async function getCurrentAdminRole() {
+C:\Users\akemo\guide-sources\src\services\adminService.ts:20: if (!isSupabaseConfigured) return 'admin';
+C:\Users\akemo\guide-sources\src\services\adminService.ts:21: const { data: userData } = await supabase.auth.getUser();
+C:\Users\akemo\guide-sources\src\services\adminService.ts:24: const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId).in('role', ['admin','editor','viewer']).maybeSingle();
+C:\Users\akemo\guide-sources\src\services\adminService.ts:26: return data?.role as AdminRole | null;
+C:\Users\akemo\guide-sources\src\services\adminService.ts:29: if (!isSupabaseConfigured) { logLocalAdminAction(action, entityType, entityId, details); return; }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:30: const { data: userData } = await supabase.auth.getUser();
+C:\Users\akemo\guide-sources\src\services\adminService.ts:31: await supabase.from('admin_audit_logs').insert({ admin_user_id: userData.user?.id, action, entity_type: entityType, entity_id: entityId, details });
+C:\Users\akemo\guide-sources\src\services\adminService.ts:34: if (!isSupabaseConfigured) return approveLocalPlace(place);
+C:\Users\akemo\guide-sources\src\services\adminService.ts:35: const payload = { ...place, source_staging_id: place.id, status: 'approved', updated_at: new Date().toISOString() }; delete payload.id; const { data, error } = await supabase.from('production_places').upsert(payload, { onConflict: 'source_staging_id' }).select().single(); if (error) throw error; await supabase.from('staging_places').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', place.id); await logAdminAction('approve', 'place', place.id, { name: place.name }); return data as PlaceRecord;
+C:\Users\akemo\guide-sources\src\services\adminService.ts:38: if (!isSupabaseConfigured) return rejectLocalPlace(id, reason);
+C:\Users\akemo\guide-sources\src\services\adminService.ts:39: const { error } = await supabase.from('staging_places').update({ status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error; await logAdminAction('reject', 'place', id, { reason });
+C:\Users\akemo\guide-sources\src\services\adminService.ts:41: export async function listAuditLogs() { if (!isSupabaseConfigured) return listLocalAuditLogs(); const { data, error } = await supabase.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:42: export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const { data, error } = await supabase.from('user_roles').select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:43: export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const { error } = await supabase.from('user_roles').upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:45: export async function addUser(display_name: string, email: string, role: AdminRole): Promise<LocalUser> {
+C:\Users\akemo\guide-sources\src\services\adminService.ts:46: if (!isSupabaseConfigured) return addLocalUser(display_name, email, role);
+C:\Users\akemo\guide-sources\src\services\adminService.ts:47: throw new Error('Supabase user management not yet implemented');
+C:\Users\akemo\guide-sources\src\services\adminService.ts:50: export async function updateUserRole(user_id: string, role: AdminRole): Promise<LocalUser | null> {
+C:\Users\akemo\guide-sources\src\services\adminService.ts:51: if (!isSupabaseConfigured) return updateLocalUserRole(user_id, role);
+C:\Users\akemo\guide-sources\src\services\adminService.ts:52: throw new Error('Supabase user role update not yet implemented');
+C:\Users\akemo\guide-sources\src\services\adminService.ts:56: if (!isSupabaseConfigured) return disableLocalUser(user_id);
+C:\Users\akemo\guide-sources\src\services\adminService.ts:57: throw new Error('Supabase user disable not yet implemented');
+C:\Users\akemo\guide-sources\src\services\adminService.ts:61: if (!isSupabaseConfigured) return deleteLocalUser(user_id);
+C:\Users\akemo\guide-sources\src\services\adminService.ts:62: throw new Error('Supabase user delete not yet implemented');
+C:\Users\akemo\guide-sources\src\services\adminService.ts:66: if (!isSupabaseConfigured) return listLocalUsers();
+C:\Users\akemo\guide-sources\src\services\adminService.ts:67: throw new Error('Supabase user listing not yet implemented');
+C:\Users\akemo\guide-sources\src\services\importService.ts:1: import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+C:\Users\akemo\guide-sources\src\services\importService.ts:2: import { saveStagingPlace, type PlaceRecord } from './placesService';
+C:\Users\akemo\guide-sources\src\services\importService.ts:3: import { importLocalPlaces } from './localStorageProvider';
+C:\Users\akemo\guide-sources\src\services\importService.ts:6: if (!isSupabaseConfigured) return importLocalPlaces(raw);
+C:\Users\akemo\guide-sources\src\services\importService.ts:8: const { data: job } = await supabase.from('import_jobs').insert({ source_type: raw.trim().startsWith('[') ? 'json' : 'csv', status: 'running', total_rows: rows.length }).select().single();
+C:\Users\akemo\guide-sources\src\services\importService.ts:10: for (const row of rows) { await saveStagingPlace({ ...row, rating: Number(row.rating || 5), amenities: row.amenities || [], alerts: row.alerts || [] }); imported++; }
+C:\Users\akemo\guide-sources\src\services\importService.ts:11: if (job?.id) await supabase.from('import_jobs').update({ status: 'completed', imported_rows: imported }).eq('id', job.id);
+C:\Users\akemo\guide-sources\src\services\localPlacesStore.ts:5: const canUseStorage = () => typeof window !== 'undefined' && Boolean(window.localStorage);
+C:\Users\akemo\guide-sources\src\services\localPlacesStore.ts:7: if (!canUseStorage()) return memory;
+C:\Users\akemo\guide-sources\src\services\localPlacesStore.ts:8: try { return JSON.parse(window.localStorage.getItem(KEY) || '[]') as PlaceRecord[]; } catch { return []; }
+C:\Users\akemo\guide-sources\src\services\localPlacesStore.ts:12: if (canUseStorage()) window.localStorage.setItem(KEY, JSON.stringify(rows));
+C:\Users\akemo\guide-sources\src\services\localPlacesStore.ts:14: export function listLocalPlaces(filters: PlaceFilters = {}) { const keyword = (filters.keyword || '').toLowerCase(); return read().filter((p) => { const haystack = [p.name, p.province, p.category, p.sub_category, p.suggestion, ...(p.amenities || []), ...(p.alerts || [])].join(' ').toLowerCase(); return (p.status === 'approved' || p.status === 'pending') && (!keyword || haystack.includes(keyword)) && (!filters.province || p.province === filters.province) && (!filters.category || p.category === filters.category) && (!filters.sub_category || p.sub_category === filters.sub_category) && (!filters.rating || p.rating >= filters.rating) && (!filters.amenities?.length || filters.amenities.every((a) => p.amenities.includes(a))) && (!filters.alerts?.length || filters.alerts.every((a) => p.alerts.includes(a))); }); }
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:4: const ROLE_KEY = 'guide_sources_local_user_roles';
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:7: const canUseStorage = () => typeof window !== 'undefined' && Boolean(window.localStorage);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:15: role: 'admin' | 'editor' | 'viewer';
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:21: if (!canUseStorage()) return [];
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:23: return JSON.parse(window.localStorage.getItem(PLACE_KEY) || '[]') as PlaceRecord[];
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:30: if (canUseStorage()) window.localStorage.setItem(PLACE_KEY, JSON.stringify(rows));
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:33: const readRoles = (): LocalUser[] => {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:34: if (!canUseStorage()) return [];
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:36: const raw = JSON.parse(window.localStorage.getItem(ROLE_KEY) || '[]');
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:41: role: item.role || 'viewer',
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:50: const writeRoles = (rows: LocalUser[]) => {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:51: if (canUseStorage()) window.localStorage.setItem(ROLE_KEY, JSON.stringify(rows));
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:55: if (!canUseStorage()) return [];
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:57: return JSON.parse(window.localStorage.getItem(AUDIT_KEY) || '[]') as Array<{ id: string; created_at: string; action: string; entity_type: string; entity_id?: string; details?: unknown }>;
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:64: if (canUseStorage()) window.localStorage.setItem(AUDIT_KEY, JSON.stringify(rows));
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:76: return applyLocalFilters(readPlaces().filter((p) => p.status === 'approved'), filters);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:79: export function listLocalStagingPlaces() {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:105: const saved = saveLocalPlace({ ...place, status: 'approved' });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:120: export function deleteLocalPlace(id: string, table: 'staging_places' | 'production_places') {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:122: const isStaging = item.status !== 'approved';
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:123: return !(item.id === id && (table === 'staging_places' ? isStaging : item.status === 'approved'));
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:151: export function listLocalUserRoles() {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:152: return readRoles();
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:156: return readRoles().filter((u) => u.status === 'active');
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:159: export function addLocalUser(display_name: string, email: string, role: 'admin' | 'editor' | 'viewer'): LocalUser {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:160: const rows = readRoles();
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:166: role,
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:171: writeRoles(rows);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:172: logLocalAdminAction('add_user', 'user', user_id, { display_name, email, role });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:176: export function updateLocalUserRole(user_id: string, role: 'admin' | 'editor' | 'viewer'): LocalUser | null {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:177: const rows = readRoles();
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:180: rows[index] = { ...rows[index], role };
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:181: writeRoles(rows);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:182: logLocalAdminAction('update_user_role', 'user', user_id, { role });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:187: const rows = readRoles();
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:191: writeRoles(rows);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:197: const rows = readRoles();
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:200: writeRoles(filtered);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:205: export function upsertLocalUserRole(user_id: string, role: 'admin' | 'editor' | 'viewer') {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:206: const rows = readRoles();
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:209: rows[index] = { ...rows[index], role };
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:211: rows.unshift({ user_id, display_name: '', email: '', role, status: 'active', created_at: new Date().toISOString() });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:213: writeRoles(rows);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:214: logLocalAdminAction('upsert_role', 'user_role', user_id, { role });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:231: export function clearLocalStorageForDemo() {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:232: if (canUseStorage()) {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:233: window.localStorage.removeItem(PLACE_KEY);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:234: window.localStorage.removeItem(ROLE_KEY);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:235: window.localStorage.removeItem(AUDIT_KEY);
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:303: .filter((place) => place.status === 'pending' || place.status === 'approved')
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:1: import { MEDIA_UPLOAD_ENABLED } from '@/lib/constants';
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:2: import { hasRealSupabaseConfig, isPlaceholderValue } from '@/lib/env';
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:3: import { supabase } from '@/lib/supabase';
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:4: import type { PlaceMedia } from './mediaTypes';
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:5: export type { PlaceMedia };
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:7: const mediaDisabled = () => !hasRealSupabaseConfig || !MEDIA_UPLOAD_ENABLED || isPlaceholderValue(process.env.NEXT_PUBLIC_SUPABASE_URL) || isPlaceholderValue(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) || isPlaceholderValue(process.env.VITE_SUPABASE_URL) || isPlaceholderValue(process.env.VITE_SUPABASE_ANON_KEY);
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:9: export async function listPlaceMedia(placeId: string) {
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:10: if (mediaDisabled()) return [];
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:11: const { data, error } = await supabase.from('place_media').select('*').or(`place_id.eq.${placeId},staging_place_id.eq.${placeId}`).order('created_at');
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:13: return (data || []) as PlaceMedia[];
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:16: export async function uploadPlaceMedia(placeId: string, file: File, mediaType: 'image' | 'video', staging = true) {
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:17: if (!MEDIA_UPLOAD_ENABLED || mediaDisabled()) throw new Error('Media upload is not enabled yet.');
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:20: const { error: uploadError } = await supabase.storage.from('place-media').upload(path, file, { upsert: false, contentType: file.type });
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:22: const { data: publicData } = supabase.storage.from('place-media').getPublicUrl(path);
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:23: const row = { place_id: staging ? null : placeId, staging_place_id: staging ? placeId : null, media_type: mediaType, storage_bucket: 'place-media', storage_path: path, public_url: publicData.publicUrl };
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:24: const { data, error } = await supabase.from('place_media').insert(row).select().single();
+C:\Users\akemo\guide-sources\src\services\mediaService.ts:26: return data as PlaceMedia;
+C:\Users\akemo\guide-sources\src\services\mediaTypes.ts:1: export type PlaceMedia = {
+C:\Users\akemo\guide-sources\src\services\mediaTypes.ts:4: staging_place_id?: string | null;
+C:\Users\akemo\guide-sources\src\services\mediaTypes.ts:5: media_type: 'image' | 'video';
+C:\Users\akemo\guide-sources\src\services\mediaTypes.ts:6: storage_bucket: string;
+C:\Users\akemo\guide-sources\src\services\mediaTypes.ts:7: storage_path: string;
+C:\Users\akemo\guide-sources\src\services\placesService.ts:1: import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+C:\Users\akemo\guide-sources\src\services\placesService.ts:3: import { findLocalDuplicatePlaceName, listLocalPlaces, saveLocalPlace } from './localStorageProvider';
+C:\Users\akemo\guide-sources\src\services\placesService.ts:4: import { listLocalStagingPlaces, listLocalRejectedPlaces, listLocalDuplicateSuggestions } from './localStorageProvider';
+C:\Users\akemo\guide-sources\src\services\placesService.ts:6: export type PlaceStatus = 'pending' | 'approved' | 'rejected';
+C:\Users\akemo\guide-sources\src\services\placesService.ts:7: export type LocalMediaRecord = {
+C:\Users\akemo\guide-sources\src\services\placesService.ts:9: media_type: 'image' | 'video';
+C:\Users\akemo\guide-sources\src\services\placesService.ts:15: id?: string; source_staging_id?: string | null; name: string; province: string; category: string; other_category?: string | null; sub_category?: string | null; google_maps_url?: string | null; phone?: string | null; line?: string | null; recommender?: string | null; suggestion?: string | null; rejection_reason?: string | null; rating: number; amenities: string[]; alerts: string[]; status?: PlaceStatus; created_at?: string; updated_at?: string; local_media?: LocalMediaRecord[];
+C:\Users\akemo\guide-sources\src\services\placesService.ts:36: export async function listApprovedPlaces(filters: PlaceFilters = {}, options?: { onWarning?: (message: string) => void }) {
+C:\Users\akemo\guide-sources\src\services\placesService.ts:38: if (!isSupabaseConfigured) return localRows;
+C:\Users\akemo\guide-sources\src\services\placesService.ts:41: const { data, error } = await supabase.from('production_places').select('*').eq('status', 'approved').order('updated_at', { ascending: false });
+C:\Users\akemo\guide-sources\src\services\placesService.ts:46: return local?.local_media ? { ...remote, local_media: local.local_media } : remote;
+C:\Users\akemo\guide-sources\src\services\placesService.ts:55: export async function listStagingPlaces() { if (!isSupabaseConfigured) return listLocalStagingPlaces(); const { data, error } = await supabase.from('staging_places').select('*').order('updated_at', { ascending: false }); if (error) throw error; return (data || []) as PlaceRecord[]; }
+C:\Users\akemo\guide-sources\src\services\placesService.ts:58: if (!isSupabaseConfigured) return listLocalRejectedPlaces();
+C:\Users\akemo\guide-sources\src\services\placesService.ts:59: const { data, error } = await supabase
+C:\Users\akemo\guide-sources\src\services\placesService.ts:60: .from('staging_places')
+C:\Users\akemo\guide-sources\src\services\placesService.ts:67: export async function getPlaceById(id: string, table: 'staging_places' | 'production_places' = 'production_places') { const { data, error } = await supabase.from(table).select('*').eq('id', id).single(); if (error) throw error; return data as PlaceRecord; }
+C:\Users\akemo\guide-sources\src\services\placesService.ts:68: export async function findDuplicatePlaceName(name: string, excludeId?: string) { if (!isSupabaseConfigured) return findLocalDuplicatePlaceName(name, excludeId); let query = supabase.from('staging_places').select('id,name,status').ilike('name', text(name)); if (excludeId) query = query.neq('id', excludeId); const { data, error } = await query.limit(1); if (error) throw error; return data?.[0] || null; }
+C:\Users\akemo\guide-sources\src\services\placesService.ts:69: export async function saveStagingPlace(place: PlaceRecord) {
+C:\Users\akemo\guide-sources\src\services\placesService.ts:71: if (!isSupabaseConfigured) return localSaved;
+C:\Users\akemo\guide-sources\src\services\placesService.ts:73: const payload = { ...place, status: place.status || 'pending', updated_at: new Date().toISOString() } as Omit<PlaceRecord, 'local_media'>;
+C:\Users\akemo\guide-sources\src\services\placesService.ts:74: delete (payload as any).local_media;
+C:\Users\akemo\guide-sources\src\services\placesService.ts:76: ? await supabase.from('staging_places').update(payload).eq('id', place.id).select().single()
+C:\Users\akemo\guide-sources\src\services\placesService.ts:77: : await supabase.from('staging_places').insert(payload).select().single();
+C:\Users\akemo\guide-sources\src\services\placesService.ts:84: export async function deletePlace(id: string, table: 'staging_places' | 'production_places') {
+C:\Users\akemo\guide-sources\src\services\placesService.ts:85: if (!isSupabaseConfigured) {
+C:\Users\akemo\guide-sources\src\services\placesService.ts:86: const { deleteLocalPlace } = await import('./localStorageProvider');
+C:\Users\akemo\guide-sources\src\services\placesService.ts:89: const { error } = await supabase.from(table).delete().eq('id', id); if (error) throw error;
+C:\Users\akemo\guide-sources\src\services\placesService.ts:95: if (!isSupabaseConfigured) return listLocalDuplicateSuggestions();
+C:\Users\akemo\guide-sources\src\app\page.tsx:7: import { CATEGORIES, MEDIA_UPLOAD_ENABLED } from '@/lib/constants';
+C:\Users\akemo\guide-sources\src\app\page.tsx:8: import { findDuplicatePlaceName, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+C:\Users\akemo\guide-sources\src\app\page.tsx:9: import { uploadPlaceMedia } from '@/services/mediaService';
+C:\Users\akemo\guide-sources\src\app\page.tsx:10: import { isSupabaseConfigured } from '@/lib/supabase';
+C:\Users\akemo\guide-sources\src\app\page.tsx:36: const useLocalMedia = !MEDIA_UPLOAD_ENABLED || !isSupabaseConfigured;
+C:\Users\akemo\guide-sources\src\app\page.tsx:37: if (useLocalMedia) {
+C:\Users\akemo\guide-sources\src\app\page.tsx:44: local_media: [
+C:\Users\akemo\guide-sources\src\app\page.tsx:45: ...(prev.local_media || []),
+C:\Users\akemo\guide-sources\src\app\page.tsx:46: { media_type: 'image', file_name: file.name, data_url: dataUrl, created_at: new Date().toISOString() },
+C:\Users\akemo\guide-sources\src\app\page.tsx:55: local_media: [
+C:\Users\akemo\guide-sources\src\app\page.tsx:56: ...(prev.local_media || []),
+C:\Users\akemo\guide-sources\src\app\page.tsx:57: { media_type: 'video', file_name: file.name, created_at: new Date().toISOString() },
+C:\Users\akemo\guide-sources\src\app\page.tsx:87: const saved = await saveStagingPlace(form);
+C:\Users\akemo\guide-sources\src\app\page.tsx:89: for (const pending of pendingFiles) await uploadPlaceMedia(saved.id, pending.file, pending.type, true);
+C:\Users\akemo\guide-sources\src\app\page.tsx:92: setMessage(`บันทึกสำเร็จแล้ว: ${saved?.name || form.name} บันทึกลง browser localStorage แล้วและ Search จะโหลดข้อมูลใหม่ทันที`);
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:3: import { isSupabaseConfigured } from '@/lib/supabase';
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:6: getCurrentAdminRole,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:8: listUserRoles,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:10: upsertUserRole,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:12: updateUserRole,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:18: import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, listDuplicateSuggestions, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:22: const [role, setRole] = useState<string | null>('checking');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:23: const [staging, setStaging] = useState<PlaceRecord[]>([]);
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:24: const [approved, setApproved] = useState<PlaceRecord[]>([]);
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:28: const [roles, setRoles] = useState<LocalUser[]>([]);
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:32: const [newRole, setNewRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:38: const [addUserRole, setAddUserRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:39: const isLocalMode = !isSupabaseConfigured;
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:40: const load = async () => { try { if (isLocalMode) { setRole('admin'); } else { setRole(await getCurrentAdminRole()); } setStaging(await listStagingPlaces()); setApproved(await listApprovedPlaces()); setRejected(await listRejectedPlaces()); setDuplicateSuggestions(await listDuplicateSuggestions()); setLogs(await listAuditLogs()); setRoles(await listUserRoles()); } catch (e) { setMessage(e instanceof Error ? e.message : 'Admin load failed'); } };
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:41: const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:44: if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required. Sign in with a user listed in user_roles.</div>;
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:47: {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:48: <div className="grid grid-cols-3 gap-2 text-xs"><div className="travel-stat-card p-3">Pending: {statusCounts.pending || 0}</div><div className="travel-stat-card p-3">Approved: {(statusCounts.approved || 0) + approved.length}</div><div className="travel-stat-card p-3">Rejected: {rejected.length}</div></div>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:78: <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { await approvePlace(p); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'staging_places'); })}>ลบ</button></div></div>)}</div></section>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:87: <button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'staging_places'); })}>ลบ</button>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:93: <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Production Search Data ({approved.length})</h3>{approved.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex justify-between mb-2 border border-slate-700"><span className="text-slate-100">{p.name} — {p.category}</span><div className="flex gap-2"><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'production_places'); })}>ลบ</button></div></div>)}<button className="travel-btn travel-btn--primary mt-2 px-3 py-2 rounded text-sm" onClick={() => guarded(async () => { await saveStagingPlace({ name: 'New place', province: 'กรุงเทพมหานคร', category: 'อื่นๆ (โปรดระบุ)', rating: 5, amenities: [], alerts: [], status: 'pending' }); })}>เพิ่มข้อมูลตัวอย่างเพื่อแก้ไข</button></section>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:103: <select className="travel-input flex-1 bg-gray-800 border border-gray-600 rounded p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as any)}>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:108: <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserDisplayName.trim()) { setMessage('Display name required'); return; } await addUser(addUserDisplayName, addUserEmail, addUserRole); setAddUserDisplayName(''); setAddUserEmail(''); setAddUserRole('viewer'); setMessage('User added'); })}>Add</button>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:113: <h4 className="text-sm font-semibold text-slate-100">Users ({roles.length})</h4>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:114: {roles.length === 0 ? (
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:117: roles.map((user) => (
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:128: {/* Middle: Status & Role Badges */}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:133: <span className="inline-flex w-fit px-3 py-1 rounded text-xs font-semibold bg-blue-900 text-blue-100">{user.role}</span>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:138: <select className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full" value={user.role} onChange={(e) => guarded(async () => { await updateUserRole(user.user_id, e.target.value as any); })}>
+C:\Users\akemo\guide-sources\src\components\MemberTab.tsx:2: import { ALERTS, AMENITIES, CATEGORIES, MEDIA_UPLOAD_ENABLED, PROVINCES, getSubcategoriesForCategory, normalizeCategoryLabel } from '@/lib/constants';
+C:\Users\akemo\guide-sources\src\components\MemberTab.tsx:31: return <form onSubmit={onSubmit} className="travel-card space-y-4 p-4" data-media-enabled={MEDIA_UPLOAD_ENABLED}>
+C:\Users\akemo\guide-sources\src\components\MemberTab.tsx:56: {form.local_media?.length ? <div className="text-xs text-slate-300">ไฟล์แนบ: {form.local_media.map((m) => m.file_name).join(', ')}</div> : null}
+C:\Users\akemo\guide-sources\src\components\MemberTab.tsx:57: {!MEDIA_UPLOAD_ENABLED && <p className="text-xs text-yellow-300">Media upload not enabled yet. Set VITE_MEDIA_UPLOAD_ENABLED=true after Supabase Storage is ready.</p>}
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:4: import { listApprovedPlaces, type PlaceRecord } from '@/services/placesService';
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:5: import { listPlaceMedia, type PlaceMedia } from '@/services/mediaService';
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:9: const [media, setMedia] = useState<Record<string, PlaceMedia[]>>({});
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:16: const rows = await listApprovedPlaces({ keyword: filters.keyword, province: filters.province, category: filters.category, sub_category: filters.sub_category, amenities: filters.amenity ? [filters.amenity] : [], alerts: filters.alert ? [filters.alert] : [], rating: filters.rating || undefined }, { onWarning: setWarning });
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:19: const pairs = await Promise.all(rows.filter((p) => p.id).map(async (p) => [p.id!, await listPlaceMedia(p.id!)] as const).slice(0, 20));
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:20: setMedia(Object.fromEntries(pairs));
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:22: setMedia({});
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:80: const availableMedia = media[p.id || ''] || [];
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:81: const localImage = p.local_media?.find((item) => item.media_type === 'image');
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:82: const remoteImage = availableMedia.find((item) => item.media_type === 'image');
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:84: const localVideo = !imageSource ? p.local_media?.find((item) => item.media_type === 'video') : undefined;
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:85: const remoteVideo = !imageSource ? availableMedia.find((item) => item.media_type === 'video') : undefined;
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:86: const videoLabel = localVideo?.file_name || remoteVideo?.storage_path?.split('/').pop();
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:88: <div className="search-card__media">
+C:\Users\akemo\guide-sources\src\components\SearchTab.tsx:102: <div className="search-card__media-top">
+
+========== ENV CHECK WITHOUT PRINTING SECRETS ==========
+NEXT_PUBLIC_SUPABASE_URL=SET_IN_ENV_LOCAL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=SET_IN_ENV_LOCAL
+ENV_EXAMPLE_KEYS:
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
+VITE_MEDIA_UPLOAD_ENABLED
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_MEDIA_UPLOAD_ENABLED
+
+========== DATABASE / MIGRATION INVENTORY ==========
+C:\Users\akemo\guide-sources\supabase\migrations\0001_guide_sources_schema.sql
+C:\Users\akemo\guide-sources\supabase\migrations\202606150001_guide_sources_mvp.sql
+
+========== PACKAGE SCRIPT CHECK ==========
+{
+  "name": "guide-sources",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
+    "lucide-react": "^1.17.0",
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+
+========== RCE MATRIX ==========
+CAUSE_1=App is still localStorage-only | TEST=service/env scan | ELIMINATED=UNKNOWN_UNTIL_REVIEW
+CAUSE_2=Supabase client exists but not fully wired | TEST=supabase.ts/env/services scan | ELIMINATED=UNKNOWN_UNTIL_REVIEW
+CAUSE_3=Auth missing or mock-only | TEST=auth/user role scan | ELIMINATED=UNKNOWN_UNTIL_REVIEW
+CAUSE_4=Database schema missing | TEST=supabase migration inventory | ELIMINATED=UNKNOWN_UNTIL_REVIEW
+CAUSE_5=Media storage missing | TEST=mediaService/storage scan | ELIMINATED=UNKNOWN_UNTIL_REVIEW
+CAUSE_6=Production deploy blocked by env/secrets | TEST=env key presence without values | ELIMINATED=UNKNOWN_UNTIL_REVIEW
+
+========== NEXT DECISION ==========
+AFTER_USER_SENDS_REPORT=Assistant must classify production path and send exact patch onepack
+NO_PATCH_DONE=TRUE

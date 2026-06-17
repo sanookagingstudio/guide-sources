@@ -1,0 +1,9 @@
+# Paste values after =
+# Example:
+# NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+# Do not add quotes
+
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_MEDIA_UPLOAD_ENABLED=false

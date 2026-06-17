@@ -1,0 +1,51 @@
+========== ROOT RECOVERY JS FIX ==========
+OBJECTIVE=Fix TypeScript syntax in root recovery handler
+========== VERIFY ==========
+
+src\app\page.tsx:19:    if (hash.includes('type=recovery') && !window.location.pathname.includes('/auth/update-password')) {
+src\app\page.tsx:20:      window.location.replace('/auth/update-password' + hash);
+src\app\page.tsx:40:    if (type === 'image' && !allowedImageTypes.includes(file.type)) {
+src\app\page.tsx:44:    if (type === 'video' && !allowedVideoTypes.includes(file.type)) {
+src\app\page.tsx:86:      !form.name.trim() && 'ชื่อสถานที่',
+src\app\page.tsx:87:      !form.province.trim() && 'จังหวัด',
+src\app\page.tsx:88:      !form.category.trim() || form.category === '-- เลือกหมวดหมู่หลัก --' && 'หมวดหมู่หลัก',
+src\app\page.tsx:98:      if (duplicate && !confirm(`พบชื่อสถานที่ซ้ำ: ${duplicate.name} ต้องการบันทึกต่อหรือไม่?`)) return;
+src\app\page.tsx:136:    {message && <div className="mb-4 rounded-xl border border-sky-700/70 bg-sky-950/60 p-3 text-sm text-sky-100">{message}</div>}
+src\app\page.tsx:138:      {activeTab === 'search' && <SearchTab refreshKey={refreshKey} onEdit={editPlace} />}
+src\app\page.tsx:139:    {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
+src\app\page.tsx:140:    {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1641ms
+  Running TypeScript ...
+  Finished TypeScript in 1811ms ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/6) ...
+  Generating static pages using 7 workers (1/6) 
+  Generating static pages using 7 workers (2/6) 
+  Generating static pages using 7 workers (4/6) 
+โ“ Generating static pages using 7 workers (6/6) in 400ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== NEXT ==========
+Restart dev server, send password recovery again, open newest email only.

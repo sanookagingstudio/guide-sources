@@ -1,0 +1,51 @@
+========== GUIDE SOURCES P2B SYNTAX FIX ==========
+OBJECTIVE=Fix broken adminUsersApi error string caused by PowerShell template interpolation
+========== VERIFY ==========
+
+src\services\adminService.ts:24:async function adminUsersApi(method: string, body?: unknown) {
+src\services\adminService.ts:36:  if (!response.ok) throw new Error(payload.error || 'Admin users API failed');
+src\services\adminService.ts:85:  await adminUsersApi('PATCH', { user_id, role });
+src\services\adminService.ts:92:  await adminUsersApi('DELETE', { user_id });
+src\services\adminService.ts:99:  await adminUsersApi('DELETE', { user_id });
+src\services\adminService.ts:106:  const payload = await adminUsersApi('GET');
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/services/adminService.ts:108:2
+Expression expected
+  106 |   const payload = await adminUsersApi('GET');
+  107 |   return payload.users || [];
+> 108 | }));
+      |  ^
+  109 | }
+  110 |
+  111 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/services/adminService.ts [Client Component Browser]
+    ./src/components/AdminTab.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/services/adminService.ts [Client Component SSR]
+    ./src/components/AdminTab.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+    at <unknown> (./src/services/adminService.ts:108:2)
+BUILD=FAIL

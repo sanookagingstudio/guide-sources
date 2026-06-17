@@ -1,0 +1,4 @@
+========== ENV VERIFY ==========
+NEXT_PUBLIC_SUPABASE_URL=https://hfoliiqijjkmarggjawp.supabase.co
+ANON_LENGTH=208
+SERVICE_LENGTH=219

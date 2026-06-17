@@ -1,0 +1,69 @@
+========== P4 ROLE DROPDOWN STATE FIX ==========
+OBJECTIVE=Fix controlled role dropdown bouncing back by adding draft role state + explicit Save Role button
+NO_COMMIT=TRUE
+========== PATCH STATE ==========
+========== PATCH RELOAD SYNC ==========
+========== PATCH ROLE CONTROL BLOCK GENERIC ==========
+========== VERIFY SOURCE ==========
+
+src\components\AdminTab.tsx:12:  updateUserRole,
+src\components\AdminTab.tsx:65:  const [draftRoles, setDraftRoles] = useState<Record<string, string>>({});
+src\components\AdminTab.tsx:128:  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
+src\components\AdminTab.tsx:129:  setDraftRoles(nextDraftRoles);
+src\components\AdminTab.tsx:140:  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
+src\components\AdminTab.tsx:141:  setDraftRoles(nextDraftRoles);
+src\components\AdminTab.tsx:256:                      value={draftRoles[user.user_id] || user.role}
+src\components\AdminTab.tsx:259:                        setDraftRoles((prev) => ({ ...prev, [user.user_id]: nextRole }));
+src\components\AdminTab.tsx:260:                        setMessage('Role selected: ' + nextRole + '. Click Save Role to apply.');
+src\components\AdminTab.tsx:271:                        const nextRole = (draftRoles[user.user_id] || user.role) as any;
+src\components\AdminTab.tsx:274:                        await updateUserRole(user.user_id, nextRole);
+src\components\AdminTab.tsx:277:                        setMessage('Role saved as ' + nextRole + ' and verified after reload');
+src\components\AdminTab.tsx:280:                      Save Role
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1704ms
+  Running TypeScript ...
+  Finished TypeScript in 1944ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 409ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== API ROLE PERSIST PROBE ==========
+LIST1_STATUS=200
+PATCH_STATUS=200
+PATCH_BODY={"ok":true,"message":"Role saved"}
+LIST2_STATUS=200
+AFTER_ROLE=viewer
+========== RUNTIME TEST ==========
+1. Make sure npm run dev is open on localhost:3000
+2. Ctrl+F5
+3. Admin > Test Runtime 001
+4. Change Viewer to Editor. It should NOT bounce back.
+5. Click Save Role.
+6. Refresh. Role must remain Editor.

@@ -1,0 +1,68 @@
+========== P4 ROLE DUPLICATE ROWS FIX ==========
+OBJECTIVE=Fix role PATCH when user_roles has duplicate/no rows by delete-then-insert and verify by select array
+NO_COMMIT=TRUE
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1883ms
+  Running TypeScript ...
+  Finished TypeScript in 2.0s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 401ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== ROLE PATCH PROBE ==========
+LIST_STATUS=200
+CURRENT_ROLE=viewer
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+PATCH_TO=editor
+PATCH_STATUS=200
+PATCH_BODY={"ok":true,"message":"Role saved and verified","user_id":"c842546d-dc29-48c3-8e79-40710802c21f","role":"editor","before_count":3,"after_count":1}
+LIST_STATUS=200
+CURRENT_ROLE=editor
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+AFTER_EXPECTED=editor
+AFTER_ACTUAL=editor
+PATCH_TO=viewer
+PATCH_STATUS=200
+PATCH_BODY={"ok":true,"message":"Role saved and verified","user_id":"c842546d-dc29-48c3-8e79-40710802c21f","role":"viewer","before_count":1,"after_count":1}
+LIST_STATUS=200
+CURRENT_ROLE=viewer
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+AFTER_EXPECTED=viewer
+AFTER_ACTUAL=viewer
+PATCH_TO=editor
+PATCH_STATUS=200
+PATCH_BODY={"ok":true,"message":"Role saved and verified","user_id":"c842546d-dc29-48c3-8e79-40710802c21f","role":"editor","before_count":1,"after_count":1}
+LIST_STATUS=200
+CURRENT_ROLE=editor
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+AFTER_EXPECTED=editor
+AFTER_ACTUAL=editor
+========== RUNTIME ==========
+Expected every PATCH_STATUS=200 and AFTER_ACTUAL equals PATCH_TO.
+Then Ctrl+F5 UI and use Save Role.

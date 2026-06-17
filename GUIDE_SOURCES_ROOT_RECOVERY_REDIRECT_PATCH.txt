@@ -1,0 +1,29 @@
+========== ROOT RECOVERY REDIRECT PATCH ==========
+OBJECTIVE=Handle Supabase password recovery hash on root page and redirect to update-password
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/app/page.tsx:19:46
+Expected ')', got 'ident'
+  17 | ...(typeof window !== 'undefined') {
+  18 | ...onst hash = window.location.hash || '';
+> 19 | ...f (hash.includes('type=recovery') -and !window.location.pathname.includes('/auth/update...
+     |                                            ^^^^^^
+  20 | ... window.location.replace('/auth/update-password' + hash);
+  21 | ...
+  22 | ...
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (./src/app/page.tsx:19:46)
+BUILD=FAIL

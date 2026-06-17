@@ -1,0 +1,61 @@
+========== SUPABASE ENV RCE ==========
+========== ENV FILE EXISTS ==========
+True
+========== ENV KEYS WITHOUT SECRETS ==========
+NEXT_PUBLIC_SUPABASE_URL=LENGTH_35
+NEXT_PUBLIC_SUPABASE_ANON_KEY=LENGTH_13
+========== ENV SOURCE ==========
+const PLACEHOLDER_MARKERS = ['your-project-id', 'your_supabase', 'example', 'placeholder'];
+
+const normalize = (value?: string) => (value || '').trim().toLowerCase();
+
+export const isPlaceholderValue = (value?: string) => {
+  const text = normalize(value);
+  return text === '' || PLACEHOLDER_MARKERS.some((marker) => text.includes(marker.toLowerCase()));
+};
+
+export const env = {
+  VITE_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
+  VITE_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '',
+  VITE_MEDIA_UPLOAD_ENABLED: process.env.NEXT_PUBLIC_MEDIA_UPLOAD_ENABLED || process.env.VITE_MEDIA_UPLOAD_ENABLED || 'false',
+};
+
+export const hasRealSupabaseConfig = !isPlaceholderValue(env.VITE_SUPABASE_URL) && !isPlaceholderValue(env.VITE_SUPABASE_ANON_KEY) && Boolean(env.VITE_SUPABASE_URL && env.VITE_SUPABASE_ANON_KEY);
+========== SUPABASE SOURCE ==========
+import { createClient } from '@supabase/supabase-js';
+import { env, hasRealSupabaseConfig } from './env';
+
+const supabaseUrl = env.VITE_SUPABASE_URL;
+const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY;
+
+export const isSupabaseConfigured = hasRealSupabaseConfig;
+
+export const supabase = createClient(
+  isSupabaseConfigured ? supabaseUrl : 'https://placeholder.supabase.co',
+  isSupabaseConfigured ? supabaseAnonKey : 'placeholder-anon-key',
+  { auth: { persistSession: typeof window !== 'undefined' } },
+);
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1476ms
+  Running TypeScript ...
+  Finished TypeScript in 2.2s ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 377ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+

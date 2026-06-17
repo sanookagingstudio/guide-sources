@@ -1,0 +1,97 @@
+========== GUIDE SOURCES AUTH FOUNDATION PATCH REAL ==========
+OBJECTIVE=Add real Supabase sign in/sign out/session UI without changing data workflows
+SCOPE=Auth foundation only
+NO_COMMIT=TRUE
+NO_TAG=TRUE
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+========== PRE BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1411ms
+  Running TypeScript ...
+  Finished TypeScript in 1764ms ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 333ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+========== BACKUP ==========
+========== CREATE AUTH CONTEXT ==========
+========== CREATE AUTH PANEL ==========
+========== PATCH PAGE ==========
+========== SOURCE VERIFY ==========
+
+src\components\AuthContext.tsx:14:  signOut: () => Promise<void>;
+src\components\AuthContext.tsx:19:export function AuthProvider({ children }: { children: React.ReactNode }) {
+src\components\AuthContext.tsx:32:    supabase.auth.getSession().then(({ data }) => {
+src\components\AuthContext.tsx:38:    const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+src\components\AuthContext.tsx:56:      const { error } = await supabase.auth.signInWithPassword({ email, password });
+src\components\AuthContext.tsx:59:    signOut: async () => {
+src\components\AuthContext.tsx:60:      const { error } = await supabase.auth.signOut();
+src\components\AuthContext.tsx:69:export function useAuth() {
+src\components\AuthContext.tsx:71:  if (!value) throw new Error('useAuth must be used inside AuthProvider');
+src\components\AuthPanel.tsx:4:import { AuthProvider, useAuth } from '@/components/AuthContext';
+src\components\AuthPanel.tsx:6:function AuthPanelInner() {
+src\components\AuthPanel.tsx:7:  const auth = useAuth();
+src\components\AuthPanel.tsx:44:        <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs" onClick={() => auth.signOut()}>
+src\components\AuthPanel.tsx:64:export default function AuthPanel() {
+src\components\AuthPanel.tsx:66:    <AuthProvider>
+src\components\AuthPanel.tsx:67:      <AuthPanelInner />
+src\components\AuthPanel.tsx:68:    </AuthProvider>
+src\app\page.tsx:3:import AuthPanel from '@/components/AuthPanel';
+src\app\page.tsx:121:      <button onClick={() => setActiveTab('search')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black $<AuthPanel />
+src\app\page.tsx:127:    <AuthPanel />
+
+========== POST BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1447ms
+  Running TypeScript ...
+  Finished TypeScript in 1768ms ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 331ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+POST_BUILD_PASS
+========== RUNTIME PROOF REQUIRED ==========
+1. npm run dev
+2. Open app
+3. Confirm Sign in for Admin panel visible when Supabase configured
+4. Sign in with real Supabase user
+5. Confirm Signed in + email visible
+6. Open Admin tab
+7. If user has role in user_roles, Admin loads
+8. Sign out works

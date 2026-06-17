@@ -1,0 +1,12 @@
+========== KILL STALE DEV SERVER AND VERIFY ==========
+ROOT_CAUSE=STALE_DEV_SERVER_ON_PORT_3000_WITH_OLD_SERVICE_ROLE_KEY
+========== KILL PORT 3000 ==========
+========== VERIFY PORT FREE ==========
+PORT_3000_STILL_BUSY=FAIL
+
+LocalAddress                        LocalPort RemoteAddress                       RemotePort State       AppliedSett
+                                                                                                         ing
+------------                        --------- -------------                       ---------- -----       -----------
+::1                                 3000      ::1                                 52356      Established Internet   
+::                                  3000      ::                                  0          Listen                 
+

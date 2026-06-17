@@ -1,0 +1,64 @@
+========== SAFE ERROR CAPTURE ==========
+PWD=C:\Users\akemo\guide-sources
+========== LAST EXIT STATUS ==========
+Checking route files...
+
+    Directory: C:\Users\akemo\guide-sources\src\app\api\admin\diag
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           17/6/2569     9:31           2644 route.ts
+
+    Directory: C:\Users\akemo\guide-sources\src\app\api\admin\me
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           17/6/2569    18:23           2361 route.ts
+-a---           17/6/2569     7:58           1898 route.ts.debugbak
+-a---           17/6/2569     8:55           2286 route.ts.envfilebak
+
+    Directory: C:\Users\akemo\guide-sources\src\app\api\admin\users
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           17/6/2569    18:23           8111 route.ts
+-a---           17/6/2569    17:42           8033 route.ts.envfilebak
+-a---           17/6/2569     6:53           4049 route.ts.finalbak
+-a---           17/6/2569    17:32           6048 route.ts.p3acrudbak
+-a---           17/6/2569     7:46           4400 route.ts.p3flowbak
+-a---           17/6/2569    17:42           8033 route.ts.p4fullchainbak
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 2000ms
+  Running TypeScript ...
+  Finished TypeScript in 2.4s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 452ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+========== DONE ==========
