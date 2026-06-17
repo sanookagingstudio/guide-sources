@@ -538,3 +538,183 @@ form > button:hover,
     min-height: auto;
   }
 }
+
+/* GS_UI01_THEME_FOUNDATION_START */
+:root {
+  --gs-bg: #f8f6ef;
+  --gs-surface: rgba(255, 255, 255, 0.88);
+  --gs-surface-solid: #ffffff;
+  --gs-border: rgba(15, 23, 42, 0.10);
+  --gs-text: #102033;
+  --gs-muted: #64748b;
+  --gs-search: #2563eb;
+  --gs-member: #10b981;
+  --gs-admin: #f59e0b;
+  --gs-shadow: 0 16px 42px rgba(15, 23, 42, 0.10);
+}
+
+html,
+body {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.78), rgba(248,246,239,.92)),
+    url('/fabric-texture.svg') repeat,
+    var(--gs-bg) !important;
+  color: var(--gs-text) !important;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.gs-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gs-brand-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(37, 99, 235, .16);
+  background: #fff;
+}
+
+.travel-card,
+.search-card,
+.bg-gray-900,
+.bg-gray-800,
+.bg-gray-700 {
+  background: var(--gs-surface) !important;
+  color: var(--gs-text) !important;
+  border: 1px solid var(--gs-border) !important;
+  box-shadow: var(--gs-shadow);
+  backdrop-filter: blur(10px);
+}
+
+.travel-input,
+input,
+select,
+textarea {
+  background: rgba(255,255,255,.92) !important;
+  color: var(--gs-text) !important;
+  border-color: rgba(15, 23, 42, .16) !important;
+}
+
+.travel-input::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.travel-section-title,
+h1,
+h2,
+h3,
+h4,
+label,
+span,
+p {
+  color: inherit;
+}
+
+.travel-meta,
+.text-slate-300,
+.text-gray-400,
+.text-slate-100 {
+  color: var(--gs-muted) !important;
+}
+
+.travel-btn {
+  border-radius: 14px !important;
+  font-weight: 700;
+  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+
+.travel-btn:hover {
+  transform: translateY(-1px);
+}
+
+.travel-btn--primary,
+.travel-btn--success {
+  background: linear-gradient(135deg, var(--gs-member), #34d399) !important;
+  color: white !important;
+  box-shadow: 0 12px 24px rgba(16, 185, 129, .22);
+}
+
+.travel-btn--secondary {
+  background: rgba(37, 99, 235, .10) !important;
+  color: #1d4ed8 !important;
+}
+
+.travel-btn--warning {
+  background: linear-gradient(135deg, var(--gs-admin), #fbbf24) !important;
+  color: #3b2500 !important;
+}
+
+.travel-btn--danger {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+button:has(> span),
+button {
+  border-radius: 14px;
+}
+
+button[class*="bg-gray"],
+button[class*="border"] {
+  background: rgba(255,255,255,.76) !important;
+  color: var(--gs-text) !important;
+  border-color: var(--gs-border) !important;
+}
+
+button[class*="bg-gray"]:hover,
+button[class*="border"]:hover {
+  background: rgba(255,255,255,.96) !important;
+}
+
+button[aria-selected="true"],
+button[data-active="true"] {
+  box-shadow: var(--gs-shadow);
+}
+
+.search-card {
+  border-radius: 24px !important;
+  overflow: hidden;
+}
+
+.search-card__media {
+  background: linear-gradient(135deg, #dbeafe, #ecfdf5) !important;
+}
+
+.search-card__image {
+  border-radius: 18px;
+}
+
+a {
+  color: #2563eb;
+}
+
+.border,
+.border-slate-700,
+.border-gray-700,
+.border-gray-600 {
+  border-color: var(--gs-border) !important;
+}
+
+/* GS_UI01_THEME_FOUNDATION_END */
+
+/* GS_UI01B_HEADER_TUNE_START */
+.gs-brand-row {
+  align-items: center;
+}
+
+.gs-brand-row h1 {
+  letter-spacing: -0.03em;
+}
+
+.gs-brand-logo {
+  flex: 0 0 auto;
+}
+/* GS_UI01B_HEADER_TUNE_END */

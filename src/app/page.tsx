@@ -119,13 +119,10 @@ function GuideSourcesApp() {
   return <div className="travel-shell mx-auto w-full max-w-[980px] p-3 sm:p-4 bg-gray-900 text-white min-h-screen">
     <header className="mb-4 rounded-2xl border border-slate-700/70 bg-slate-900/85 p-3 sm:p-4 shadow-xl">
       <div className="flex items-center gap-3">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-sky-300/25 bg-gradient-to-br from-sky-400/18 to-emerald-400/12 shadow-inner">
-          <img src="/globe.svg" alt="Guide Sources logo" className="h-8 w-8" />
-        </div>
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-sky-200/90">Guide Sources</p>
-          <h1 className="text-lg sm:text-xl font-black text-white">Guide Sources</h1>
-          <p className="text-xs sm:text-sm text-slate-300">ข้อมูลจริงสำหรับการเดินทาง การวางแผน และงานทัวร์</p>
+          <p className="text-[10px] uppercase tracking-[0.28em] text-blue-600">Guide Sources</p>
+          <div className="gs-brand-row"><img className="gs-brand-logo" src="/guide-sources-tour-logo.svg" alt="Guide Sources" /><h1 className="text-lg sm:text-xl font-black text-slate-900">Guide Sources</h1></div>
+          <p className="text-xs sm:text-sm text-slate-600">ข้อมูลจริงสำหรับการเดินทาง การวางแผน และงานทัวร์</p>
         </div>
       </div>
     </header>
@@ -153,6 +150,8 @@ export default function Home() {
     </AuthProvider>
   );
 }
+
+
 
 
 
