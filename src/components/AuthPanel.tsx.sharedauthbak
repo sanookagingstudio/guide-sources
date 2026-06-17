@@ -1,0 +1,73 @@
+'use client';
+
+import { FormEvent, useState } from 'react';
+import { AuthProvider, useAuth } from '@/components/AuthContext';
+
+function AuthPanelInner() {
+  const auth = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setMessage('');
+    try {
+      await auth.signIn(email.trim(), password);
+      setPassword('');
+      setMessage('Signed in');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Sign in failed');
+    }
+  };
+
+  if (!auth.isSupabaseConfigured) {
+    return (
+      <section className="travel-card p-3 mb-4 text-sm border border-emerald-700 bg-emerald-950/70">
+        <strong>LOCAL MODE</strong>
+        <p className="text-xs text-slate-300 mt-1">Supabase is not configured. Admin uses local functional mode.</p>
+      </section>
+    );
+  }
+
+  if (auth.loading) {
+    return <section className="travel-card p-3 mb-4 text-sm">Checking session...</section>;
+  }
+
+  if (auth.user) {
+    return (
+      <section className="travel-card p-3 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm">
+        <div>
+          <strong>Signed in</strong>
+          <p className="text-xs text-slate-300">{auth.email}</p>
+<p className="text-xs text-slate-500 break-all">UID: {auth.user.id}</p>
+        </div>
+        <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs" onClick={() => auth.signOut()}>
+          Sign out
+        </button>
+      </section>
+    );
+  }
+
+  return (
+    <section className="travel-card p-3 mb-4 text-sm">
+      <strong>Sign in for Admin</strong>
+      <form onSubmit={submit} className="mt-3 grid gap-2 md:grid-cols-[1fr_1fr_auto]">
+        <input className="travel-input bg-gray-800 border border-gray-600 rounded p-2 text-xs" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input className="travel-input bg-gray-800 border border-gray-600 rounded p-2 text-xs" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <button className="travel-btn travel-btn--primary px-3 py-2 rounded text-xs" type="submit">Sign in</button>
+      </form>
+      {message && <p className="text-xs text-amber-200 mt-2">{message}</p>}
+    </section>
+  );
+}
+
+export default function AuthPanel() {
+  return (
+    <AuthProvider>
+      <AuthPanelInner />
+    </AuthProvider>
+  );
+}
+
+

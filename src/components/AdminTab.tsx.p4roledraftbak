@@ -62,7 +62,6 @@ const [authEmail, setAuthEmail] = useState<string>('');
   const [roles, setRoles] = useState<LocalUser[]>([]);
   const [message, setMessage] = useState('');
   const [busyUserId, setBusyUserId] = useState<string>('');
-  const [draftRoles, setDraftRoles] = useState<Record<string, string>>({});
   const setBusyMessage = (text: string) => setMessage(text);
   const [showAuditLogs, setShowAuditLogs] = useState(false);
   const [importText, setImportText] = useState('');
@@ -125,8 +124,6 @@ const [authEmail, setAuthEmail] = useState<string>('');
 
     const realUsers = await listUsers();
     setRoles(realUsers);
-  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
-  setDraftRoles(nextDraftRoles);
     setMessage('');
   } catch (e) {
     setRole(null);
@@ -137,8 +134,6 @@ const [authEmail, setAuthEmail] = useState<string>('');
 const reloadRealUsers = async () => {
   const realUsers = await listUsers();
   setRoles(realUsers);
-  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
-  setDraftRoles(nextDraftRoles);
 };
   const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
   useEffect(() => { load(); }, [auth.loading, auth.session?.access_token]);
@@ -250,36 +245,19 @@ UID: {authUserId || '(unknown)'}</div>;
 
                 {/* Right: Controls */}
                 <div className="flex flex-col gap-2">
-                  <div className="flex gap-2">
-                    <select
-                      className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full"
-                      value={draftRoles[user.user_id] || user.role}
-                      onChange={(e) => {
-                        const nextRole = e.target.value;
-                        setDraftRoles((prev) => ({ ...prev, [user.user_id]: nextRole }));
-                        setMessage('Role selected: ' + nextRole + '. Click Save Role to apply.');
-                      }}
-                    >
-                      <option value="viewer">Viewer</option>
-                      <option value="editor">Editor</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                    <button
-                      className="travel-btn travel-btn--primary px-3 py-2 rounded text-xs"
-                      type="button"
-                      onClick={() => guarded(async () => {
-                        const nextRole = (draftRoles[user.user_id] || user.role) as any;
+                  <select className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full" value={user.role} onChange={(e) => guarded(async () => {
+                        const nextRole = e.target.value as any;
                         setBusyUserId(user.user_id);
                         setMessage('Saving role...');
                         await updateUserRole(user.user_id, nextRole);
                         await reloadRealUsers();
                         setBusyUserId('');
                         setMessage('Role saved as ' + nextRole + ' and verified after reload');
-                      })}
-                    >
-                      Save Role
-                    </button>
-                  </div>
+                      })}>
+                    <option value="viewer">Viewer</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
+                  </select>
                   <div className="flex gap-2">
                     {user.status === 'active' && (
                       <button className="travel-btn travel-btn--warning px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { await disableUser(user.user_id); })}>Disable</button>
@@ -316,7 +294,6 @@ UID: {authUserId || '(unknown)'}</div>;
     </section>
   </div>;
 }
-
 
 
 

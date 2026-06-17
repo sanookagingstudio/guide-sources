@@ -39,26 +39,12 @@ async function adminUsersApi(method: string, body?: unknown) {
 export type { LocalUser };
 export async function getCurrentAdminRole() {
   if (!isSupabaseConfigured) return 'admin';
-
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token || '';
-
-  if (!token) return null;
-
-  const response = await fetch('/api/admin/me', {
-    method: 'GET',
-    headers: {
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(payload.error || 'Admin role check failed');
-  }
-
-  return (payload.role || null) as AdminRole | null;
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return null;
+  const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId).in('role', ['admin','editor','viewer']).maybeSingle();
+  if (error) throw error;
+  return data?.role as AdminRole | null;
 }
 export async function logAdminAction(action: string, entityType: string, entityId?: string, details?: unknown) {
   if (!isSupabaseConfigured) { logLocalAdminAction(action, entityType, entityId, details); return; }
@@ -77,12 +63,10 @@ export async function listAuditLogs() { if (!isSupabaseConfigured) return listLo
 export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const { data, error } = await supabase.from('user_roles').select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
 export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const { error } = await supabase.from('user_roles').upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
 
-export async function addUser(display_name: string, email: string, role: AdminRole, password?: string): Promise<LocalUser> {
+export async function addUser(display_name: string, email: string, role: AdminRole): Promise<LocalUser> {
   if (!isSupabaseConfigured) return addLocalUser(display_name, email, role);
 
-  const payload = await adminUsersApi('POST', { display_name, email, role, password });
-  await logAdminAction('create_or_update_auth_user_role', 'user_role', payload.user?.user_id, { email, role });
-  return payload.user as LocalUser;
+  throw new Error('P2B directory mode does not create Auth users yet. Create the user in Supabase Authentication first, then assign role from the Users list.');
 }
 
 export async function updateUserRole(user_id: string, role: AdminRole): Promise<LocalUser | null> {
@@ -104,8 +88,8 @@ export async function updateUserRole(user_id: string, role: AdminRole): Promise<
 export async function disableUser(user_id: string): Promise<LocalUser | null> {
   if (!isSupabaseConfigured) return disableLocalUser(user_id);
 
-  await adminUsersApi('PUT', { user_id, action: 'disable' });
-  await logAdminAction('disable_auth_user', 'user', user_id, {});
+  await adminUsersApi('DELETE', { user_id });
+  await logAdminAction('disable_user_role', 'user_role', user_id, {});
 
   return {
     user_id,
@@ -130,24 +114,6 @@ export async function listUsers(): Promise<LocalUser[]> {
   if (!isSupabaseConfigured) return listLocalUsers();
 
   const payload = await adminUsersApi('GET');
-  const rows = Array.isArray(payload.users) ? payload.users : [];
-
-  return rows.map((user: any) => {
-    const email = String(user.email || '').trim();
-    const displayName = String(user.display_name || '').trim() || email.split('@')[0] || 'User';
-    return {
-      user_id: String(user.user_id || ''),
-      display_name: displayName,
-      email,
-      role: (user.role || 'viewer') as AdminRole,
-      status: user.status || 'active',
-      created_at: user.created_at || new Date().toISOString(),
-    };
-  });
+  return payload.users || [];
 }
-
-
-
-
-
 

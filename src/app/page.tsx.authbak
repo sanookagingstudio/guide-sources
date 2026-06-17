@@ -1,8 +1,5 @@
 'use client';
 
-import AuthPanel from '@/components/AuthPanel';
-import { AuthProvider } from '@/components/AuthContext';
-
 import { useEffect, useState } from 'react';
 import SearchTab from '@/components/SearchTab';
 import AdminTab from '@/components/AdminTab';
@@ -14,18 +11,7 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 
 type Tab = 'search' | 'member' | 'admin';
 
-function RootRecoveryHashHandler() {
-  if (typeof window !== 'undefined') {
-    const hash = window.location.hash || '';
-    if (hash.includes('type=recovery') && !window.location.pathname.includes('/auth/update-password')) {
-      window.location.replace('/auth/update-password' + hash);
-    }
-  }
-  return null;
-}
-
-// Supabase recovery hash handler
-function GuideSourcesApp() {
+export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('search');
   const [form, setForm] = useState<PlaceRecord>(emptyMemberPlace);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -135,23 +121,9 @@ function GuideSourcesApp() {
       <button onClick={() => setActiveTab('admin')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'admin' ? 'travel-tab--admin bg-amber-400 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>⚙️ Admin</button>
     </nav>
     {message && <div className="mb-4 rounded-xl border border-sky-700/70 bg-sky-950/60 p-3 text-sm text-sky-100">{message}</div>}
-    <AuthPanel />
-      {activeTab === 'search' && <SearchTab refreshKey={refreshKey} onEdit={editPlace} />}
+    {activeTab === 'search' && <SearchTab refreshKey={refreshKey} onEdit={editPlace} />}
     {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
     {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
   </div>;
 }
-
-
-
-
-
-export default function Home() {
-  return (
-    <AuthProvider>
-      <GuideSourcesApp />
-    </AuthProvider>
-  );
-}
-
 

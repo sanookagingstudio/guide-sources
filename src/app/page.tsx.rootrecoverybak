@@ -1,7 +1,6 @@
 'use client';
 
 import AuthPanel from '@/components/AuthPanel';
-import { AuthProvider } from '@/components/AuthContext';
 
 import { useEffect, useState } from 'react';
 import SearchTab from '@/components/SearchTab';
@@ -14,18 +13,7 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 
 type Tab = 'search' | 'member' | 'admin';
 
-function RootRecoveryHashHandler() {
-  if (typeof window !== 'undefined') {
-    const hash = window.location.hash || '';
-    if (hash.includes('type=recovery') && !window.location.pathname.includes('/auth/update-password')) {
-      window.location.replace('/auth/update-password' + hash);
-    }
-  }
-  return null;
-}
-
-// Supabase recovery hash handler
-function GuideSourcesApp() {
+export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('search');
   const [form, setForm] = useState<PlaceRecord>(emptyMemberPlace);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -140,18 +128,6 @@ function GuideSourcesApp() {
     {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
     {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
   </div>;
-}
-
-
-
-
-
-export default function Home() {
-  return (
-    <AuthProvider>
-      <GuideSourcesApp />
-    </AuthProvider>
-  );
 }
 
 

@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
-import { useAuth } from '@/components/AuthContext';
 import { 
   approvePlace, 
+  getCurrentAdminRole, 
   listAuditLogs, 
   listUserRoles, 
   rejectPlace, 
@@ -18,39 +18,7 @@ import {
 import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, listDuplicateSuggestions, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
 import { importPlaces } from '@/services/importService';
 
-async function getRoleFromServer(token: string) {
-  if (!token) {
-    return { role: null, email: '', user_id: '', error: 'Missing AuthContext session token' };
-  }
-
-  const response = await fetch('/api/admin/me', {
-    method: 'GET',
-    headers: {
-      authorization: `Bearer ${token}`,
-    },
-  });
-
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    return {
-      role: null,
-      email: payload.email || '',
-      user_id: payload.user_id || '',
-      error: payload.error || 'Admin role check failed',
-    };
-  }
-
-  return {
-    role: payload.role || null,
-    email: payload.email || '',
-    user_id: payload.user_id || '',
-    error: '',
-  };
-}
-
 export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => void }) {
-  const auth = useAuth();
   const [role, setRole] = useState<string | null>('checking');
 const [authUserId, setAuthUserId] = useState<string>('');
 const [authEmail, setAuthEmail] = useState<string>('');
@@ -61,9 +29,6 @@ const [authEmail, setAuthEmail] = useState<string>('');
   const [logs, setLogs] = useState<any[]>([]);
   const [roles, setRoles] = useState<LocalUser[]>([]);
   const [message, setMessage] = useState('');
-  const [busyUserId, setBusyUserId] = useState<string>('');
-  const [draftRoles, setDraftRoles] = useState<Record<string, string>>({});
-  const setBusyMessage = (text: string) => setMessage(text);
   const [showAuditLogs, setShowAuditLogs] = useState(false);
   const [importText, setImportText] = useState('');
   const [newRole, setNewRole] = useState<'admin'|'editor'|'viewer'>('viewer');
@@ -72,78 +37,19 @@ const [authEmail, setAuthEmail] = useState<string>('');
   // User management form
   const [addUserDisplayName, setAddUserDisplayName] = useState('');
   const [addUserEmail, setAddUserEmail] = useState('');
-  const [addUserPassword, setAddUserPassword] = useState('');
   const [addUserRole, setAddUserRole] = useState<'admin'|'editor'|'viewer'>('viewer');
   const isLocalMode = !isSupabaseConfigured;
-  const load = async () => {
-  try {
-    if (isLocalMode) {
-      setRole('admin');
-    } else {
-      if (auth.loading) return;
-
-      const token = auth.session?.access_token || '';
-
-      console.log('AUTH_DEBUG_ADMIN_TAB', {
-        auth_loading: auth.loading,
-        auth_email: auth.email,
-        auth_user_id: auth.user?.id || '',
-        has_session: Boolean(auth.session),
-        token_length: token.length,
-        session_user_id: auth.session?.user?.id || '',
-        session_email: auth.session?.user?.email || '',
-      });
-
-      console.log('AUTH_TOKEN_LENGTH', token.length);
-      setAuthUserId(auth.user?.id || '');
-      setAuthEmail(auth.email || '');
-
-      if (!token) {
-        setRole(null);
-        setMessage('Missing AuthContext session token');
-        return;
-      }
-
-      const roleResult = await getRoleFromServer(token);
-      setAuthUserId(roleResult.user_id || auth.user?.id || '');
-      setAuthEmail(roleResult.email || auth.email || '');
-
-      if (!roleResult.role) {
-        setRole(null);
-        setMessage(roleResult.error || 'Admin role required');
-        return;
-      }
-
-      setRole(roleResult.role);
+  const load = async () => { try {
+    if (!isLocalMode) {
+      const { data } = await supabase.auth.getUser();
+      setAuthUserId(data.user?.id || '');
+      setAuthEmail(data.user?.email || '');
     }
-
-    setStaging(await listStagingPlaces());
-    setApproved(await listApprovedPlaces());
-    setRejected(await listRejectedPlaces());
-    setDuplicateSuggestions(await listDuplicateSuggestions());
-    setLogs(await listAuditLogs());
-
-    const realUsers = await listUsers();
-    setRoles(realUsers);
-  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
-  setDraftRoles(nextDraftRoles);
-    setMessage('');
-  } catch (e) {
-    setRole(null);
-    setMessage(e instanceof Error ? e.message : 'Admin load failed');
-  }
-};
-
-const reloadRealUsers = async () => {
-  const realUsers = await listUsers();
-  setRoles(realUsers);
-  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
-  setDraftRoles(nextDraftRoles);
-};
+    if (isLocalMode) { setRole('admin'); } else { setRole(await getCurrentAdminRole()); } setStaging(await listStagingPlaces()); setApproved(await listApprovedPlaces()); setRejected(await listRejectedPlaces()); setDuplicateSuggestions(await listDuplicateSuggestions()); setLogs(await listAuditLogs()); setRoles(await listUserRoles()); } catch (e) { setMessage(e instanceof Error ? e.message : 'Admin load failed'); } };
   const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
-  useEffect(() => { load(); }, [auth.loading, auth.session?.access_token]);
+  useEffect(() => { load(); }, []);
   const guarded = async (fn: () => Promise<void>) => { try { await fn(); await load(); } catch (e) { setMessage(e instanceof Error ? e.message : 'Action failed'); } };
-  if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required or role API failed.
+  if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required. This signed-in user is not matched to an admin/editor/viewer row in public.user_roles.
 Email: {authEmail || '(unknown)'}
 UID: {authUserId || '(unknown)'}</div>;
   return <div className="space-y-6 animate-fade-in">
@@ -179,7 +85,7 @@ UID: {authUserId || '(unknown)'}</div>;
       </div>
     </section>
 
-    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Approving...'); setMessage('Approving...'); await approvePlace(p); setMessage('Approved and reloaded'); setMessage('Approved and reloaded'); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Rejecting...'); setMessage('Rejecting...'); await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); setMessage('Rejected and reloaded'); setMessage('Rejected and reloaded'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); setMessage('Deleted and reloaded'); })}>ลบ</button></div></div>)}</div></section>
+    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { await approvePlace(p); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'staging_places'); })}>ลบ</button></div></div>)}</div></section>
     <section className="travel-card p-4">
       <h3 className="travel-section-title mb-3">Rejected Queue ({rejected.length})</h3>
       <div className="space-y-2">
@@ -188,7 +94,7 @@ UID: {authUserId || '(unknown)'}</div>;
             <span className="text-slate-100">{p.name} — {p.province} — rejected{p.rejection_reason ? ` — ${p.rejection_reason}` : ''}</span>
             <div className="flex gap-2 flex-wrap">
               <button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button>
-              <button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); setMessage('Deleted and reloaded'); })}>ลบ</button>
+              <button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'staging_places'); })}>ลบ</button>
             </div>
           </div>
         ))}
@@ -198,29 +104,18 @@ UID: {authUserId || '(unknown)'}</div>;
     <section className="travel-card p-4"><h3 className="travel-section-title mb-2">Import CSV/JSON</h3><textarea className="travel-input w-full h-28 bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="name,province,category,rating" /><button className="travel-btn travel-btn--primary mt-2 px-3 py-2 rounded" onClick={() => guarded(async () => { const result = await importPlaces(importText); setMessage(`Imported ${result.imported}/${result.total}`); })}>Import</button></section>
     <section className="travel-card p-4">
       <h3 className="travel-section-title mb-3">👥 REAL USER MANAGEMENT</h3>
-      <p className="text-xs text-amber-200 mb-3">Runtime action status: {message || 'Ready'}</p>
       <div className="mb-4 p-3 bg-gray-900 rounded border border-gray-700">
-        <h4 className="text-sm font-semibold mb-2 text-slate-100">Create / Update Auth User</h4>
+        <h4 className="text-sm font-semibold mb-2 text-slate-100">Assign Role / Add Existing Auth User</h4>
         <div className="space-y-2">
           <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Display name" value={addUserDisplayName} onChange={(e) => setAddUserDisplayName(e.target.value)} />
           <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Email" type="email" value={addUserEmail} onChange={(e) => setAddUserEmail(e.target.value)} />
-          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Temporary password / new password" type="password" value={addUserPassword} onChange={(e) => setAddUserPassword(e.target.value)} />
           <div className="flex gap-2">
             <select className="travel-input flex-1 bg-gray-800 border border-gray-600 rounded p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as any)}>
               <option value="viewer">Viewer</option>
               <option value="editor">Editor</option>
               <option value="admin">Admin</option>
             </select>
-            <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserEmail.trim()) { setMessage('Email required'); return; }
-              if (!addUserPassword.trim() || addUserPassword.trim().length < 6) { setMessage('Password required, minimum 6 characters'); return; }
-              setBusyMessage('Creating/updating auth user...');
-              await addUser(addUserDisplayName || addUserEmail.split('@')[0], addUserEmail, addUserRole, addUserPassword);
-              setAddUserDisplayName('');
-              setAddUserEmail('');
-              setAddUserPassword('');
-              setAddUserRole('viewer');
-              await reloadRealUsers();
-              setMessage('Auth user created/updated and verified after reload'); })}>Add</button>
+            <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserDisplayName.trim()) { setMessage('Display name required'); return; } await addUser(addUserDisplayName, addUserEmail, addUserRole); setAddUserDisplayName(''); setAddUserEmail(''); setAddUserRole('viewer'); setMessage('User added'); })}>Add</button>
           </div>
         </div>
       </div>
@@ -234,8 +129,8 @@ UID: {authUserId || '(unknown)'}</div>;
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Left: User Info */}
                 <div className="space-y-1">
-                  <p className="text-slate-100 font-semibold text-sm">{user.display_name || user.email || 'User'}</p>
-                  <p className="text-slate-400 text-xs break-all">{user.email || 'EMAIL_MISSING_FROM_API'}</p>
+                  <p className="text-slate-100 font-semibold text-sm">{user.display_name || 'Unnamed'}</p>
+                  <p className="text-slate-400 text-xs break-all">{user.email || '(no email)'}</p>
                   <p className="text-slate-500 text-xs break-all">ID: {user.user_id.substring(0, 16)}...</p>
                   <p className="text-slate-600 text-xs pt-2">Created: {new Date(user.created_at).toLocaleDateString()}</p>
                 </div>
@@ -250,46 +145,16 @@ UID: {authUserId || '(unknown)'}</div>;
 
                 {/* Right: Controls */}
                 <div className="flex flex-col gap-2">
-                  <div className="flex gap-2">
-                    <select
-                      className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full"
-                      value={draftRoles[user.user_id] || user.role}
-                      onChange={(e) => {
-                        const nextRole = e.target.value;
-                        setDraftRoles((prev) => ({ ...prev, [user.user_id]: nextRole }));
-                        setMessage('Role selected: ' + nextRole + '. Click Save Role to apply.');
-                      }}
-                    >
-                      <option value="viewer">Viewer</option>
-                      <option value="editor">Editor</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                    <button
-                      className="travel-btn travel-btn--primary px-3 py-2 rounded text-xs"
-                      type="button"
-                      onClick={() => guarded(async () => {
-                        const nextRole = (draftRoles[user.user_id] || user.role) as any;
-                        setBusyUserId(user.user_id);
-                        setMessage('Saving role...');
-                        await updateUserRole(user.user_id, nextRole);
-                        await reloadRealUsers();
-                        setBusyUserId('');
-                        setMessage('Role saved as ' + nextRole + ' and verified after reload');
-                      })}
-                    >
-                      Save Role
-                    </button>
-                  </div>
+                  <select className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full" value={user.role} onChange={(e) => guarded(async () => { await updateUserRole(user.user_id, e.target.value as any); })}>
+                    <option value="viewer">Viewer</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
+                  </select>
                   <div className="flex gap-2">
                     {user.status === 'active' && (
                       <button className="travel-btn travel-btn--warning px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { await disableUser(user.user_id); })}>Disable</button>
                     )}
-                    <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { if (confirm('Delete user?')) { setBusyUserId(user.user_id);
-                        setMessage('Deleting user role...');
-                        await deleteUser(user.user_id);
-                        await reloadRealUsers();
-                        setBusyUserId('');
-                        setMessage('User role deleted and verified after reload'); } })}>Delete</button>
+                    <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { if (confirm('Delete user?')) { await deleteUser(user.user_id); } })}>Delete</button>
                   </div>
                 </div>
               </div>
@@ -316,19 +181,6 @@ UID: {authUserId || '(unknown)'}</div>;
     </section>
   </div>;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,7 +1,6 @@
 'use client';
 
 import AuthPanel from '@/components/AuthPanel';
-import { AuthProvider } from '@/components/AuthContext';
 
 import { useEffect, useState } from 'react';
 import SearchTab from '@/components/SearchTab';
@@ -25,7 +24,7 @@ function RootRecoveryHashHandler() {
 }
 
 // Supabase recovery hash handler
-function GuideSourcesApp() {
+export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('search');
   const [form, setForm] = useState<PlaceRecord>(emptyMemberPlace);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -143,15 +142,5 @@ function GuideSourcesApp() {
 }
 
 
-
-
-
-export default function Home() {
-  return (
-    <AuthProvider>
-      <GuideSourcesApp />
-    </AuthProvider>
-  );
-}
 
 

@@ -42,7 +42,7 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
   const share = async (p: PlaceRecord) => { const text = `${p.name} (${p.province}) ${p.google_maps_url || ''}`; await navigator.clipboard?.writeText(text); alert('คัดลอกข้อมูลสำหรับแชร์แล้ว'); };
   return <div className="space-y-6 animate-fade-in">
     <div className="travel-card p-4 space-y-3">
-      <div className="space-y-1"><h2 className="travel-section-title">SEARCH RESULTS</h2><p className="travel-meta text-sm">Clear travel discovery cards with stronger contrast and easier scanning.</p></div>
+      <div className="space-y-1"><h2 className="travel-section-title">Search Results</h2><p className="travel-meta text-sm">Clear travel discovery cards with stronger contrast and easier scanning.</p></div>
       <input list="search-suggestions" placeholder="🔍 ค้นหาสถานที่, หมวดหมู่, จุดเด่น..." className="travel-input w-full p-3 bg-gray-900 rounded border border-gray-600" value={filters.keyword} onChange={(e) => setFilters({...filters, keyword: e.target.value})} /><datalist id="search-suggestions">{suggestions.map((s) => <option key={s} value={s} />)}</datalist>
       <div className="grid md:grid-cols-3 gap-2 text-sm">
         <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.province} onChange={(e) => setFilters({ ...filters, province: e.target.value })}>
@@ -140,10 +140,6 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
     </div>
   </div>;
 }
-
-
-
-
 
 
 
