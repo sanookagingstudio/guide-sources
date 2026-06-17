@@ -6,6 +6,7 @@ import { listPlaceMedia, type PlaceMedia } from '@/services/mediaService';
 
 export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; onEdit: (place: PlaceRecord) => void }) {
   const [places, setPlaces] = useState<PlaceRecord[]>([]);
+  const [selectedPlaceIds, setSelectedPlaceIds] = useState<Record<string, boolean>>({});
   const [media, setMedia] = useState<Record<string, PlaceMedia[]>>({});
   const [warning, setWarning] = useState('');
   const [filters, setFilters] = useState({ keyword: '', province: '', category: '', sub_category: '', amenity: '', alert: '', rating: 0 });
@@ -40,6 +41,76 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
   const suggestions = useMemo(() => [...new Set(places.flatMap((p) => [p.name, p.province, p.category, p.sub_category].filter(Boolean) as string[]))], [places]);
   const subcategoryOptions = useMemo(() => (filters.category ? getSubcategoriesForCategory(filters.category) : SUBCATEGORIES), [filters.category]);
   const share = async (p: PlaceRecord) => { const text = `${p.name} (${p.province}) ${p.google_maps_url || ''}`; await navigator.clipboard?.writeText(text); alert('คัดลอกข้อมูลสำหรับแชร์แล้ว'); };
+  const getPlaceKey = (place: PlaceRecord, index: number) => place.id || `${place.name}-${place.province}-${index}`;
+
+  const selectedPlaces = useMemo(
+    () => places.filter((place, index) => selectedPlaceIds[getPlaceKey(place, index)]),
+    [places, selectedPlaceIds]
+  );
+
+  const exportRows = selectedPlaces.length ? selectedPlaces : places;
+  const exportScopeLabel = selectedPlaces.length ? `selected ${selectedPlaces.length}` : `all ${places.length}`;
+
+  const toggleSelectedPlace = (key: string) => {
+    setSelectedPlaceIds((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const clearSelectedPlaces = () => setSelectedPlaceIds({});
+
+  const exportCsv = () => {
+    const headers = [
+      'name',
+      'province',
+      'category',
+      'sub_category',
+      'rating',
+      'google_maps_url',
+      'phone',
+      'recommender',
+      'suggestion',
+      'media_type',
+      'media_url',
+      'media_caption'
+    ];
+
+    const escapeCsv = (value: unknown) => {
+      const text = Array.isArray(value) ? value.join('; ') : String(value ?? '');
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+
+    const csv = [
+      headers.join(','),
+      ...exportRows.map((place) =>
+        headers.map((key) => escapeCsv((place as Record<string, unknown>)[key])).join(',')
+      )
+    ].join('\r\n');
+
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `guide-sources-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportJson = () => {
+    const blob = new Blob([JSON.stringify(exportRows, null, 2)], {
+      type: 'application/json;charset=utf-8;'
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `guide-sources-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+
   return <div className="space-y-6 animate-fade-in">
     <div className="travel-card p-4 space-y-3">
       <div className="space-y-1"><h2 className="travel-section-title">SEARCH RESULTS</h2><p className="travel-meta text-sm">Clear travel discovery cards with stronger contrast and easier scanning.</p></div>
@@ -72,7 +143,12 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
       </div>
     </div>
     {warning && <div className="bg-amber-950/80 border border-amber-700 rounded-xl p-3 text-sm text-amber-100">{warning}</div>}
-    <h3 className="travel-section-title">ผลการค้นหา {places.length} รายการ</h3>
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <h3 className="travel-section-title">ผลการค้นหา {places.length} รายการ</h3>
+      <div className="flex gap-2">
+        <span className="text-xs text-slate-300">Export: {exportScopeLabel}</span><button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportCsv}>Export CSV</button><button className="travel-btn travel-btn--secondary px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportJson}>Export JSON</button>{selectedPlaces.length > 0 && <button className="travel-btn px-3 py-2 rounded text-xs" type="button" onClick={clearSelectedPlaces}>Clear selected</button>}
+      </div>
+    </div>
     <div className="grid md:grid-cols-2 gap-4">
       {places.map((p) => {
         const normalizedCategory = normalizeCategoryLabel(p.category || '');
@@ -84,7 +160,13 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
         const localVideo = !imageSource ? p.local_media?.find((item) => item.media_type === 'video') : undefined;
         const remoteVideo = !imageSource ? availableMedia.find((item) => item.media_type === 'video') : undefined;
         const videoLabel = localVideo?.file_name || remoteVideo?.storage_path?.split('/').pop();
+
+        const placeKey = getPlaceKey(p, places.indexOf(p));
         return <article key={p.id || p.name} className="search-card">
+          <label className="flex items-center gap-2 text-xs text-slate-200 mb-3">
+            <input type="checkbox" checked={Boolean(selectedPlaceIds[placeKey])} onChange={() => toggleSelectedPlace(placeKey)} />
+            Select for export
+          </label>
           <div className="search-card__media">
             {imageSource ? (
               <img src={imageSource} alt={p.name} className="search-card__image" />
@@ -140,6 +222,11 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
     </div>
   </div>;
 }
+
+
+
+
+
 
 
 

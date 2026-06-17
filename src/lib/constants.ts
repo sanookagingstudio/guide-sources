@@ -208,3 +208,8 @@ export function getSubcategoriesForCategory(category: string): string[] {
 export const AMENITIES = ['♿ รองรับรถเข็น','🚌 จอดรถบัสได้','⏳ ทางเรียบ/ราวจับ','🐾 ห้องน้ำคนพิการ','🏥 มีเครื่อง AED','📶 Wi-Fi ฟรี','🦮 รองรับผู้พิการทางสายตา'];
 export const ALERTS = ['🚗 จอดรถยาก','⏳ คิวยาว','📞 ต้องสำรองล่วงหน้า','📐 บันไดเยอะ','📶 สัญญาณโทรศัพท์ไม่ดี','☀️ พื้นที่โล่ง/ร้อนจัด'];
 export const MEDIA_UPLOAD_ENABLED = env.VITE_MEDIA_UPLOAD_ENABLED === 'true';
+
+export const PUBLIC_SUBMIT_COPY = 'ไม่ต้องสมัครสมาชิก กรอกเท่าที่สะดวก อีเมลไม่บังคับ';
+export const LINE_FRIENDLY_COPY = 'เหมาะสำหรับแชร์ใน LINE Note / Album / กลุ่ม เปิดลิงก์แล้วกรอกได้ทันที';
+export const MEDIA_POLICY_TEXT = 'รูปภาพแนะนำ, วิดีโอควรใช้ลิงก์หรือจำกัดขนาดเพื่อลดค่าใช้จ่าย';
+export const VIDEO_COST_POLICY_TEXT = 'ข้อมูลตัวอักษรมีต้นทุนต่ำ แต่ไฟล์วิดีโอใช้พื้นที่และ bandwidth สูง ควรเริ่มจากลิงก์หรือไฟล์ขนาดเล็ก';

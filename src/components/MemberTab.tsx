@@ -1,5 +1,6 @@
 'use client';
-import { ALERTS, AMENITIES, CATEGORIES, MEDIA_UPLOAD_ENABLED, PROVINCES, getSubcategoriesForCategory, normalizeCategoryLabel } from '@/lib/constants';
+import { useState } from 'react';
+import { ALERTS, AMENITIES, CATEGORIES, MEDIA_UPLOAD_ENABLED, PROVINCES, MEDIA_POLICY_TEXT, VIDEO_COST_POLICY_TEXT, getSubcategoriesForCategory, normalizeCategoryLabel } from '@/lib/constants';
 import type { PlaceRecord } from '@/services/placesService';
 
 export const emptyMemberPlace: PlaceRecord = { name: '', province: '', category: CATEGORIES[0], other_category: '', sub_category: '', google_maps_url: '', phone: '', recommender: '', suggestion: '', rating: 5, amenities: [], alerts: [], status: 'pending' };
@@ -12,6 +13,7 @@ type MemberTabProps = {
 };
 
 export default function MemberTab({ form, setForm, onSubmit, attachFile }: MemberTabProps) {
+  const [showOptionalFields, setShowOptionalFields] = useState(false);
   const currentSubcategories = getSubcategoriesForCategory(form.category || '');
   const handleCategoryChange = (category: string) => {
     const normalized = normalizeCategoryLabel(category);
@@ -29,7 +31,7 @@ export default function MemberTab({ form, setForm, onSubmit, attachFile }: Membe
   }));
 
   return <form onSubmit={onSubmit} className="travel-card space-y-4 p-4" data-media-enabled={MEDIA_UPLOAD_ENABLED}>
-    <div className="space-y-1"><h2 className="travel-section-title">Travel Listing</h2><p className="travel-meta text-sm">Create a clear, accessible destination entry for discovery.</p></div>
+    <div className="space-y-1"><h2 className="travel-section-title">แนะนำสถานที่ใหม่</h2></div>
     <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อสถานที่ *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
     <div className="grid md:grid-cols-2 gap-2">
       <input list="provinces" className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="จังหวัด *" value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })} />
@@ -43,12 +45,28 @@ export default function MemberTab({ form, setForm, onSubmit, attachFile }: Membe
       <option value="">{form.category && form.category !== '-- เลือกหมวดหมู่หลัก --' ? 'เลือกหมวดย่อย' : 'เลือกหมวดหมู่ก่อน'}</option>
       {currentSubcategories.map((item) => <option key={item} value={item}>{item}</option>)}
     </select>
-    <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ลิงก์ Google Maps" value={form.google_maps_url || ''} onChange={(e) => setForm({ ...form, google_maps_url: e.target.value })} />
+    <button type="button" className="travel-btn travel-btn--secondary w-full p-3 rounded text-sm" onClick={() => setShowOptionalFields(!showOptionalFields)}>{showOptionalFields ? "ซ่อนข้อมูลเพิ่มเติม" : "ข้อมูลเพิ่มเติม (แนะนำ)"}</button>{showOptionalFields && <div className="space-y-3"><input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ลิงก์ Google Maps" value={form.google_maps_url || ''} onChange={(e) => setForm({ ...form, google_maps_url: e.target.value })} />
     <div className="grid md:grid-cols-2 gap-2">
+      <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อเล่น / nickname (ไม่บังคับ)" value={form.contributor_name || ''} onChange={(e) => setForm({ ...form, contributor_name: e.target.value })} />
+      <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="LINE display name (ไม่บังคับ)" value={form.line_display_name || ''} onChange={(e) => setForm({ ...form, line_display_name: e.target.value })} />
+      <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="อีเมล (ไม่บังคับ)" type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} />
       <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="เบอร์โทร/ไลน์" value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
       <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อผู้แนะนำ" value={form.recommender || ''} onChange={(e) => setForm({ ...form, recommender: e.target.value })} />
     </div>
     <textarea className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ช่องใส่ข้อแนะนำ/เหตุผล" value={form.suggestion || ''} onChange={(e) => setForm({ ...form, suggestion: e.target.value })} />
+    <div className="rounded-xl border border-yellow-700 bg-yellow-950/40 p-3 text-xs text-yellow-100 space-y-1">
+      <p>{MEDIA_POLICY_TEXT}</p>
+      <p>{VIDEO_COST_POLICY_TEXT}</p>
+    </div>
+    <div className="grid md:grid-cols-3 gap-2">
+      <select className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" value={form.media_type || ''} onChange={(e) => setForm({ ...form, media_type: (e.target.value || null) as any })}>
+        <option value="">ชนิดสื่อ (ไม่บังคับ)</option>
+        <option value="image">รูปภาพ</option>
+        <option value="video">วิดีโอ</option>
+      </select>
+      <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ลิงก์รูปภาพหรือวิดีโอ (ไม่บังคับ)" value={form.media_url || ''} onChange={(e) => setForm({ ...form, media_url: e.target.value })} />
+      <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="คำอธิบายสื่อ (ไม่บังคับ)" value={form.media_caption || ''} onChange={(e) => setForm({ ...form, media_caption: e.target.value })} />
+    </div>
     <div className="grid md:grid-cols-2 gap-2">
       <label className="p-2 bg-gray-700 rounded text-sm border border-gray-600 cursor-pointer">📸 แนบรูป<input hidden type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={(e) => attachFile(e.target.files?.[0], 'image')} /></label>
       <label className="p-2 bg-gray-700 rounded text-sm border border-gray-600 cursor-pointer">🎥 แนบ VDO<input hidden type="file" accept="video/mp4,video/webm" onChange={(e) => attachFile(e.target.files?.[0], 'video')} /></label>
@@ -60,6 +78,10 @@ export default function MemberTab({ form, setForm, onSubmit, attachFile }: Membe
     <div className="grid md:grid-cols-3 grid-cols-2 gap-2 text-xs">{AMENITIES.map((a) => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.amenities.includes(a)} onChange={() => toggleCheck(a, 'amenities')} /> {a}</label>)}</div>
     <div className="text-xs font-bold text-gray-400">ข้อควรระวัง:</div>
     <div className="grid md:grid-cols-3 grid-cols-2 gap-2 text-xs">{ALERTS.map((a) => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.alerts.includes(a)} onChange={() => toggleCheck(a, 'alerts')} /> {a}</label>)}</div>
-    <button type="submit" className="travel-btn travel-btn--primary w-full p-3 rounded font-bold">🚀 {form.id ? 'อัปเดตข้อมูล' : 'บันทึกเข้าคลัง'}</button>
+    {/* END_OPTIONAL_FIELDS_GS */}</div>}<button type="submit" className="travel-btn travel-btn--primary w-full p-3 rounded font-bold">ส่งข้อมูล</button>
   </form>;
 }
+
+
+
+

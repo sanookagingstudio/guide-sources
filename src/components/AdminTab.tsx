@@ -179,7 +179,7 @@ UID: {authUserId || '(unknown)'}</div>;
       </div>
     </section>
 
-    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Approving...'); setMessage('Approving...'); await approvePlace(p); setMessage('Approved and reloaded'); setMessage('Approved and reloaded'); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Rejecting...'); setMessage('Rejecting...'); await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); setMessage('Rejected and reloaded'); setMessage('Rejected and reloaded'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); setMessage('Deleted and reloaded'); })}>ลบ</button></div></div>)}</div></section>
+    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><p className="travel-meta text-xs mb-3">รายการจาก LINE/Public จะเข้าคิว pending เพื่อให้ Admin ตรวจสอบก่อนเผยแพร่</p><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Approving...'); await approvePlace(p); setMessage('Approved and reloaded'); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Rejecting...'); await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); setMessage('Rejected and reloaded'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); })}>ลบ</button></div></div>)}</div></section>
     <section className="travel-card p-4">
       <h3 className="travel-section-title mb-3">Rejected Queue ({rejected.length})</h3>
       <div className="space-y-2">
@@ -188,7 +188,7 @@ UID: {authUserId || '(unknown)'}</div>;
             <span className="text-slate-100">{p.name} — {p.province} — rejected{p.rejection_reason ? ` — ${p.rejection_reason}` : ''}</span>
             <div className="flex gap-2 flex-wrap">
               <button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button>
-              <button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); setMessage('Deleted and reloaded'); })}>ลบ</button>
+              <button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); })}>ลบ</button>
             </div>
           </div>
         ))}
@@ -316,6 +316,7 @@ UID: {authUserId || '(unknown)'}</div>;
     </section>
   </div>;
 }
+
 
 
 

@@ -9,10 +9,12 @@ export type LocalMediaRecord = {
   media_type: 'image' | 'video';
   file_name: string;
   data_url?: string;
+  media_url?: string;
+  media_caption?: string;
   created_at?: string;
 };
 export type PlaceRecord = {
-  id?: string; source_staging_id?: string | null; name: string; province: string; category: string; other_category?: string | null; sub_category?: string | null; google_maps_url?: string | null; phone?: string | null; line?: string | null; recommender?: string | null; suggestion?: string | null; rejection_reason?: string | null; rating: number; amenities: string[]; alerts: string[]; status?: PlaceStatus; created_at?: string; updated_at?: string; local_media?: LocalMediaRecord[];
+  id?: string; source_staging_id?: string | null; name: string; province: string; category: string; other_category?: string | null; sub_category?: string | null; google_maps_url?: string | null; phone?: string | null; line?: string | null; recommender?: string | null; suggestion?: string | null; rejection_reason?: string | null; rating: number; amenities: string[]; alerts: string[]; status?: PlaceStatus; created_at?: string; updated_at?: string; local_media?: LocalMediaRecord[]; contributor_name?: string | null; line_display_name?: string | null; email?: string | null; media_type?: 'image' | 'video' | null; media_url?: string | null; media_caption?: string | null; source_channel?: string | null;
 };
 export type PlaceFilters = { keyword?: string; province?: string; category?: string; sub_category?: string; amenities?: string[]; alerts?: string[]; rating?: number };
 
@@ -70,8 +72,7 @@ export async function saveStagingPlace(place: PlaceRecord) {
   const localSaved = saveLocalPlace({ ...place, status: place.status || 'pending' });
   if (!isSupabaseConfigured) return localSaved;
   try {
-    const payload = { ...place, status: place.status || 'pending', updated_at: new Date().toISOString() } as Omit<PlaceRecord, 'local_media'>;
-    delete (payload as any).local_media;
+    const payload = toSafeStagingPayload(place);
     const { data, error } = place.id
       ? await supabase.from('staging_places').update(payload).eq('id', place.id).select().single()
       : await supabase.from('staging_places').insert(payload).select().single();
@@ -95,3 +96,29 @@ export async function listDuplicateSuggestions() {
   if (!isSupabaseConfigured) return listLocalDuplicateSuggestions();
   return [];
 }
+
+function toSafeStagingPayload(place: PlaceRecord) {
+  const {
+    id,
+    source_staging_id,
+    created_at,
+    updated_at,
+    local_media,
+    ...payload
+  } = place;
+
+  return {
+    ...payload,
+    status: 'pending' as PlaceStatus,
+    updated_at: new Date().toISOString()
+  };
+}
+
+export async function createPendingPlace(place: PlaceRecord) {
+  return saveStagingPlace({
+    ...place,
+    status: 'pending',
+    source_channel: place.source_channel || 'line_or_public_link',
+  });
+}
+
