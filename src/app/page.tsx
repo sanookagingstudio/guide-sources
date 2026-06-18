@@ -116,13 +116,13 @@ function GuideSourcesApp() {
     }
   };
 
-  return <div className="travel-shell mx-auto w-full max-w-[980px] p-3 sm:p-4 bg-gray-900 text-white min-h-screen">
+  return <div className="travel-shell mx-auto w-full max-w-[980px] p-3 sm:p-4 bg-gray-900 text-white min-h-screen gs-app-shell">
     <header className="mb-4 rounded-2xl border border-slate-700/70 bg-slate-900/85 p-3 sm:p-4 shadow-xl">
       <div className="flex items-center gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-blue-600">Guide Sources</p>
-          <div className="gs-brand-row"><img className="gs-brand-logo" src="/guide-sources-tour-logo.svg" alt="Guide Sources" /><h1 className="text-lg sm:text-xl font-black text-slate-900">Guide Sources</h1></div>
-          <p className="text-xs sm:text-sm text-slate-600">ข้อมูลจริงสำหรับการเดินทาง การวางแผน และงานทัวร์</p>
+          <p className="gs-brand-kicker">Guide Sources</p>
+          <div className="gs-brand-row"><img className="gs-brand-logo" src="/guide-sources-tour-logo.svg" alt="Guide Sources" /><h1 className="gs-brand-title">Guide Sources</h1></div>
+          <p className="gs-brand-subtitle">Community Travel Knowledge</p>
         </div>
       </div>
     </header>

@@ -30,7 +30,7 @@ export default function MemberTab({ form, setForm, onSubmit, attachFile }: Membe
     [field]: prev[field].includes(item) ? prev[field].filter((i) => i !== item) : [...prev[field], item],
   }));
 
-  return <form onSubmit={onSubmit} className="travel-card space-y-4 p-4" data-media-enabled={MEDIA_UPLOAD_ENABLED}>
+  return <form onSubmit={onSubmit} className="travel-card gs-member-page space-y-4 p-4" data-media-enabled={MEDIA_UPLOAD_ENABLED}>
     <div className="space-y-1"><h2 className="travel-section-title">แนะนำสถานที่ใหม่</h2></div>
     <input className="travel-input w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อสถานที่ *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
     <div className="grid md:grid-cols-2 gap-2">

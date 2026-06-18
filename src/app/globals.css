@@ -539,117 +539,262 @@ form > button:hover,
   }
 }
 
-/* GS_UI01_THEME_FOUNDATION_START */
+
+/* GS_UI12_CSS_CONSOLIDATION_START */
+
+/* ===== FINAL SINGLE DESIGN SYSTEM ===== */
 :root {
   --gs-bg: #f8f6ef;
-  --gs-surface: rgba(255, 255, 255, 0.88);
-  --gs-surface-solid: #ffffff;
-  --gs-border: rgba(15, 23, 42, 0.10);
-  --gs-text: #102033;
+  --gs-ink: #102033;
   --gs-muted: #64748b;
-  --gs-search: #2563eb;
-  --gs-member: #10b981;
-  --gs-admin: #f59e0b;
-  --gs-shadow: 0 16px 42px rgba(15, 23, 42, 0.10);
+  --gs-card: rgba(255, 255, 255, .94);
+  --gs-border: rgba(15, 23, 42, .10);
+  --gs-blue: #2563eb;
+  --gs-green: #10b981;
+  --gs-amber: #f59e0b;
+  --gs-red: #dc2626;
+  --gs-radius: 22px;
+  --gs-shadow: 0 14px 34px rgba(15, 23, 42, .08);
 }
 
 html,
 body {
   background:
-    linear-gradient(180deg, rgba(255,255,255,.78), rgba(248,246,239,.92)),
+    linear-gradient(180deg, rgba(255,255,255,.94), rgba(248,246,239,.98)),
     url('/fabric-texture.svg') repeat,
     var(--gs-bg) !important;
-  color: var(--gs-text) !important;
+  color: var(--gs-ink) !important;
 }
 
 body {
-  min-height: 100vh;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+/* shell */
+.travel-shell,
+.gs-app-shell,
+.min-h-screen {
+  max-width: 1220px !important;
+  margin: 0 auto !important;
+  padding: 16px !important;
+  background: transparent !important;
+  color: var(--gs-ink) !important;
+}
+
+/* header */
+header {
+  background: linear-gradient(135deg, rgba(255,255,255,.97), rgba(239,246,255,.92)) !important;
+  border: 1px solid rgba(37,99,235,.12) !important;
+  border-radius: 24px !important;
+  box-shadow: var(--gs-shadow) !important;
+  padding: 18px 22px !important;
 }
 
 .gs-brand-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
 }
 
 .gs-brand-logo {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  box-shadow: 0 10px 26px rgba(37, 99, 235, .16);
-  background: #fff;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  box-shadow: 0 12px 26px rgba(37,99,235,.16) !important;
 }
 
+.gs-brand-kicker {
+  margin: 0 0 4px !important;
+  font-size: 11px !important;
+  letter-spacing: .18em !important;
+  text-transform: uppercase !important;
+  color: var(--gs-blue) !important;
+  font-weight: 900 !important;
+}
+
+.gs-brand-title {
+  margin: 0 !important;
+  font-size: clamp(28px, 3vw, 40px) !important;
+  line-height: .98 !important;
+  color: var(--gs-ink) !important;
+  letter-spacing: -0.055em !important;
+  font-weight: 950 !important;
+}
+
+.gs-brand-subtitle {
+  margin: 8px 0 0 !important;
+  color: var(--gs-muted) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+}
+
+/* tabs */
+nav {
+  background: rgba(15,23,42,.86) !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  padding: 8px !important;
+  gap: 8px !important;
+  box-shadow: 0 12px 28px rgba(15,23,42,.16) !important;
+}
+
+.travel-tab {
+  min-height: 42px !important;
+  border-radius: 14px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  border: 0 !important;
+}
+
+.travel-tab--search {
+  background: #60a5fa !important;
+  color: #0f172a !important;
+}
+
+.travel-tab--member {
+  background: #34d399 !important;
+  color: #0f172a !important;
+}
+
+.travel-tab--admin {
+  background: #fbbf24 !important;
+  color: #0f172a !important;
+}
+
+/* profile */
+.gs-profile-card {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 14px !important;
+  margin-bottom: 16px !important;
+  border-radius: 18px !important;
+  background: var(--gs-card) !important;
+  border: 1px solid var(--gs-border) !important;
+  box-shadow: 0 10px 24px rgba(15,23,42,.06) !important;
+}
+
+.gs-profile-avatar {
+  display: grid !important;
+  place-items: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+  background: #eff6ff !important;
+  font-size: 16px !important;
+}
+
+.gs-profile-info {
+  min-width: 0 !important;
+}
+
+.gs-profile-label {
+  margin: 0 !important;
+  color: var(--gs-ink) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+}
+
+.gs-profile-email {
+  margin: 2px 0 0 !important;
+  color: var(--gs-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.gs-profile-signout {
+  min-height: 34px !important;
+  padding: 7px 12px !important;
+  border-radius: 12px !important;
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+/* base cards */
 .travel-card,
 .search-card,
-.bg-gray-900,
-.bg-gray-800,
-.bg-gray-700 {
-  background: var(--gs-surface) !important;
-  color: var(--gs-text) !important;
+.gs-place-card,
+.gs-member-page,
+.gs-admin-panel {
+  background: var(--gs-card) !important;
+  color: var(--gs-ink) !important;
   border: 1px solid var(--gs-border) !important;
-  box-shadow: var(--gs-shadow);
-  backdrop-filter: blur(10px);
+  border-radius: var(--gs-radius) !important;
+  box-shadow: var(--gs-shadow) !important;
+}
+
+.travel-card {
+  padding: 18px !important;
+}
+
+.travel-section-title {
+  color: var(--gs-ink) !important;
+  font-size: 18px !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.travel-meta,
+.text-slate-300,
+.text-slate-100,
+.text-gray-400 {
+  color: var(--gs-muted) !important;
 }
 
 .travel-input,
 input,
 select,
 textarea {
-  background: rgba(255,255,255,.92) !important;
-  color: var(--gs-text) !important;
-  border-color: rgba(15, 23, 42, .16) !important;
+  min-height: 42px !important;
+  border-radius: 13px !important;
+  border-color: rgba(15,23,42,.13) !important;
+  background: #fff !important;
+  color: var(--gs-ink) !important;
+  font-size: 14px !important;
+  padding: 9px 13px !important;
 }
 
-.travel-input::placeholder,
-input::placeholder,
-textarea::placeholder {
-  color: #94a3b8 !important;
+textarea {
+  min-height: 92px !important;
 }
 
-.travel-section-title,
-h1,
-h2,
-h3,
-h4,
-label,
-span,
-p {
-  color: inherit;
-}
-
-.travel-meta,
-.text-slate-300,
-.text-gray-400,
-.text-slate-100 {
-  color: var(--gs-muted) !important;
-}
-
+button,
 .travel-btn {
+  min-height: 40px !important;
   border-radius: 14px !important;
-  font-weight: 700;
-  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-}
-
-.travel-btn:hover {
-  transform: translateY(-1px);
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  padding: 9px 13px !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
 }
 
 .travel-btn--primary,
 .travel-btn--success {
-  background: linear-gradient(135deg, var(--gs-member), #34d399) !important;
-  color: white !important;
-  box-shadow: 0 12px 24px rgba(16, 185, 129, .22);
+  background: linear-gradient(135deg, var(--gs-green), #34d399) !important;
+  color: #fff !important;
 }
 
 .travel-btn--secondary {
-  background: rgba(37, 99, 235, .10) !important;
+  background: #eff6ff !important;
   color: #1d4ed8 !important;
 }
 
 .travel-btn--warning {
-  background: linear-gradient(135deg, var(--gs-admin), #fbbf24) !important;
-  color: #3b2500 !important;
+  background: #fef3c7 !important;
+  color: #92400e !important;
 }
 
 .travel-btn--danger {
@@ -657,64 +802,266 @@ p {
   color: #b91c1c !important;
 }
 
-button:has(> span),
-button {
-  border-radius: 14px;
+/* Search */
+.gs-search-hero {
+  padding: 18px !important;
 }
 
-button[class*="bg-gray"],
-button[class*="border"] {
-  background: rgba(255,255,255,.76) !important;
-  color: var(--gs-text) !important;
-  border-color: var(--gs-border) !important;
+.gs-search-hero input:first-of-type {
+  min-height: 48px !important;
+  font-size: 15px !important;
+  border: 1px solid rgba(37,99,235,.18) !important;
 }
 
-button[class*="bg-gray"]:hover,
-button[class*="border"]:hover {
-  background: rgba(255,255,255,.96) !important;
+.gs-search-result-head {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin: 18px 0 14px !important;
 }
 
-button[aria-selected="true"],
-button[data-active="true"] {
-  box-shadow: var(--gs-shadow);
+.gs-export-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-width: 245px !important;
+  padding: 10px 12px !important;
+  border-radius: 16px !important;
+  background: #eff6ff !important;
+  border: 1px solid #dbeafe !important;
 }
 
-.search-card {
-  border-radius: 24px !important;
-  overflow: hidden;
+.gs-export-label {
+  margin: 0 !important;
+  font-size: 10px !important;
+  letter-spacing: .14em !important;
+  text-transform: uppercase !important;
+  color: var(--gs-blue) !important;
+  font-weight: 900 !important;
+}
+
+.gs-export-count {
+  margin: 2px 0 0 !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+.gs-export-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+.gs-export-actions button {
+  min-height: 34px !important;
+  min-width: 52px !important;
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+}
+
+.gs-results-list {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
+
+.gs-place-card {
+  display: grid !important;
+  grid-template-columns: 180px minmax(0, 1fr) !important;
+  gap: 18px !important;
+  align-items: stretch !important;
+  padding: 14px !important;
+  overflow: hidden !important;
+}
+
+.gs-place-card .gs-select-export {
+  grid-column: 1 / -1 !important;
+}
+
+.gs-place-content {
+  min-width: 0 !important;
+}
+
+.gs-select-export {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: fit-content !important;
+  padding: 7px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(37,99,235,.08) !important;
+  color: #1d4ed8 !important;
+  border: 1px solid rgba(37,99,235,.16) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.gs-select-export input {
+  width: 15px !important;
+  height: 15px !important;
+  min-height: 15px !important;
+  padding: 0 !important;
+  accent-color: var(--gs-blue) !important;
 }
 
 .search-card__media {
-  background: linear-gradient(135deg, #dbeafe, #ecfdf5) !important;
+  width: 100% !important;
+  height: 156px !important;
+  min-height: 156px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--gs-border) !important;
 }
 
 .search-card__image {
-  border-radius: 18px;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
 }
 
-a {
-  color: #2563eb;
+.gs-place-card h3,
+.gs-place-card h4,
+.search-card h3,
+.search-card h4 {
+  color: var(--gs-ink) !important;
+  font-size: 21px !important;
+  line-height: 1.15 !important;
+  margin: 0 0 4px !important;
+  letter-spacing: -0.03em !important;
 }
 
-.border,
-.border-slate-700,
-.border-gray-700,
-.border-gray-600 {
-  border-color: var(--gs-border) !important;
+.search-card button,
+.search-card .travel-btn {
+  min-height: 36px !important;
+  font-size: 12px !important;
 }
 
-/* GS_UI01_THEME_FOUNDATION_END */
-
-/* GS_UI01B_HEADER_TUNE_START */
-.gs-brand-row {
-  align-items: center;
+/* Member */
+.gs-member-page,
+form.travel-card {
+  padding: 18px !important;
 }
 
-.gs-brand-row h1 {
-  letter-spacing: -0.03em;
+form.travel-card h2 {
+  font-size: 22px !important;
+  line-height: 1.15 !important;
 }
 
-.gs-brand-logo {
-  flex: 0 0 auto;
+form.travel-card > button[type="button"] {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #dbeafe !important;
 }
-/* GS_UI01B_HEADER_TUNE_END */
+
+form.travel-card > button[type="submit"] {
+  min-height: 48px !important;
+  font-size: 15px !important;
+  background: linear-gradient(135deg, var(--gs-green), #34d399) !important;
+  color: #fff !important;
+}
+
+/* Admin */
+.gs-admin-panel,
+section.travel-card {
+  margin-bottom: 14px !important;
+}
+
+.gs-admin-panel h3,
+section.travel-card h3 {
+  color: var(--gs-ink) !important;
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+  margin-bottom: 10px !important;
+}
+
+section.travel-card .space-y-2 > div,
+section.travel-card .bg-gray-900 {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+}
+
+section.travel-card .flex.gap-2,
+section.travel-card .flex.flex-wrap {
+  gap: 8px !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
+}
+
+section.travel-card .flex.gap-2 button,
+section.travel-card .flex.flex-wrap button {
+  min-width: 54px !important;
+  min-height: 34px !important;
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+}
+
+/* Mobile */
+@media (max-width: 780px) {
+  .travel-shell,
+  .gs-app-shell,
+  .min-h-screen {
+    padding: 10px !important;
+  }
+
+  header {
+    padding: 16px !important;
+  }
+
+  .gs-brand-logo {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .gs-brand-title {
+    font-size: 28px !important;
+  }
+
+  .gs-profile-card {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+  }
+
+  .gs-search-result-head {
+    grid-template-columns: 1fr !important;
+  }
+
+  .gs-export-bar {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .gs-place-card {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .search-card__media {
+    height: 180px !important;
+    min-height: 180px !important;
+  }
+
+  section.travel-card .space-y-2 > div,
+  section.travel-card .bg-gray-900 {
+    grid-template-columns: 1fr !important;
+  }
+
+  section.travel-card .flex.gap-2,
+  section.travel-card .flex.flex-wrap {
+    justify-content: stretch !important;
+  }
+
+  section.travel-card .flex.gap-2 button,
+  section.travel-card .flex.flex-wrap button {
+    flex: 1 1 42% !important;
+  }
+}
+
+/* GS_UI12_CSS_CONSOLIDATION_END */
+

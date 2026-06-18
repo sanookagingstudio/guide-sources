@@ -112,7 +112,7 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
 
 
   return <div className="space-y-6 animate-fade-in">
-    <div className="travel-card p-4 space-y-3">
+    <div className="travel-card gs-search-hero p-4 space-y-3">
       <div className="space-y-1"><h2 className="travel-section-title">SEARCH RESULTS</h2><p className="travel-meta text-sm">Clear travel discovery cards with stronger contrast and easier scanning.</p></div>
       <input list="search-suggestions" placeholder="🔍 ค้นหาสถานที่, หมวดหมู่, จุดเด่น..." className="travel-input w-full p-3 bg-gray-900 rounded border border-gray-600" value={filters.keyword} onChange={(e) => setFilters({...filters, keyword: e.target.value})} /><datalist id="search-suggestions">{suggestions.map((s) => <option key={s} value={s} />)}</datalist>
       <div className="grid md:grid-cols-3 gap-2 text-sm">
@@ -143,13 +143,8 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
       </div>
     </div>
     {warning && <div className="bg-amber-950/80 border border-amber-700 rounded-xl p-3 text-sm text-amber-100">{warning}</div>}
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      <h3 className="travel-section-title">ผลการค้นหา {places.length} รายการ</h3>
-      <div className="flex gap-2">
-        <span className="text-xs text-slate-300">Export: {exportScopeLabel}</span><button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportCsv}>Export CSV</button><button className="travel-btn travel-btn--secondary px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportJson}>Export JSON</button>{selectedPlaces.length > 0 && <button className="travel-btn px-3 py-2 rounded text-xs" type="button" onClick={clearSelectedPlaces}>Clear selected</button>}
-      </div>
-    </div>
-    <div className="grid md:grid-cols-2 gap-4">
+    <div className="gs-search-result-head"><h3 className="travel-section-title">ผลการค้นหา {places.length} รายการ</h3><div className="gs-export-bar"><div><p className="gs-export-label">Export</p><p className="gs-export-count">{selectedPlaces.length ? `${selectedPlaces.length} selected` : `${places.length} current results`}</p></div><div className="gs-export-actions"><button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportCsv}>CSV</button><button className="travel-btn travel-btn--secondary px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportJson}>JSON</button>{selectedPlaces.length > 0 && <button className="travel-btn px-3 py-2 rounded text-xs" type="button" onClick={clearSelectedPlaces}>Clear</button>}</div></div></div>
+    <div className="gs-results-list">
       {places.map((p) => {
         const normalizedCategory = normalizeCategoryLabel(p.category || '');
         const categoryIcon = CATEGORY_ICONS[normalizedCategory] || '📍';
@@ -162,11 +157,8 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
         const videoLabel = localVideo?.file_name || remoteVideo?.storage_path?.split('/').pop();
 
         const placeKey = getPlaceKey(p, places.indexOf(p));
-        return <article key={p.id || p.name} className="search-card">
-          <label className="flex items-center gap-2 text-xs text-slate-200 mb-3">
-            <input type="checkbox" checked={Boolean(selectedPlaceIds[placeKey])} onChange={() => toggleSelectedPlace(placeKey)} />
-            Select for export
-          </label>
+        return <article key={p.id || p.name} className="search-card gs-place-card">
+          <label className="gs-select-export"><input type="checkbox" checked={Boolean(selectedPlaceIds[placeKey])} onChange={() => toggleSelectedPlace(placeKey)} /><span>เลือกส่งออก</span></label>
           <div className="search-card__media">
             {imageSource ? (
               <img src={imageSource} alt={p.name} className="search-card__image" />
@@ -190,7 +182,7 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
             </div>
             <div className="search-card__subcategory">{p.sub_category || 'หมวดย่อยยังไม่ระบุ'}</div>
           </div>
-          <div className="search-card__body">
+          <div className="search-card__body gs-place-content">
             <div className="search-card__main">
               <h3 className="search-card__title">{p.name}</h3>
               <p className="search-card__meta">{p.province || 'จังหวัดไม่ระบุ'}</p>
@@ -222,6 +214,7 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
     </div>
   </div>;
 }
+
 
 
 

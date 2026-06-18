@@ -36,14 +36,14 @@ function AuthPanelInner() {
 
   if (auth.user) {
     return (
-      <section className="travel-card p-3 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm">
-        <div>
-          <strong>Signed in</strong>
-          <p className="text-xs text-slate-300">{auth.email}</p>
-<p className="text-xs text-slate-500 break-all">UID: {auth.user.id}</p>
+      <section className="gs-profile-card">
+        <div className="gs-profile-avatar">👤</div>
+        <div className="gs-profile-info">
+          <p className="gs-profile-label">บัญชี</p>
+          <p className="gs-profile-email">{auth.email}</p>
         </div>
-        <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs" onClick={() => auth.signOut()}>
-          Sign out
+        <button className="gs-profile-signout" onClick={() => auth.signOut()}>
+          ออก
         </button>
       </section>
     );
