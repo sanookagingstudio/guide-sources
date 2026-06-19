@@ -54,7 +54,7 @@ export async function listApprovedPlaces(filters: PlaceFilters = {}, options?: {
     return localRows;
   }
 }
-export async function listStagingPlaces() { if (!isSupabaseConfigured) return listLocalStagingPlaces(); const { data, error } = await supabase.from('staging_places').select('*').order('updated_at', { ascending: false }); if (error) throw error; return (data || []) as PlaceRecord[]; }
+export async function listStagingPlaces() { if (!isSupabaseConfigured) return listLocalStagingPlaces(); const { data, error } = await supabase.from('staging_places').select('*').eq('status', 'pending').order('updated_at', { ascending: false }); if (error) throw error; return (data || []) as PlaceRecord[]; }
 
 export async function listRejectedPlaces() {
   if (!isSupabaseConfigured) return listLocalRejectedPlaces();
@@ -121,4 +121,5 @@ export async function createPendingPlace(place: PlaceRecord) {
     source_channel: place.source_channel || 'line_or_public_link',
   });
 }
+
 

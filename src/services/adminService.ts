@@ -67,7 +67,44 @@ export async function logAdminAction(action: string, entityType: string, entityI
 }
 export async function approvePlace(place: PlaceRecord) {
   if (!isSupabaseConfigured) return approveLocalPlace(place);
-  const payload = { ...place, source_staging_id: place.id, status: 'approved', updated_at: new Date().toISOString() }; delete payload.id; const { data, error } = await supabase.from('production_places').upsert(payload, { onConflict: 'source_staging_id' }).select().single(); if (error) throw error; await supabase.from('staging_places').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', place.id); await logAdminAction('approve', 'place', place.id, { name: place.name }); return data as PlaceRecord;
+  const payload = {
+    source_staging_id: place.id || null,
+    name: place.name || '',
+    province: place.province || '',
+    category: place.category || '',
+    other_category: place.other_category || null,
+    sub_category: place.sub_category || null,
+    google_maps_url: place.google_maps_url || null,
+    phone: place.phone || null,
+    recommender: place.recommender || null,
+    suggestion: place.suggestion || null,
+    rating: Number(place.rating || 5),
+    amenities: Array.isArray(place.amenities) ? place.amenities : [],
+    alerts: Array.isArray(place.alerts) ? place.alerts : [],
+    status: 'approved',
+    updated_at: new Date().toISOString()
+  };
+
+  const { data, error } = await supabase
+    .from('production_places')
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error('Approve production insert failed: ' + error.message);
+  }
+
+  const stagingResult = await supabase
+    .from('staging_places')
+    .update({ status: 'approved', updated_at: new Date().toISOString() })
+    .eq('id', place.id);
+
+  if (stagingResult.error) {
+    throw new Error('Approve staging update failed: ' + stagingResult.error.message);
+  }
+
+  return data as PlaceRecord;
 }
 export async function rejectPlace(id: string, reason: string) {
   if (!isSupabaseConfigured) return rejectLocalPlace(id, reason);
@@ -145,6 +182,7 @@ export async function listUsers(): Promise<LocalUser[]> {
     };
   });
 }
+
 
 
 
