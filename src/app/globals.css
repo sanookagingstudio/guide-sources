@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -2712,4 +2713,41 @@ nav button.travel-tab.travel-tab--admin.travel-tab--active {
   color: #7c2d12 !important;
 }
 /* RCE_VISIBLE_PANEL_THEME_END */
+
+/* RCE_FONT_SYSTEM_LOCK_START
+   Font baseline:
+   Primary = IBM Plex Sans Thai
+   Fallback = Noto Sans Thai, Sarabun, Inter, Segoe UI, system
+*/
+:root {
+  --gs-font-sans: "IBM Plex Sans Thai", "Noto Sans Thai", "Sarabun", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--gs-font-sans) !important;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  letter-spacing: -0.004em;
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: 0.875rem;
+}
+
+.gs-ui14-shell {
+  font-family: var(--gs-font-sans) !important;
+}
+/* RCE_FONT_SYSTEM_LOCK_END */
 
