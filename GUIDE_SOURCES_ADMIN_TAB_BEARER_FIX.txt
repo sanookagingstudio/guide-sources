@@ -1,0 +1,43 @@
+========== ADMIN TAB BEARER FIX ==========
+========== VERIFY ==========
+
+src\components\AdminTab.tsx:20:async function getRoleFromServer() {
+src\components\AdminTab.tsx:28:  const response = await fetch('/api/admin/me', {
+src\components\AdminTab.tsx:31:      authorization: `Bearer ${token}`,
+src\components\AdminTab.tsx:80:      const roleResult = await getRoleFromServer();
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1741ms
+  Running TypeScript ...
+  Finished TypeScript in 2.2s ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/7) ...
+  Generating static pages using 8 workers (1/7) 
+  Generating static pages using 8 workers (3/7) 
+  Generating static pages using 8 workers (5/7) 
+โ“ Generating static pages using 8 workers (7/7) in 462ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== RUNTIME ==========
+Restart dev server, login, open Admin. Expected: no role gate.

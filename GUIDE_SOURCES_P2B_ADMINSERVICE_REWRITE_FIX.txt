@@ -1,0 +1,118 @@
+========== GUIDE SOURCES P2B ADMINSERVICE REWRITE FIX ==========
+OBJECTIVE=Rewrite corrupted user management block in adminService.ts cleanly
+========== VERIFY TAIL ==========
+export type { LocalUser };
+export async function getCurrentAdminRole() {
+  if (!isSupabaseConfigured) return 'admin';
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return null;
+  const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId).in('role', ['admin','editor','viewer']).maybeSingle();
+  if (error) throw error;
+  return data?.role as AdminRole | null;
+}
+export async function logAdminAction(action: string, entityType: string, entityId?: string, details?: unknown) {
+  if (!isSupabaseConfigured) { logLocalAdminAction(action, entityType, entityId, details); return; }
+  const { data: userData } = await supabase.auth.getUser();
+  await supabase.from('admin_audit_logs').insert({ admin_user_id: userData.user?.id, action, entity_type: entityType, entity_id: entityId, details });
+}
+export async function approvePlace(place: PlaceRecord) {
+  if (!isSupabaseConfigured) return approveLocalPlace(place);
+  const payload = { ...place, source_staging_id: place.id, status: 'approved', updated_at: new Date().toISOString() }; delete payload.id; const { data, error } = await supabase.from('production_places').upsert(payload, { onConflict: 'source_staging_id' }).select().single(); if (error) throw error; await supabase.from('staging_places').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', place.id); await logAdminAction('approve', 'place', place.id, { name: place.name }); return data as PlaceRecord;
+}
+export async function rejectPlace(id: string, reason: string) {
+  if (!isSupabaseConfigured) return rejectLocalPlace(id, reason);
+  const { error } = await supabase.from('staging_places').update({ status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error; await logAdminAction('reject', 'place', id, { reason });
+}
+export async function listAuditLogs() { if (!isSupabaseConfigured) return listLocalAuditLogs(); const { data, error } = await supabase.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; }
+export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const { data, error } = await supabase.from('user_roles').select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
+export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const { error } = await supabase.from('user_roles').upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
+
+export async function addUser(display_name: string, email: string, role: AdminRole): Promise<LocalUser> {
+  if (!isSupabaseConfigured) return addLocalUser(display_name, email, role);
+
+  throw new Error('P2B directory mode does not create Auth users yet. Create the user in Supabase Authentication first, then assign role from the Users list.');
+}
+
+export async function updateUserRole(user_id: string, role: AdminRole): Promise<LocalUser | null> {
+  if (!isSupabaseConfigured) return updateLocalUserRole(user_id, role);
+
+  await adminUsersApi('PATCH', { user_id, role });
+  await logAdminAction('update_user_role', 'user_role', user_id, { role });
+
+  return {
+    user_id,
+    display_name: '',
+    email: '',
+    role,
+    status: 'active',
+    created_at: new Date().toISOString(),
+  };
+}
+
+export async function disableUser(user_id: string): Promise<LocalUser | null> {
+  if (!isSupabaseConfigured) return disableLocalUser(user_id);
+
+  await adminUsersApi('DELETE', { user_id });
+  await logAdminAction('disable_user_role', 'user_role', user_id, {});
+
+  return {
+    user_id,
+    display_name: '',
+    email: '',
+    role: 'viewer',
+    status: 'disabled',
+    created_at: new Date().toISOString(),
+  };
+}
+
+export async function deleteUser(user_id: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return deleteLocalUser(user_id);
+
+  await adminUsersApi('DELETE', { user_id });
+  await logAdminAction('delete_user_role', 'user_role', user_id, {});
+
+  return true;
+}
+
+export async function listUsers(): Promise<LocalUser[]> {
+  if (!isSupabaseConfigured) return listLocalUsers();
+
+  const payload = await adminUsersApi('GET');
+  return payload.users || [];
+}
+========== BAD TOKEN CHECK ==========
+
+src\services\adminService.ts:24:async function adminUsersApi(method: string, body?: unknown) {
+src\services\adminService.ts:35:  const payload = await response.json().catch(() => ({}));
+src\services\adminService.ts:69:  throw new Error('P2B directory mode does not create Auth users yet. Create the user in Supabase Authentication first, then assign role from the Users list.');
+src\services\adminService.ts:75:  await adminUsersApi('PATCH', { user_id, role });
+src\services\adminService.ts:91:  await adminUsersApi('DELETE', { user_id });
+src\services\adminService.ts:107:  await adminUsersApi('DELETE', { user_id });
+src\services\adminService.ts:116:  const payload = await adminUsersApi('GET');
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1777ms
+  Running TypeScript ...
+Failed to type check.
+
+./src/services/adminService.ts:30:22
+Type error: Cannot find name 'Bearer'.
+
+  28 |     headers: {
+  29 |       'content-type': 'application/json',
+> 30 |       authorization: Bearer ,
+     |                      ^
+  31 |     },
+  32 |     body: body ? JSON.stringify(body) : undefined,
+  33 |   });
+Next.js build worker exited with code: 1 and signal: null
+BUILD=FAIL

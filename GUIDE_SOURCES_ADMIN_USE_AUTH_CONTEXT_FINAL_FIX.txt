@@ -1,0 +1,60 @@
+========== ADMIN USE AUTH CONTEXT FINAL FIX ==========
+OBJECTIVE=Make AdminTab use AuthContext session token directly for /api/admin/me and /api/admin/users
+SCOPE=AdminTab auth/session binding only
+NO_COMMIT=TRUE
+========== PATCH IMPORT ==========
+========== PATCH getRoleFromServer SIGNATURE ==========
+========== INSERT useAuth IN COMPONENT ==========
+========== REWRITE LOAD BLOCK ==========
+========== PATCH EFFECT DEPENDENCY ==========
+========== PATCH GATE MESSAGE ==========
+========== VERIFY ==========
+
+src\components\AdminTab.tsx:4:import { useAuth } from '@/components/AuthContext';
+src\components\AdminTab.tsx:21:async function getRoleFromServer(token: string) {
+src\components\AdminTab.tsx:23:    return { role: null, email: '', user_id: '', error: 'Missing AuthContext session token' };
+src\components\AdminTab.tsx:53:  const auth = useAuth();
+src\components\AdminTab.tsx:79:      if (auth.loading) return;
+src\components\AdminTab.tsx:81:      const token = auth.session?.access_token || '';
+src\components\AdminTab.tsx:87:        setMessage('Missing AuthContext session token');
+src\components\AdminTab.tsx:91:      const roleResult = await getRoleFromServer(token);
+src\components\AdminTab.tsx:124:  useEffect(() => { load(); }, [auth.loading, auth.session?.access_token]);
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1660ms
+  Running TypeScript ...
+  Finished TypeScript in 1848ms ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/7) ...
+  Generating static pages using 8 workers (1/7) 
+  Generating static pages using 8 workers (3/7) 
+  Generating static pages using 8 workers (5/7) 
+โ“ Generating static pages using 8 workers (7/7) in 396ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== RUNTIME ==========
+1. Restart dev server: Ctrl+C then npm run dev
+2. Login sanookagingstudio@gmail.com
+3. Open Admin
+EXPECTED=Admin loads, Users show real emails

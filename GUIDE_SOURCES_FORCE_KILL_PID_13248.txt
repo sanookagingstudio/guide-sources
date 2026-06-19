@@ -1,0 +1,86 @@
+========== FORCE KILL PID 13248 ==========
+========== PROCESS INFO ==========
+
+Name                       : node
+Id                         : 13248
+PriorityClass              : Normal
+FileVersion                : 24.11.1
+HandleCount                : 1354
+WorkingSet                 : 488341504
+PagedMemorySize            : 510046208
+PrivateMemorySize          : 510046208
+VirtualMemorySize          : -1556017152
+TotalProcessorTime         : 00:00:06.9062500
+SI                         : 1
+Handles                    : 1354
+VM                         : 24213786624
+WS                         : 488341504
+PM                         : 510046208
+NPM                        : 232312
+Path                       : C:\Program Files\nodejs\node.exe
+CommandLine                : "C:\Program Files\nodejs\node.exe" C:\Users\akemo\guide-sources\node_modules\next\dist\server\lib\start-server.js
+Parent                     : System.Diagnostics.Process (node)
+Company                    : Node.js
+CPU                        : 6.90625
+ProductVersion             : 24.11.1
+Description                : Node.js JavaScript Runtime
+Product                    : Node.js
+__NounName                 : Process
+SafeHandle                 : Microsoft.Win32.SafeHandles.SafeProcessHandle
+Handle                     : 4172
+BasePriority               : 8
+ExitCode                   : 
+HasExited                  : False
+StartTime                  : 17/6/2569 9:14:17
+ExitTime                   : 
+MachineName                : .
+MaxWorkingSet              : 1413120
+MinWorkingSet              : 204800
+Modules                    : {System.Diagnostics.ProcessModule (node.exe), System.Diagnostics.ProcessModule (ntdll.dll), System.Diagnostics.ProcessModule (KERNEL32.DLL), System.Diagnostics.ProcessModule (KERNELBASE.dll)…}
+NonpagedSystemMemorySize64 : 232312
+NonpagedSystemMemorySize   : 232312
+PagedMemorySize64          : 510046208
+PagedSystemMemorySize64    : 681552
+PagedSystemMemorySize      : 681552
+PeakPagedMemorySize64      : 768352256
+PeakPagedMemorySize        : 768352256
+PeakWorkingSet64           : 583315456
+PeakWorkingSet             : 583315456
+PeakVirtualMemorySize64    : 24615161856
+PeakVirtualMemorySize      : -1154641920
+PriorityBoostEnabled       : True
+PrivateMemorySize64        : 510046208
+ProcessorAffinity          : 4095
+SessionId                  : 1
+StartInfo                  : 
+Threads                    : {9976, 7676, 4952, 7060…}
+VirtualMemorySize64        : 24213786624
+EnableRaisingEvents        : False
+StandardInput              : 
+StandardOutput             : 
+StandardError              : 
+WorkingSet64               : 488341504
+SynchronizingObject        : 
+MainModule                 : System.Diagnostics.ProcessModule (node.exe)
+PrivilegedProcessorTime    : 00:00:01.7812500
+UserProcessorTime          : 00:00:05.1250000
+ProcessName                : node
+MainWindowHandle           : 0
+MainWindowTitle            : 
+Responding                 : True
+Site                       : 
+Container                  : 
+
+========== TASKLIST ==========
+
+Image Name                     PID Session Name        Session#    Mem Usage Status          User Name                                              CPU Time Window Title                                                            
+========================= ======== ================ =========== ============ =============== ================================================== ============ ========================================================================
+node.exe                     13248 Console                    1    476,968 K Unknown         AKE-PC-Q7DI747\akemo                                    0:00:06 N/A                                                                     
+========== KILL TREE ==========
+SUCCESS: The process with PID 13248 (child process of PID 18092) has been terminated.
+========== VERIFY ==========
+
+  TCP    [::1]:58938            [::1]:3000             SYN_SENT        15192
+
+PORT_3000_FREE=FAIL
+ACTION=Close VS Code terminal running node, or restart VS Code, then rerun.

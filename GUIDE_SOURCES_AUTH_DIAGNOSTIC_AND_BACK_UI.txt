@@ -1,0 +1,47 @@
+========== AUTH DIAGNOSTIC AND BACK UI ==========
+OBJECTIVE=Show signed-in user id and provide clear Change account button when role is wrong
+========== PATCH AUTHPANEL LABEL ==========
+========== PATCH ADMINTAB ERROR ==========
+========== VERIFY ==========
+
+src\components\AuthPanel.tsx:43:<p className="text-xs text-slate-500 break-all">UID: {auth.user.id}</p>
+src\components\AuthPanel.tsx:46:          Change account / Sign out
+src\components\AdminTab.tsx:23:const [authUserId, setAuthUserId] = useState<string>('');
+src\components\AdminTab.tsx:24:const [authEmail, setAuthEmail] = useState<string>('');
+src\components\AdminTab.tsx:44:      const { data } = await supabase.auth.getUser();
+src\components\AdminTab.tsx:45:      setAuthUserId(data.user?.id || '');
+src\components\AdminTab.tsx:46:      setAuthEmail(data.user?.email || '');
+src\components\AdminTab.tsx:53:Email: {authEmail || '(unknown)'}
+src\components\AdminTab.tsx:54:UID: {authUserId || '(unknown)'}</div>;
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1435ms
+  Running TypeScript ...
+  Finished TypeScript in 1805ms ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 343ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+BUILD=PASS
+========== NEXT ==========
+1. Restart dev server
+2. Login again
+3. Open Admin
+4. Copy UID shown on page
+5. Ensure public.user_roles has that exact UID with role admin

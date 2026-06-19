@@ -1,0 +1,49 @@
+========== AUTH TOKEN DEBUG LOG PATCH ==========
+OBJECTIVE=Log AuthContext session/token facts before Admin role API call
+NO_COMMIT=TRUE
+========== VERIFY ==========
+
+src\components\AdminTab.tsx:83:      console.log('AUTH_DEBUG_ADMIN_TAB', {
+src\components\AdminTab.tsx:87:        has_session: Boolean(auth.session),
+src\components\AdminTab.tsx:88:        token_length: token.length,
+src\components\AdminTab.tsx:93:      console.log('AUTH_TOKEN_LENGTH', token.length);
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1747ms
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/7) ...
+  Generating static pages using 8 workers (1/7) 
+  Generating static pages using 8 workers (3/7) 
+  Generating static pages using 8 workers (5/7) 
+โ“ Generating static pages using 8 workers (7/7) in 410ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== NEXT ==========
+1. Restart dev server
+2. Open Chrome DevTools > Console
+3. Login
+4. Click Admin
+5. Copy console lines AUTH_DEBUG_ADMIN_TAB and AUTH_TOKEN_LENGTH

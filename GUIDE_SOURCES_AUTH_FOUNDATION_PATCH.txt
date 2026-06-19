@@ -1,0 +1,56 @@
+========== AUTH FOUNDATION PATCH ==========
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1661ms
+  Running TypeScript ...
+  Finished TypeScript in 1936ms ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 349ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+PRE_BUILD_PASS
+
+========== OWNER FILES ==========
+src/lib/supabase.ts
+src/services/adminService.ts
+src/components/AdminTab.tsx
+src/app/page.tsx
+
+========== PATCH OBJECTIVE ==========
+ADD AuthContext
+ADD session listener
+ADD sign in form
+ADD sign out button
+ADD current user display
+REMOVE automatic local admin assumption when Supabase enabled
+
+========== EXECUTION ==========
+PATCH_TO_BE_DONE_IN_CODEX
+NO_COMMIT
+NO_TAG
+
+========== EXPECTED RESULT ==========
+User can sign in
+User session persists
+Admin tab requires authenticated role
+Logout works

@@ -1,0 +1,73 @@
+========== P4 ROLE SAVE BUTTON FIX ==========
+OBJECTIVE=Replace unclear auto-save role dropdown with explicit Save Role button and runtime feedback
+NO_COMMIT=TRUE
+========== PATCH ROLE SELECT BLOCK ==========
+ROLE_SELECT_EXACT_BLOCK_NOT_FOUND
+
+  src\components\AdminTab.tsx:9:  rejectPlace, 
+  src\components\AdminTab.tsx:10:  upsertUserRole,
+  src\components\AdminTab.tsx:11:  addUser,
+> src\components\AdminTab.tsx:12:  updateUserRole,
+  src\components\AdminTab.tsx:13:  disableUser,
+  src\components\AdminTab.tsx:14:  deleteUser,
+  src\components\AdminTab.tsx:15:  listUsers,
+  src\components\AdminTab.tsx:16:  type LocalUser,
+  src\components\AdminTab.tsx:17:} from '@/services/adminService';
+  src\components\AdminTab.tsx:18:import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, listDuplicateSuggestions, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+  src\components\AdminTab.tsx:145:    {message && <div className="bg-yellow-950 border border-yellow-700 rounded p-2 text-sm">{message}</div>}
+  src\components\AdminTab.tsx:146:    {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
+  src\components\AdminTab.tsx:147:    <div className="grid grid-cols-3 gap-2 text-xs"><div className="travel-stat-card p-3">Pending: {statusCounts.pending || 0}</div><div className="travel-stat-card p-3">Approved: {(statusCounts.approved || 0) + approved.length}</div><div className="travel-stat-card p-3">Rejected: {rejected.length}</div></div>
+> src\components\AdminTab.tsx:148:    <div className="travel-card p-4 flex justify-between items-center"><div><h3 className="travel-section-title">🧠 สมองส่วนกลาง (AI Routing)</h3><p className="travel-meta text-xs">Jarvis/Sentinel/Foresight provider agnostic monitoring readiness</p></div><select className="travel-input bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}><option value="jarvis-gpt4o">Jarvis</option><option value="sentinel-claude">Sentinel</option><option value="foresight-gemini">Foresight</option></select></div>
+  src\components\AdminTab.tsx:149:
+  src\components\AdminTab.tsx:150:    <section className="travel-card p-4">
+  src\components\AdminTab.tsx:151:      <h3 className="travel-section-title mb-3">Duplicate Suggestions ({duplicateSuggestions.length})</h3>
+  src\components\AdminTab.tsx:152:      <p className="travel-meta text-xs mb-3">ระบบแนะนำรายการที่อาจเป็นสถานที่เดียวกัน ยังไม่รวมให้อัตโนมัติ ต้องให้ Admin ตรวจเอง</p>
+  src\components\AdminTab.tsx:153:      <div className="space-y-2">
+  src\components\AdminTab.tsx:154:        {duplicateSuggestions.length === 0 ? <p className="text-sm text-slate-400">No possible duplicates.</p> : duplicateSuggestions.map((item) => (
+  src\components\AdminTab.tsx:201:          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Email" type="email" value={addUserEmail} onChange={(e) => setAddUserEmail(e.target.value)} />
+  src\components\AdminTab.tsx:202:          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Temporary password / new password" type="password" value={addUserPassword} onChange={(e) => setAddUserPassword(e.target.value)} />
+  src\components\AdminTab.tsx:203:          <div className="flex gap-2">
+> src\components\AdminTab.tsx:204:            <select className="travel-input flex-1 bg-gray-800 border border-gray-600 rounded p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as any)}>
+  src\components\AdminTab.tsx:205:              <option value="viewer">Viewer</option>
+  src\components\AdminTab.tsx:206:              <option value="editor">Editor</option>
+  src\components\AdminTab.tsx:207:              <option value="admin">Admin</option>
+  src\components\AdminTab.tsx:208:            </select>
+  src\components\AdminTab.tsx:209:            <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserEmail.trim()) { setMessage('Email required'); return; }
+  src\components\AdminTab.tsx:210:              if (!addUserPassword.trim() || addUserPassword.trim().length < 6) { setMessage('Password required, minimum 6 characters'); return; }
+  src\components\AdminTab.tsx:240:                  <span className={`inline-flex w-fit px-3 py-1 rounded text-xs font-semibold ${user.status === 'active' ? 'bg-emerald-900 text-emerald-100' : 'bg-red-900 text-red-100'}`}>
+  src\components\AdminTab.tsx:241:                    {user.status}
+  src\components\AdminTab.tsx:242:                  </span>
+> src\components\AdminTab.tsx:243:                  <span className="inline-flex w-fit px-3 py-1 rounded text-xs font-semibold bg-blue-900 text-blue-100">{user.role}</span>
+  src\components\AdminTab.tsx:244:                </div>
+  src\components\AdminTab.tsx:245:
+  src\components\AdminTab.tsx:246:                {/* Right: Controls */}
+  src\components\AdminTab.tsx:247:                <div className="flex flex-col gap-2">
+> src\components\AdminTab.tsx:248:                  <select className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full" value={user.role} onChange={(e) => guarded(async () => {
+  src\components\AdminTab.tsx:249:                        const nextRole = e.target.value as any;
+  src\components\AdminTab.tsx:250:                        setBusyUserId(user.user_id);
+  src\components\AdminTab.tsx:251:                        setMessage('Saving role...');
+> src\components\AdminTab.tsx:252:                        await updateUserRole(user.user_id, nextRole);
+  src\components\AdminTab.tsx:253:                        await reloadRealUsers();
+  src\components\AdminTab.tsx:254:                        setBusyUserId('');
+> src\components\AdminTab.tsx:255:                        setMessage('Role saved as ' + nextRole + ' and verified after reload');
+  src\components\AdminTab.tsx:256:                      })}>
+  src\components\AdminTab.tsx:257:                    <option value="viewer">Viewer</option>
+  src\components\AdminTab.tsx:258:                    <option value="editor">Editor</option>
+  src\components\AdminTab.tsx:259:                    <option value="admin">Admin</option>
+  src\components\AdminTab.tsx:260:                  </select>
+  src\components\AdminTab.tsx:261:                  <div className="flex gap-2">
+  src\components\AdminTab.tsx:263:                      <button className="travel-btn travel-btn--warning px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { await disableUser(user.user_id); })}>Disable</button>
+  src\components\AdminTab.tsx:264:                    )}
+  src\components\AdminTab.tsx:265:                    <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { if (confirm('Delete user?')) { setBusyUserId(user.user_id);
+> src\components\AdminTab.tsx:266:                        setMessage('Deleting user role...');
+  src\components\AdminTab.tsx:267:                        await deleteUser(user.user_id);
+  src\components\AdminTab.tsx:268:                        await reloadRealUsers();
+  src\components\AdminTab.tsx:269:                        setBusyUserId('');
+> src\components\AdminTab.tsx:270:                        setMessage('User role deleted and verified after reload'); } })}>Delete</button>
+  src\components\AdminTab.tsx:271:                  </div>
+  src\components\AdminTab.tsx:272:                </div>
+  src\components\AdminTab.tsx:273:              </div>
+  src\components\AdminTab.tsx:274:            </div>
+  src\components\AdminTab.tsx:275:          ))
+  src\components\AdminTab.tsx:276:        )}
+

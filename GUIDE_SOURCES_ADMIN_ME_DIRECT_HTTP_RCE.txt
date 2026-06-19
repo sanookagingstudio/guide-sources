@@ -1,0 +1,14 @@
+========== ADMIN ME DIRECT HTTP RCE ==========
+OBJECTIVE=Directly call localhost /api/admin/me with real Supabase access token and capture status/body
+SCOPE=RCE ONLY, NO PATCH
+========== RUN ==========
+DIRECT_LOGIN_START=sanookagingstudio@gmail.com
+DIRECT_LOGIN=PASS
+USER_ID=7d1b62dd-ae2e-4d3d-90f1-2c044efe5e08
+EMAIL=sanookagingstudio@gmail.com
+TOKEN_LENGTH=808
+ADMIN_ME_STATUS=500
+ADMIN_ME_BODY={"error":"Invalid API key","role":null}
+========== NOTE ==========
+ถ้า ADMIN_ME_STATUS=500 ให้ส่ง ADMIN_ME_BODY กลับมา นั่นคือ root cause จริง
+ต้องมี npm run dev เปิดอยู่ที่ localhost:3000 ก่อนรันตัวนี้

@@ -1,0 +1,176 @@
+========== GUIDE SOURCES P2B FINAL USER MANAGEMENT FIX ==========
+OBJECTIVE=Finish real user directory correctness: real email/name, clear logout wording, API proof, build proof
+SCOPE=P2B final correctness only
+NO_COMMIT=TRUE
+ M .env.example
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/api/
+?? src/app/auth/
+?? src/app/page.tsx.authbak
+?? src/app/page.tsx.rootrecoverybak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AuthContext.tsx
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/services/adminService.ts.p2abak
+?? src/services/adminService.ts.p2bbak
+?? src/services/adminService.ts.p2bsyntaxbak
+========== PRE BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1479ms
+  Running TypeScript ...
+  Finished TypeScript in 1878ms ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/6) ...
+  Generating static pages using 7 workers (1/6) 
+  Generating static pages using 7 workers (2/6) 
+  Generating static pages using 7 workers (4/6) 
+โ“ Generating static pages using 7 workers (6/6) in 402ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+========== BACKUP ==========
+========== REWRITE API ROUTE ==========
+========== REWRITE ADMIN SERVICE ==========
+========== PATCH AUTH BUTTON TEXT ==========
+========== PATCH ADMIN TITLE ==========
+========== SOURCE VERIFY ==========
+
+src\app\api\admin\users\route.ts:6:const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+src\app\api\admin\users\route.ts:15:  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+src\app\api\admin\users\route.ts:19:  const authHeader = request.headers.get('authorization') || '';
+src\app\api\admin\users\route.ts:20:  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+src\app\api\admin\users\route.ts:22:  if (!token) return { error: json(401, { error: 'Missing bearer token' }) };
+src\app\api\admin\users\route.ts:33:  const service = createClient(supabaseUrl, serviceRoleKey, {
+src\app\api\admin\users\route.ts:56:  const { data: authData, error: authError } = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
+src\app\api\admin\users\route.ts:70:    const email = user.email || '';
+src\app\api\admin\users\route.ts:72:      (user.user_metadata?.display_name as string | undefined) ||
+src\app\api\admin\users\route.ts:74:      email.split('@')[0] ||
+src\app\api\admin\users\route.ts:79:      display_name: displayName,
+src\app\api\admin\users\route.ts:80:      email,
+src\services\adminService.ts:30:      authorization: `Bearer ${token}`,
+src\services\adminService.ts:36:  if (!response.ok) throw new Error(payload.error || 'Admin users API failed');
+src\services\adminService.ts:66:export async function addUser(display_name: string, email: string, role: AdminRole): Promise<LocalUser> {
+src\services\adminService.ts:67:  if (!isSupabaseConfigured) return addLocalUser(display_name, email, role);
+src\services\adminService.ts:69:  throw new Error('Create Auth users in Supabase Authentication first. Then assign role from this Users list.');
+src\services\adminService.ts:80:    display_name: '',
+src\services\adminService.ts:81:    email: '',
+src\services\adminService.ts:96:    display_name: '',
+src\services\adminService.ts:97:    email: '',
+src\components\AuthPanel.tsx:8:  const [email, setEmail] = useState('');
+src\components\AuthPanel.tsx:16:      await auth.signIn(email.trim(), password);
+src\components\AuthPanel.tsx:42:          <p className="text-xs text-slate-300">{auth.email}</p>
+src\components\AuthPanel.tsx:46:          Sign out
+src\components\AuthPanel.tsx:56:        <input className="travel-input bg-gray-800 border border-gray-600 rounded p-2 text-xs" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+src\components\AdminTab.tsx:24:const [authEmail, setAuthEmail] = useState<string>('');
+src\components\AdminTab.tsx:39:  const [addUserEmail, setAddUserEmail] = useState('');
+src\components\AdminTab.tsx:46:      setAuthEmail(data.user?.email || '');
+src\components\AdminTab.tsx:53:Email: {authEmail || '(unknown)'}
+src\components\AdminTab.tsx:106:      <h3 className="travel-section-title mb-3">👥 REAL USER MANAGEMENT</h3>
+src\components\AdminTab.tsx:108:        <h4 className="text-sm font-semibold mb-2 text-slate-100">Assign Role / Add Existing Auth User</h4>
+src\components\AdminTab.tsx:111:          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Email" type="email" value={addUserEmail} onChange={(e) => setAddUserEmail(e.target.value)} />
+src\components\AdminTab.tsx:118:            <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserDisplayName.trim()) { setMessage('Display name required'); return; } await addUser(addUserDisplayName, addUserEmail, addUserRole); setAddUserDisplayName(''); setAddUserEmail(''); setAddUserRole('viewer'); setMessage('User added'); })}>Add</button>
+src\components\AdminTab.tsx:132:                  <p className="text-slate-100 font-semibold text-sm">{user.display_name || 'Unnamed'}</p>
+src\components\AdminTab.tsx:133:                  <p className="text-slate-400 text-xs break-all">{user.email || '(no email)'}</p>
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1518ms
+  Running TypeScript ...
+  Finished TypeScript in 1806ms ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/6) ...
+  Generating static pages using 7 workers (1/6) 
+  Generating static pages using 7 workers (2/6) 
+  Generating static pages using 7 workers (4/6) 
+โ“ Generating static pages using 7 workers (6/6) in 386ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== API DIRECT PROOF SCRIPT ==========
+DIRECT_USER_DIRECTORY=PASS
+[
+  {
+    "email": "akemontree@gmail.com",
+    "user_id": "e86a8f94-1fcc-4f99-ae9c-bd2f755e5607",
+    "role": "admin"
+  },
+  {
+    "email": "sanookagingstudio@gmail.com",
+    "user_id": "7d1b62dd-ae2e-4d3d-90f1-2c044efe5e08",
+    "role": "admin"
+  }
+]
+========== FINAL RUNTIME PROOF REQUIRED ==========
+1. Restart dev server: Ctrl+C then npm run dev
+2. Login as admin
+3. Open Admin
+4. Users must show real emails, not (no email)
+5. Red button text must be Sign out
+6. Change role should persist after refresh

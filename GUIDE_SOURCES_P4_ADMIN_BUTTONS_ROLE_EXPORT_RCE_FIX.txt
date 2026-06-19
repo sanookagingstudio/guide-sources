@@ -1,0 +1,172 @@
+========== P4 ADMIN BUTTONS ROLE EXPORT RCE FIX ==========
+OBJECTIVE=Fix/prove approve buttons, role change persist, and search export visibility
+NO_COMMIT=TRUE
+ M .env.example
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/components/SearchTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_ADMIN_ME_DEBUG_PATCH.txt
+?? GUIDE_SOURCES_ADMIN_ME_DIRECT_HTTP_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RESPONSE_CAPTURE.txt
+?? GUIDE_SOURCES_ADMIN_ROLE_GATE_FINAL_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SESSION_SHARED_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_ADMIN_TAB_BEARER_FIX.txt
+?? GUIDE_SOURCES_ADMIN_TAB_ROLE_GATE_DIRECT_FIX.txt
+?? GUIDE_SOURCES_ADMIN_USE_AUTH_CONTEXT_FINAL_FIX.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_ROLE_GATE_EXHAUSTIVE_RCE.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_AUTH_TOKEN_DEBUG_LOG_PATCH.txt
+?? GUIDE_SOURCES_DEV_EXPLICIT_ENV.log
+?? GUIDE_SOURCES_DEV_SERVER_RCE.log
+?? GUIDE_SOURCES_DUPLICATE_DEFAULT_EXPORT_FIX.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_ROUTE_RCE_NOTEPAD.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_FINAL_DETACHED_DEV.log
+?? GUIDE_SOURCES_FINAL_EXHAUSTIVE_ROOTCAUSE_PROOF.txt
+?? GUIDE_SOURCES_FINAL_RCE_NO_HANG.txt
+?? GUIDE_SOURCES_FIX_STALE_PROCESS_ENV_FINAL.txt
+?? GUIDE_SOURCES_FORCE_KILL_PID_13248.txt
+?? GUIDE_SOURCES_FORCE_KILL_PORT_3000.txt
+?? GUIDE_SOURCES_FULL_AUTH_ROLE_GATE_RCE_AUTOMATED.txt
+?? GUIDE_SOURCES_KILL_STALE_DEV_SERVER_AND_VERIFY.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_P3A_USER_CRUD_AND_P3B_SEARCH_EXPORT.txt
+?? GUIDE_SOURCES_P3_USER_MANAGEMENT_REAL_FLOW_FIX.txt
+?? GUIDE_SOURCES_P4_ADMIN_BUTTONS_ROLE_EXPORT_RCE_FIX.txt
+?? GUIDE_SOURCES_PAGE_EXPORT_FINAL_FIX.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_KEY_REPAIR_AND_VERIFY.txt
+?? GUIDE_SOURCES_START_FRESH_AFTER_KILL.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/api/
+?? src/app/auth/
+?? src/app/page.tsx.authbak
+?? src/app/page.tsx.rootrecoverybak
+?? src/app/page.tsx.sharedauthbak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.directrolegatebak
+?? src/components/AdminTab.tsx.finalbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AdminTab.tsx.p2bbindingbak
+?? src/components/AdminTab.tsx.p3acrudbak
+?? src/components/AdminTab.tsx.p3flowbak
+?? src/components/AdminTab.tsx.tokendebugbak
+?? src/components/AdminTab.tsx.useauthcontextbak
+?? src/components/AuthContext.tsx
+?? src/components/AuthContext.tsx.sharedauthbak
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/components/AuthPanel.tsx.finalbak
+?? src/components/AuthPanel.tsx.sharedauthbak
+?? src/components/SearchTab.tsx.p3bexportbak
+?? src/services/adminService.ts.finalbak
+?? src/services/adminService.ts.p2abak
+?? src/services/adminService.ts.p2bbak
+?? src/services/adminService.ts.p2bbindingbak
+?? src/services/adminService.ts.p2bsyntaxbak
+?? src/services/adminService.ts.p3acrudbak
+?? src/services/adminService.ts.p3flowbak
+?? src/services/adminService.ts.rolegatebak
+========== BACKUP ==========
+========== SOURCE RCE ==========
+
+src\components\AdminTab.tsx:6:  approvePlace, 
+src\components\AdminTab.tsx:9:  rejectPlace, 
+src\components\AdminTab.tsx:12:  updateUserRole,
+src\components\AdminTab.tsx:63:  const [message, setMessage] = useState('');
+src\components\AdminTab.tsx:65:  const setBusyMessage = (text: string) => setMessage(text);
+src\components\AdminTab.tsx:102:        setMessage('Missing AuthContext session token');
+src\components\AdminTab.tsx:112:        setMessage(roleResult.error || 'Admin role required');
+src\components\AdminTab.tsx:127:    setMessage('');
+src\components\AdminTab.tsx:130:    setMessage(e instanceof Error ? e.message : 'Admin load failed');
+src\components\AdminTab.tsx:140:  const guarded = async (fn: () => Promise<void>) => { try { await fn(); await load(); } catch (e) { setMessage(e instanceof Error ? e.message : 'Action failed'); } };
+src\components\AdminTab.tsx:148:    <div className="travel-card p-4 flex justify-between items-center"><div><h3 className="travel-section-title">🧠 สมองส่วนกลาง (AI Routing)</h3><p className="travel-meta text-xs">Jarvis/Sentinel/Foresight provider agnostic monitoring readiness</p></div><select className="travel-input bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}><option value="jarvis-gpt4o">Jarvis</option><option value="sentinel-claude">Sentinel</option><option value="foresight-gemini">Foresight</option></select></div>
+src\components\AdminTab.tsx:164:                <button className="travel-btn travel-btn--purple px-2 py-1 rounded mt-2" onClick={() => onEdit(item.primary)}>แก้ไข Primary</button>
+src\components\AdminTab.tsx:169:                <button className="travel-btn travel-btn--purple px-2 py-1 rounded mt-2" onClick={() => onEdit(item.candidate)}>แก้ไข Candidate</button>
+src\components\AdminTab.tsx:177:    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { await approvePlace(p); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'staging_places'); })}>ลบ</button></div></div>)}</div></section>
+src\components\AdminTab.tsx:185:              <button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button>
+src\components\AdminTab.tsx:186:              <button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'staging_places'); })}>ลบ</button>
+src\components\AdminTab.tsx:192:    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Production Search Data ({approved.length})</h3>{approved.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex justify-between mb-2 border border-slate-700"><span className="text-slate-100">{p.name} — {p.category}</span><div className="flex gap-2"><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { await deletePlace(p.id!, 'production_places'); })}>ลบ</button></div></div>)}<button className="travel-btn travel-btn--primary mt-2 px-3 py-2 rounded text-sm" onClick={() => guarded(async () => { await saveStagingPlace({ name: 'New place', province: 'กรุงเทพมหานคร', category: 'อื่นๆ (โปรดระบุ)', rating: 5, amenities: [], alerts: [], status: 'pending' }); })}>เพิ่มข้อมูลตัวอย่างเพื่อแก้ไข</button></section>
+src\components\AdminTab.tsx:193:    <section className="travel-card p-4"><h3 className="travel-section-title mb-2">Import CSV/JSON</h3><textarea className="travel-input w-full h-28 bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="name,province,category,rating" /><button className="travel-btn travel-btn--primary mt-2 px-3 py-2 rounded" onClick={() => guarded(async () => { const result = await importPlaces(importText); setMessage(`Imported ${result.imported}/${result.total}`); })}>Import</button></section>
+src\components\AdminTab.tsx:203:            <select className="travel-input flex-1 bg-gray-800 border border-gray-600 rounded p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as any)}>
+src\components\AdminTab.tsx:207:            </select>
+src\components\AdminTab.tsx:208:            <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserEmail.trim()) { setMessage('Email required'); return; }
+src\components\AdminTab.tsx:209:              if (!addUserPassword.trim() || addUserPassword.trim().length < 6) { setMessage('Password required, minimum 6 characters'); return; }
+src\components\AdminTab.tsx:217:              setMessage('Auth user created/updated and verified after reload'); })}>Add</button>
+src\components\AdminTab.tsx:247:                  <select className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full" value={user.role} onChange={(e) => guarded(async () => { setBusyUserId(user.user_id);
+src\components\AdminTab.tsx:248:                        setMessage('Saving role...');
+src\components\AdminTab.tsx:249:                        await updateUserRole(user.user_id, e.target.value as any);
+src\components\AdminTab.tsx:252:                        setMessage('Role saved and verified after reload'); })}>
+src\components\AdminTab.tsx:256:                  </select>
+src\components\AdminTab.tsx:259:                      <button className="travel-btn travel-btn--warning px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { await disableUser(user.user_id); })}>Disable</button>
+src\components\AdminTab.tsx:261:                    <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { if (confirm('Delete user?')) { setBusyUserId(user.user_id);
+src\components\AdminTab.tsx:262:                        setMessage('Deleting user role...');
+src\components\AdminTab.tsx:266:                        setMessage('User role deleted and verified after reload'); } })}>Delete</button>
+src\components\AdminTab.tsx:278:        <button className="travel-btn travel-btn--secondary px-3 py-2 rounded text-xs" type="button" onClick={() => setShowAuditLogs((value) => !value)}>
+
+========== PATCH ADMIN TAB: HARDEN BUTTON HANDLERS ==========
+========== PATCH SEARCH EXPORT VISIBILITY ==========
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/components/AdminTab.tsx:253:41
+Expected '</', got 'ident'
+  251 |                         await reloadRealUsers();
+  252 |                         setBusyUserId('');
+> 253 |                         setMessage(Role saved as  and verified after reload); })}>
+      |                                         ^^^^^
+  254 |                     <option value="viewer">Viewer</option>
+  255 |                     <option value="editor">Editor</option>
+  256 |                     <option value="admin">Admin</option>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/AdminTab.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/AdminTab.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+    at <unknown> (./src/components/AdminTab.tsx:253:41)
+BUILD=FAIL

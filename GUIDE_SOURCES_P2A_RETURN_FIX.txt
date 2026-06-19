@@ -1,0 +1,38 @@
+========== GUIDE SOURCES P2A RETURN FIX ==========
+OBJECTIVE=Fix missing return statements in Supabase user management functions
+========== PATCH ==========
+========== VERIFY SOURCE ==========
+
+src\services\adminService.ts:29:  if (!isSupabaseConfigured) { logLocalAdminAction(action, entityType, entityId, details); return; }
+src\services\adminService.ts:59:return { user_id: userId, display_name: displayName, email: emailKey, role, status: 'active', created_at: new Date().toISOString() };
+src\services\adminService.ts:67:return { user_id, display_name: '', email: '', role, status: 'active', created_at: new Date().toISOString() };
+src\services\adminService.ts:74:await logAdminAction('disable_user_role', 'user_role', user_id, {});
+src\services\adminService.ts:75:return { user_id, display_name: '', email: '', role: 'viewer', status: 'disabled', created_at: new Date().toISOString() };
+src\services\adminService.ts:82:await logAdminAction('delete_user_role', 'user_role', user_id, {});
+src\services\adminService.ts:83:return;
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1531ms
+  Running TypeScript ...
+Failed to type check.
+
+./src/services/adminService.ts:83:1
+Type error: Type 'undefined' is not assignable to type 'boolean'.
+
+  81 | if (error) throw error;
+  82 | await logAdminAction('delete_user_role', 'user_role', user_id, {});
+> 83 | return;
+     | ^
+  84 | }
+  85 |
+  86 | export async function listUsers(): Promise<LocalUser[]> {
+Next.js build worker exited with code: 1 and signal: null
+BUILD=FAIL

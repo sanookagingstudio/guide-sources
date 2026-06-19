@@ -1,0 +1,48 @@
+========== SERVICE ROLE KEY REPAIR AND VERIFY ==========
+KEY_WRITTEN_LENGTH=219
+SERVICE_ROLE_VERIFY=PASS
+USER_COUNT=2
+[
+  {
+    "id": "e86a8f94-1fcc-4f99-ae9c-bd2f755e5607",
+    "email": "akemontree@gmail.com"
+  },
+  {
+    "id": "7d1b62dd-ae2e-4d3d-90f1-2c044efe5e08",
+    "email": "sanookagingstudio@gmail.com"
+  }
+]
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 2.1s
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/7) ...
+  Generating static pages using 8 workers (1/7) 
+  Generating static pages using 8 workers (3/7) 
+  Generating static pages using 8 workers (5/7) 
+โ“ Generating static pages using 8 workers (7/7) in 432ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+========== NEXT ==========
+Restart dev server after SERVICE_ROLE_VERIFY=PASS

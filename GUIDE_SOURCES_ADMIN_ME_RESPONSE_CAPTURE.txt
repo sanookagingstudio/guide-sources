@@ -1,0 +1,5 @@
+========== ADMIN ME RESPONSE CAPTURE ==========
+LOGIN_PASS
+TOKEN_LENGTH=808
+STATUS=500
+BODY={"error":"Invalid API key","role":null}

@@ -1,0 +1,70 @@
+========== FORCE SERVER ENV FILE ROOTCAUSE FIX ==========
+OBJECTIVE=Eliminate stale process.env by loading SUPABASE_SERVICE_ROLE_KEY directly from .env.local inside server routes
+NO_COMMIT=TRUE
+========== BACKUP ==========
+========== CREATE SERVER ENV HELPER ==========
+========== PATCH /api/admin/users ROUTE ENV ==========
+========== PATCH /api/admin/me ROUTE ENV ==========
+========== SOURCE VERIFY ==========
+
+src\lib\serverEnv.ts:4:function readDotEnvLocal(): Record<string, string> {
+src\lib\serverEnv.ts:34:const fileEnv = readDotEnvLocal();
+src\lib\serverEnv.ts:36:export const serverEnv = {
+src\lib\serverEnv.ts:51:  SUPABASE_SERVICE_ROLE_KEY:
+src\lib\serverEnv.ts:52:    fileEnv.SUPABASE_SERVICE_ROLE_KEY ||
+src\lib\serverEnv.ts:53:    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+src\lib\serverEnv.ts:57:export function maskServerKey(value: string) {
+src\app\api\admin\users\route.ts:3:import { serverEnv, maskServerKey } from '@/lib/serverEnv';
+src\app\api\admin\users\route.ts:5:const supabaseUrl = serverEnv.SUPABASE_URL;
+src\app\api\admin\users\route.ts:6:const anonKey = serverEnv.SUPABASE_ANON_KEY;
+src\app\api\admin\users\route.ts:7:const serviceRoleKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY;
+src\app\api\admin\users\route.ts:16:  console.log('SERVER_ROUTE_ENV_USERS', { service: maskServerKey(serviceRoleKey), anon: maskServerKey(anonKey), url: supabaseUrl });
+src\app\api\admin\users\route.ts:18:    return { error: json(500, { error: 'Supabase server env missing. Set SUPABASE_SERVICE_ROLE_KEY.' }) };
+src\app\api\admin\me\route.ts:3:import { serverEnv, maskServerKey } from '@/lib/serverEnv';
+src\app\api\admin\me\route.ts:5:const supabaseUrl = serverEnv.SUPABASE_URL;
+src\app\api\admin\me\route.ts:6:const anonKey = serverEnv.SUPABASE_ANON_KEY;
+src\app\api\admin\me\route.ts:7:const serviceRoleKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY;
+src\app\api\admin\me\route.ts:14:  console.log('SERVER_ROUTE_ENV_ME', { service: maskServerKey(serviceRoleKey), anon: maskServerKey(anonKey), url: supabaseUrl });
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1596ms
+  Running TypeScript ...
+  Finished TypeScript in 1960ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 417ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== KILL AND START FRESH DEV ==========
+KILL_PID=19144
+SUCCESS: The process with PID 10208 (child process of PID 13376) has been terminated.
+SUCCESS: The process with PID 13376 (child process of PID 20324) has been terminated.
+SUCCESS: The process with PID 20324 (child process of PID 20752) has been terminated.
+SUCCESS: The process with PID 21164 (child process of PID 21000) has been terminated.
+SUCCESS: The process with PID 20752 (child process of PID 21000) has been terminated.
+SUCCESS: The process with PID 19404 (child process of PID 10024) has been terminated.

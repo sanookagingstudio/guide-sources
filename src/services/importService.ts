@@ -1,0 +1,13 @@
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { saveStagingPlace, type PlaceRecord } from './placesService';
+import { importLocalPlaces } from './localStorageProvider';
+export function parseImportPayload(text: string): PlaceRecord[] { const trimmed = text.trim(); if (!trimmed) return []; if (trimmed.startsWith('[')) return JSON.parse(trimmed); const [headerLine, ...rows] = trimmed.split(/\r?\n/); const headers = headerLine.split(',').map((h) => h.trim()); return rows.map((row) => Object.fromEntries(row.split(',').map((cell, i) => [headers[i], cell.trim()]))) as unknown as PlaceRecord[]; }
+export async function importPlaces(raw: string) {
+  if (!isSupabaseConfigured) return importLocalPlaces(raw);
+  const rows = parseImportPayload(raw);
+  const { data: job } = await supabase.from('import_jobs').insert({ source_type: raw.trim().startsWith('[') ? 'json' : 'csv', status: 'running', total_rows: rows.length }).select().single();
+  let imported = 0;
+  for (const row of rows) { await saveStagingPlace({ ...row, rating: Number(row.rating || 5), amenities: row.amenities || [], alerts: row.alerts || [] }); imported++; }
+  if (job?.id) await supabase.from('import_jobs').update({ status: 'completed', imported_rows: imported }).eq('id', job.id);
+  return { imported, total: rows.length };
+}

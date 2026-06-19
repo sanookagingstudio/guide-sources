@@ -1,0 +1,38 @@
+========== DUPLICATE DEFAULT EXPORT FIX ==========
+OBJECTIVE=Remove duplicate default export and keep single AuthProvider-wrapped Home export
+========== BEFORE DEFAULT EXPORTS ==========
+
+src\app\page.tsx:28:export default function App() {
+src\app\page.tsx:149:export default function Home() {
+
+========== AFTER DEFAULT EXPORTS ==========
+
+src\app\page.tsx:28:export default function App() {
+src\app\page.tsx:149:function __OldHomeRemoved() {
+
+DEFAULT_EXPORT_COUNT=1
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1648ms
+  Running TypeScript ...
+Failed to type check.
+
+./src/app/page.tsx:152:8
+Type error: Cannot find name 'GuideSourcesApp'.
+
+  150 |   return (
+  151 |     <AuthProvider>
+> 152 |       <GuideSourcesApp />
+      |        ^
+  153 |     </AuthProvider>
+  154 |   );
+  155 | }
+Next.js build worker exited with code: 1 and signal: null
+BUILD=FAIL

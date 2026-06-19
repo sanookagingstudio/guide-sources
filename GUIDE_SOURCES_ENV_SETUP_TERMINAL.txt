@@ -1,0 +1,27 @@
+========== GUIDE SOURCES ENV SETUP TERMINAL ==========
+ENV_WRITTEN=YES
+URL_LENGTH=40
+KEY_LENGTH=208
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1459ms
+  Running TypeScript ...
+  Finished TypeScript in 1775ms ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 337ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+

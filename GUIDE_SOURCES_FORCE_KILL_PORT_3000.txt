@@ -1,0 +1,16 @@
+========== FORCE KILL PORT 3000 ==========
+========== NETSTAT BEFORE ==========
+
+  TCP    0.0.0.0:3000           0.0.0.0:0              LISTENING       13248
+  TCP    [::]:3000              [::]:0                 LISTENING       13248
+  TCP    [::1]:3000             [::1]:52356            ESTABLISHED     13248
+  TCP    [::1]:52356            [::1]:3000             ESTABLISHED     15192
+
+========== NETSTAT AFTER ==========
+
+  TCP    0.0.0.0:3000           0.0.0.0:0              LISTENING       13248
+  TCP    [::]:3000              [::]:0                 LISTENING       13248
+  TCP    [::1]:3000             [::1]:52356            ESTABLISHED     13248
+  TCP    [::1]:52356            [::1]:3000             ESTABLISHED     15192
+
+PORT_3000_FREE=FAIL

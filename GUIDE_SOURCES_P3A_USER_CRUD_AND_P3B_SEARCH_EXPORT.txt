@@ -1,0 +1,156 @@
+========== P3A USER CRUD + P3B SEARCH EXPORT ==========
+OBJECTIVE=Admin can create/manage Supabase Auth users from web UI; Search can export filtered results to CSV
+NO_COMMIT=TRUE
+ M .env.example
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_ADMIN_ME_DEBUG_PATCH.txt
+?? GUIDE_SOURCES_ADMIN_ME_DIRECT_HTTP_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RESPONSE_CAPTURE.txt
+?? GUIDE_SOURCES_ADMIN_ROLE_GATE_FINAL_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SESSION_SHARED_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_ADMIN_TAB_BEARER_FIX.txt
+?? GUIDE_SOURCES_ADMIN_TAB_ROLE_GATE_DIRECT_FIX.txt
+?? GUIDE_SOURCES_ADMIN_USE_AUTH_CONTEXT_FINAL_FIX.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_ROLE_GATE_EXHAUSTIVE_RCE.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_AUTH_TOKEN_DEBUG_LOG_PATCH.txt
+?? GUIDE_SOURCES_DEV_EXPLICIT_ENV.log
+?? GUIDE_SOURCES_DEV_SERVER_RCE.log
+?? GUIDE_SOURCES_DUPLICATE_DEFAULT_EXPORT_FIX.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_ROUTE_RCE_NOTEPAD.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_FINAL_DETACHED_DEV.log
+?? GUIDE_SOURCES_FINAL_EXHAUSTIVE_ROOTCAUSE_PROOF.txt
+?? GUIDE_SOURCES_FINAL_RCE_NO_HANG.txt
+?? GUIDE_SOURCES_FIX_STALE_PROCESS_ENV_FINAL.txt
+?? GUIDE_SOURCES_FORCE_KILL_PID_13248.txt
+?? GUIDE_SOURCES_FORCE_KILL_PORT_3000.txt
+?? GUIDE_SOURCES_FULL_AUTH_ROLE_GATE_RCE_AUTOMATED.txt
+?? GUIDE_SOURCES_KILL_STALE_DEV_SERVER_AND_VERIFY.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_P3A_USER_CRUD_AND_P3B_SEARCH_EXPORT.txt
+?? GUIDE_SOURCES_P3_USER_MANAGEMENT_REAL_FLOW_FIX.txt
+?? GUIDE_SOURCES_PAGE_EXPORT_FINAL_FIX.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_KEY_REPAIR_AND_VERIFY.txt
+?? GUIDE_SOURCES_START_FRESH_AFTER_KILL.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/api/
+?? src/app/auth/
+?? src/app/page.tsx.authbak
+?? src/app/page.tsx.rootrecoverybak
+?? src/app/page.tsx.sharedauthbak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.directrolegatebak
+?? src/components/AdminTab.tsx.finalbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AdminTab.tsx.p2bbindingbak
+?? src/components/AdminTab.tsx.p3flowbak
+?? src/components/AdminTab.tsx.tokendebugbak
+?? src/components/AdminTab.tsx.useauthcontextbak
+?? src/components/AuthContext.tsx
+?? src/components/AuthContext.tsx.sharedauthbak
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/components/AuthPanel.tsx.finalbak
+?? src/components/AuthPanel.tsx.sharedauthbak
+?? src/services/adminService.ts.finalbak
+?? src/services/adminService.ts.p2abak
+?? src/services/adminService.ts.p2bbak
+?? src/services/adminService.ts.p2bbindingbak
+?? src/services/adminService.ts.p2bsyntaxbak
+?? src/services/adminService.ts.p3flowbak
+?? src/services/adminService.ts.rolegatebak
+========== BACKUP ==========
+========== PATCH API USERS: CREATE AUTH USER + ROLE ==========
+========== PATCH ADMIN SERVICE ==========
+========== PATCH ADMIN TAB: PASSWORD FIELD + CLEAR COPY ==========
+========== PATCH SEARCH EXPORT CSV ==========
+========== SOURCE VERIFY ==========
+
+src\app\api\admin\users\route.ts:129:  const authDelete = await service.auth.admin.deleteUser(user_id);
+src\app\api\admin\users\route.ts:161:    const created = await service.auth.admin.createUser({
+src\app\api\admin\users\route.ts:177:    const updated = await service.auth.admin.updateUserById(user.id, {
+src\app\api\admin\users\route.ts:230:  const update = await service.auth.admin.updateUserById(user_id, {
+src\app\api\admin\users\route.ts:231:    ban_duration: action === 'disable' ? '876000h' : 'none',
+src\services\adminService.ts:120:export async function deleteUser(user_id: string): Promise<boolean> {
+src\components\AdminTab.tsx:14:  deleteUser,
+src\components\AdminTab.tsx:74:  const [addUserPassword, setAddUserPassword] = useState('');
+src\components\AdminTab.tsx:197:        <h4 className="text-sm font-semibold mb-2 text-slate-100">Create / Update Auth User</h4>
+src\components\AdminTab.tsx:201:          <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Temporary password / new password" type="password" value={addUserPassword} onChange={(e) => setAddUserPassword(e.target.value)} />
+src\components\AdminTab.tsx:209:              if (!addUserPassword.trim() || addUserPassword.trim().length < 6) { setMessage('Password required, minimum 6 characters'); return; }
+src\components\AdminTab.tsx:211:              await addUser(addUserDisplayName || addUserEmail.split('@')[0], addUserEmail, addUserRole, addUserPassword);
+src\components\AdminTab.tsx:214:              setAddUserPassword('');
+src\components\AdminTab.tsx:263:                        await deleteUser(user.user_id);
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1677ms
+  Running TypeScript ...
+  Finished TypeScript in 1999ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 458ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== API PROBE CREATE USER ==========
+CREATE_STATUS=200
+CREATE_BODY={"ok":true,"user":{"user_id":"c842546d-dc29-48c3-8e79-40710802c21f","display_name":"Test Runtime 001","email":"test-runtime-001@gmail.com","role":"viewer","status":"active","created_at":"2026-06-17T10:44:03.946188Z"},"message":"Auth user and role saved for test-runtime-001@gmail.com"}
+LIST_STATUS=200
+LIST_BODY={"users":[{"user_id":"c842546d-dc29-48c3-8e79-40710802c21f","display_name":"Test Runtime 001","email":"test-runtime-001@gmail.com","role":"viewer","status":"active","created_at":"2026-06-17T10:44:03.946188Z","updated_at":"2026-06-17T10:44:01.053+00:00"},{"user_id":"e86a8f94-1fcc-4f99-ae9c-bd2f755e5607","display_name":"akemontree","email":"akemontree@gmail.com","role":"admin","status":"active","created_at":"2026-06-16T17:01:54.084739Z","updated_at":"2026-06-16T17:32:50.782+00:00"},{"user_id":"7d1b62dd-ae2e-4d3d-90f1-2c044efe5e08","display_name":"sanookagingstudio","email":"sanookagingstudio@gmail.com","role":"admin","status":"active","created_at":"2026-06-16T17:01:15.691666Z","updated_at":"2026-06-17T00:06:01.996969+00:00"}]}
+========== RUNTIME EXPECTED ==========
+1. Ctrl+F5
+2. Admin > Create / Update Auth User must show password field.
+3. Add must create Supabase Auth user + role from UI.
+4. Search tab must show Export CSV button for current filtered results.

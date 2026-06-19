@@ -1,0 +1,54 @@
+========== FIX STALE PROCESS ENV FINAL ==========
+ROOT_CAUSE=STALE_WINDOWS_PROCESS_ENV_OVERRIDES_DOTENV_LOCAL
+========== READ ENV FILE DIRECTLY ==========
+FILE_URL=https://hfoliiqijjkmarggjawp.supabase.co
+FILE_ANON_LENGTH=208
+FILE_SERVICE_LENGTH=219
+FILE_SERVICE_LAST8=7SSGF1Jg
+========== CLEAR STALE ENV ==========
+PROCESS_SERVICE_LAST8=7SSGF1Jg
+========== VERIFY SERVICE ROLE ==========
+PROCESS_ENV_SERVICE_VERIFY=PASS
+USER_COUNT=2
+========== KILL DEV SERVER ==========
+KILL_PID=19432
+SUCCESS: The process with PID 19432 (child process of PID 20236) has been terminated.
+KILL_PID=19432
+ERROR: The process "19432" not found.
+========== START DEV WITH EXPLICIT ENV ==========
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1629ms
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 399ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+========== NEXT ==========
+Open browser Ctrl+F5, login, Admin.
+Expected: /api/admin/me no longer Invalid API key.

@@ -1,0 +1,163 @@
+========== EXHAUSTIVE AUTH ROLE GATE RCE ==========
+OBJECTIVE=Find exact root cause, covering env, stale dev server, anon key, service key, token, role query, API route
+SCOPE=RCE + TEMP DIAGNOSTIC ROUTE ONLY, NO PRODUCT PATCH, NO COMMIT
+ M .env.example
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_ADMIN_ME_DEBUG_PATCH.txt
+?? GUIDE_SOURCES_ADMIN_ME_DIRECT_HTTP_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RESPONSE_CAPTURE.txt
+?? GUIDE_SOURCES_ADMIN_ROLE_GATE_FINAL_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SESSION_SHARED_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_ADMIN_TAB_BEARER_FIX.txt
+?? GUIDE_SOURCES_ADMIN_TAB_ROLE_GATE_DIRECT_FIX.txt
+?? GUIDE_SOURCES_ADMIN_USE_AUTH_CONTEXT_FINAL_FIX.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_ROLE_GATE_EXHAUSTIVE_RCE.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_AUTH_TOKEN_DEBUG_LOG_PATCH.txt
+?? GUIDE_SOURCES_DUPLICATE_DEFAULT_EXPORT_FIX.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_FULL_AUTH_ROLE_GATE_RCE_AUTOMATED.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_PAGE_EXPORT_FINAL_FIX.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_KEY_REPAIR_AND_VERIFY.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/api/
+?? src/app/auth/
+?? src/app/page.tsx.authbak
+?? src/app/page.tsx.rootrecoverybak
+?? src/app/page.tsx.sharedauthbak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.directrolegatebak
+?? src/components/AdminTab.tsx.finalbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AdminTab.tsx.p2bbindingbak
+?? src/components/AdminTab.tsx.tokendebugbak
+?? src/components/AdminTab.tsx.useauthcontextbak
+?? src/components/AuthContext.tsx
+?? src/components/AuthContext.tsx.sharedauthbak
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/components/AuthPanel.tsx.finalbak
+?? src/components/AuthPanel.tsx.sharedauthbak
+?? src/services/adminService.ts.finalbak
+?? src/services/adminService.ts.p2abak
+?? src/services/adminService.ts.p2bbak
+?? src/services/adminService.ts.p2bbindingbak
+?? src/services/adminService.ts.p2bsyntaxbak
+?? src/services/adminService.ts.rolegatebak
+========== CREATE TEMP DIAGNOSTIC ROUTE ==========
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 2.1s
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 434ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== LOCAL ENV HASH ==========
+LOCAL_URL=https://hfoliiqijjkmarggjawp.supabase.co
+LOCAL_ANON_LENGTH=208
+LOCAL_ANON_HASH=cb0d8a56d1d9f584
+LOCAL_SERVICE_LENGTH=219
+LOCAL_SERVICE_HASH=777d4a6c3e387f01
+========== FORCE STOP OLD DEV SERVER ON PORT 3000 ==========
+========== START FRESH DEV SERVER ==========
+WAIT_FOR_SERVER=START
+SERVER_READY=True
+========== DIRECT LOGIN + API RCE ==========
+DIRECT_LOGIN=PASS
+LOGIN_EMAIL=sanookagingstudio@gmail.com
+LOGIN_USER_ID=7d1b62dd-ae2e-4d3d-90f1-2c044efe5e08
+TOKEN_LENGTH=808
+DIRECT_SERVICE_EXACT_ROLE_ERROR=NONE
+DIRECT_SERVICE_EXACT_ROLE_ROWS=[{"user_id":"7d1b62dd-ae2e-4d3d-90f1-2c044efe5e08","role":"admin"}]
+DIAG_STATUS=200
+DIAG_BODY={"runtime_env":{"url":"https://hfoliiqijjkmarggjawp.supabase.co","anon_length":208,"anon_hash":"cb0d8a56d1d9f584","service_length":219,"service_hash":"73be29a8d23f1861"},"token":{"provided":true,"length":808},"checks":{"anon_get_user":{"ok":true,"user_id":"7d1b62dd-ae2e-4d3d-90f1-2c044efe5e08","email":"sanookagingstudio@gmail.com"},"service_list_users":{"ok":false,"error":"Invalid API key"},"service_user_roles":{"ok":false,"error":"Invalid API key"},"exact_role_for_token_user":{"ok":false,"error":"Invalid API key"}}}
+ADMIN_ME_STATUS=500
+ADMIN_ME_BODY={"error":"Invalid API key","role":null}
+========== DEV SERVER LOG TAIL ==========
+
+> guide-sources@0.1.0 dev
+> next dev
+
+node.exe : โ  Port 3000 is in use by process 13248, using available port 3001 instead.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (โ  Port 3000 i...t 3001 instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.1.39:3001
+- Environments: .env.local
+โ“ Ready in 455ms
+โจฏ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          13248
+- Dir:          C:\Users\akemo\guide-sources
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 13248 /F to stop it.
+[?25h
+========== DECISION MATRIX ==========
+1. If LOCAL_*_HASH differs from DIAG runtime_env hash => stale/wrong dev server env.
+2. If DIRECT_SERVICE_EXACT_ROLE_ROWS has admin but DIAG service_user_roles fails => API runtime service key/env problem.
+3. If DIAG exact_role_for_token_user has admin but ADMIN_ME fails => /api/admin/me route logic/catch corruption.
+4. If DIAG passes and ADMIN_ME passes => root cause was stale dev server; runtime should now pass.
+5. If DIRECT_LOGIN fails => credential/email typo, not role gate.

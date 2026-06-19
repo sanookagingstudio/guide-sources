@@ -1,0 +1,87 @@
+========== P4 ROLE PATCH VERIFY WRITE FIX ==========
+OBJECTIVE=Make PATCH /api/admin/users prove DB role write before returning 200
+NO_COMMIT=TRUE
+========== VERIFY SOURCE ==========
+
+src\app\api\admin\users\route.ts:63:    .select('user_id, role, created_at, updated_at')
+src\app\api\admin\users\route.ts:86:      updated_at: roleRow?.updated_at || user.updated_at || user.created_at || new Date().toISOString(),
+src\app\api\admin\users\route.ts:109:    .select('user_id, role')
+src\app\api\admin\users\route.ts:111:    .maybeSingle();
+src\app\api\admin\users\route.ts:118:        .update({ role, updated_at: new Date().toISOString() })
+src\app\api\admin\users\route.ts:120:        .select('user_id, role')
+src\app\api\admin\users\route.ts:124:        .insert({ user_id, role, updated_at: new Date().toISOString() })
+src\app\api\admin\users\route.ts:125:        .select('user_id, role')
+src\app\api\admin\users\route.ts:132:      error: 'Role write verification failed',
+src\app\api\admin\users\route.ts:141:    message: 'Role saved and verified',
+src\app\api\admin\users\route.ts:209:    const updated = await service.auth.admin.updateUserById(user.id, {
+src\app\api\admin\users\route.ts:218:    if (updated.error) return json(500, { error: updated.error.message });
+src\app\api\admin\users\route.ts:219:    user = updated.data.user || user;
+src\app\api\admin\users\route.ts:225:    updated_at: new Date().toISOString(),
+src\app\api\admin\users\route.ts:262:  const update = await service.auth.admin.updateUserById(user_id, {
+src\app\api\admin\users\route.ts:266:  if (update.error) return json(500, { error: update.error.message });
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1517ms
+  Running TypeScript ...
+  Finished TypeScript in 1847ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 435ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== ROLE PATCH PROBE ==========
+LIST_STATUS=200
+CURRENT_ROLE=viewer
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+PATCH_TO=editor
+PATCH_STATUS=500
+PATCH_BODY={"error":"JSON object requested, multiple (or no) rows returned"}
+LIST_STATUS=200
+CURRENT_ROLE=viewer
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+AFTER_EXPECTED=editor
+AFTER_ACTUAL=viewer
+PATCH_TO=viewer
+PATCH_STATUS=500
+PATCH_BODY={"error":"JSON object requested, multiple (or no) rows returned"}
+LIST_STATUS=200
+CURRENT_ROLE=viewer
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+AFTER_EXPECTED=viewer
+AFTER_ACTUAL=viewer
+PATCH_TO=editor
+PATCH_STATUS=500
+PATCH_BODY={"error":"JSON object requested, multiple (or no) rows returned"}
+LIST_STATUS=200
+CURRENT_ROLE=viewer
+USER_ID=c842546d-dc29-48c3-8e79-40710802c21f
+AFTER_EXPECTED=editor
+AFTER_ACTUAL=viewer
+========== RUNTIME ==========
+Expected: PATCH_TO editor => AFTER_ACTUAL=editor
+Then UI Save Role should persist after Ctrl+F5.

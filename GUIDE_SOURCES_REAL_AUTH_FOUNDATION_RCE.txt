@@ -1,0 +1,177 @@
+========== GUIDE SOURCES REAL AUTH FOUNDATION RCE ==========
+OBJECTIVE=Find exact auth owner files before implementing real login/session/role protection
+SCOPE=RCE ONLY
+PATCH=NO
+COMMIT=NO
+TAG=NO
+
+========== REALITY LOCK ==========
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+8ecf02c Guide Sources duplicate intelligence lock
+df52fd1 Guide Sources functional MVP lock
+27ed055 Lock Guide Sources local save baseline
+b34c64b Complete Guide Sources Next MVP workflow
+fce2163 FIX: เธญเธฑเธเน€เธ”เธ• Path เธเธญเธ Components เนเธซเนเธ—เธณเธเธฒเธเนเธ”เน
+65932e0 ONEPACK: Deploy codebase updates
+401428a Initial commit from Create Next App
+
+========== BUILD VERIFY ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1466ms
+  Running TypeScript ...
+  Finished TypeScript in 1783ms ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 329ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+BUILD=PASS
+
+========== AUTH FILE DISCOVERY ==========
+C:\Users\akemo\guide-sources\src\app\layout.tsx:6: description: 'Standalone Guide Sources app for member submissions, search, and admin review.',
+C:\Users\akemo\guide-sources\src\app\page.tsx:5: import AdminTab from '@/components/AdminTab';
+C:\Users\akemo\guide-sources\src\app\page.tsx:12: type Tab = 'search' | 'member' | 'admin';
+C:\Users\akemo\guide-sources\src\app\page.tsx:121: <button onClick={() => setActiveTab('admin')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'admin' ? 'travel-tab--admin bg-amber-400 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>⚙️ Admin</button>
+C:\Users\akemo\guide-sources\src\app\page.tsx:126: {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:6: getCurrentAdminRole,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:17: } from '@/services/adminService';
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:21: export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => void }) {
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:22: const [role, setRole] = useState<string | null>('checking');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:28: const [roles, setRoles] = useState<LocalUser[]>([]);
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:32: const [newRole, setNewRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:38: const [addUserRole, setAddUserRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:40: const load = async () => { try { if (isLocalMode) { setRole('admin'); } else { setRole(await getCurrentAdminRole()); } setStaging(await listStagingPlaces()); setApproved(await listApprovedPlaces()); setRejected(await listRejectedPlaces()); setDuplicateSuggestions(await listDuplicateSuggestions()); setLogs(await listAuditLogs()); setRoles(await listUserRoles()); } catch (e) { setMessage(e instanceof Error ? e.message : 'Admin load failed'); } };
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:44: if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required. Sign in with a user listed in user_roles.</div>;
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:47: {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:53: <p className="travel-meta text-xs mb-3">ระบบแนะนำรายการที่อาจเป็นสถานที่เดียวกัน ยังไม่รวมให้อัตโนมัติ ต้องให้ Admin ตรวจเอง</p>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:104: <option value="viewer">Viewer</option>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:105: <option value="editor">Editor</option>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:106: <option value="admin">Admin</option>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:108: <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserDisplayName.trim()) { setMessage('Display name required'); return; } await addUser(addUserDisplayName, addUserEmail, addUserRole); setAddUserDisplayName(''); setAddUserEmail(''); setAddUserRole('viewer'); setMessage('User added'); })}>Add</button>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:139: <option value="viewer">Viewer</option>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:140: <option value="editor">Editor</option>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:141: <option value="admin">Admin</option>
+C:\Users\akemo\guide-sources\src\lib\supabase.ts:12: { auth: { persistSession: typeof window !== 'undefined' } },
+C:\Users\akemo\guide-sources\src\services\adminService.ts:7: logLocalAdminAction,
+C:\Users\akemo\guide-sources\src\services\adminService.ts:17: export type AdminRole = 'admin' | 'editor' | 'viewer';
+C:\Users\akemo\guide-sources\src\services\adminService.ts:19: export async function getCurrentAdminRole() {
+C:\Users\akemo\guide-sources\src\services\adminService.ts:20: if (!isSupabaseConfigured) return 'admin';
+C:\Users\akemo\guide-sources\src\services\adminService.ts:21: const { data: userData } = await supabase.auth.getUser();
+C:\Users\akemo\guide-sources\src\services\adminService.ts:24: const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId).in('role', ['admin','editor','viewer']).maybeSingle();
+C:\Users\akemo\guide-sources\src\services\adminService.ts:26: return data?.role as AdminRole | null;
+C:\Users\akemo\guide-sources\src\services\adminService.ts:28: export async function logAdminAction(action: string, entityType: string, entityId?: string, details?: unknown) {
+C:\Users\akemo\guide-sources\src\services\adminService.ts:29: if (!isSupabaseConfigured) { logLocalAdminAction(action, entityType, entityId, details); return; }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:30: const { data: userData } = await supabase.auth.getUser();
+C:\Users\akemo\guide-sources\src\services\adminService.ts:31: await supabase.from('admin_audit_logs').insert({ admin_user_id: userData.user?.id, action, entity_type: entityType, entity_id: entityId, details });
+C:\Users\akemo\guide-sources\src\services\adminService.ts:35: const payload = { ...place, source_staging_id: place.id, status: 'approved', updated_at: new Date().toISOString() }; delete payload.id; const { data, error } = await supabase.from('production_places').upsert(payload, { onConflict: 'source_staging_id' }).select().single(); if (error) throw error; await supabase.from('staging_places').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', place.id); await logAdminAction('approve', 'place', place.id, { name: place.name }); return data as PlaceRecord;
+C:\Users\akemo\guide-sources\src\services\adminService.ts:39: const { error } = await supabase.from('staging_places').update({ status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error; await logAdminAction('reject', 'place', id, { reason });
+C:\Users\akemo\guide-sources\src\services\adminService.ts:41: export async function listAuditLogs() { if (!isSupabaseConfigured) return listLocalAuditLogs(); const { data, error } = await supabase.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:42: export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const { data, error } = await supabase.from('user_roles').select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:43: export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const { error } = await supabase.from('user_roles').upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
+C:\Users\akemo\guide-sources\src\services\adminService.ts:45: export async function addUser(display_name: string, email: string, role: AdminRole): Promise<LocalUser> {
+C:\Users\akemo\guide-sources\src\services\adminService.ts:50: export async function updateUserRole(user_id: string, role: AdminRole): Promise<LocalUser | null> {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:4: const ROLE_KEY = 'guide_sources_local_user_roles';
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:15: role: 'admin' | 'editor' | 'viewer';
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:41: role: item.role || 'viewer',
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:106: logLocalAdminAction('approve', 'place', saved.id, { name: saved.name });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:116: logLocalAdminAction('reject', 'place', id, { reason });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:126: logLocalAdminAction('delete', table, id, {});
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:143: logLocalAdminAction('import', 'places', undefined, { count: imported.length, source: trimmed.startsWith('[') ? 'json' : 'csv' });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:159: export function addLocalUser(display_name: string, email: string, role: 'admin' | 'editor' | 'viewer'): LocalUser {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:172: logLocalAdminAction('add_user', 'user', user_id, { display_name, email, role });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:176: export function updateLocalUserRole(user_id: string, role: 'admin' | 'editor' | 'viewer'): LocalUser | null {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:182: logLocalAdminAction('update_user_role', 'user', user_id, { role });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:192: logLocalAdminAction('disable_user', 'user', user_id, {});
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:201: logLocalAdminAction('delete_user', 'user', user_id, {});
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:205: export function upsertLocalUserRole(user_id: string, role: 'admin' | 'editor' | 'viewer') {
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:214: logLocalAdminAction('upsert_role', 'user_role', user_id, { role });
+C:\Users\akemo\guide-sources\src\services\localStorageProvider.ts:218: export function logLocalAdminAction(action: string, entityType: string, entityId?: string, details?: unknown) {
+
+========== ROUTE INVENTORY ==========
+C:\Users\akemo\guide-sources\src\app\page.tsx
+
+========== AUTH UI SURFACES ==========
+C:\Users\akemo\guide-sources\src\app\layout.tsx:6: description: 'Standalone Guide Sources app for member submissions, search, and admin review.',
+C:\Users\akemo\guide-sources\src\app\page.tsx:5: import AdminTab from '@/components/AdminTab';
+C:\Users\akemo\guide-sources\src\app\page.tsx:12: type Tab = 'search' | 'member' | 'admin';
+C:\Users\akemo\guide-sources\src\app\page.tsx:121: <button onClick={() => setActiveTab('admin')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'admin' ? 'travel-tab--admin bg-amber-400 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>⚙️ Admin</button>
+C:\Users\akemo\guide-sources\src\app\page.tsx:126: {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:6: getCurrentAdminRole,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:8: listUserRoles,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:10: upsertUserRole,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:11: addUser,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:12: updateUserRole,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:13: disableUser,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:14: deleteUser,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:15: listUsers,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:16: type LocalUser,
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:17: } from '@/services/adminService';
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:21: export default function AdminTab({ onEdit }: { onEdit: (place: PlaceRecord) => void }) {
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:22: const [role, setRole] = useState<string | null>('checking');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:28: const [roles, setRoles] = useState<LocalUser[]>([]);
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:32: const [newRole, setNewRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:35: // User management form
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:36: const [addUserDisplayName, setAddUserDisplayName] = useState('');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:37: const [addUserEmail, setAddUserEmail] = useState('');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:38: const [addUserRole, setAddUserRole] = useState<'admin'|'editor'|'viewer'>('viewer');
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:40: const load = async () => { try { if (isLocalMode) { setRole('admin'); } else { setRole(await getCurrentAdminRole()); } setStaging(await listStagingPlaces()); setApproved(await listApprovedPlaces()); setRejected(await listRejectedPlaces()); setDuplicateSuggestions(await listDuplicateSuggestions()); setLogs(await listAuditLogs()); setRoles(await listUserRoles()); } catch (e) { setMessage(e instanceof Error ? e.message : 'Admin load failed'); } };
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:44: if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required. Sign in with a user listed in user_roles.</div>;
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:47: {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:53: <p className="travel-meta text-xs mb-3">ระบบแนะนำรายการที่อาจเป็นสถานที่เดียวกัน ยังไม่รวมให้อัตโนมัติ ต้องให้ Admin ตรวจเอง</p>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:96: <h3 className="travel-section-title mb-3">👥 Local User Management</h3>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:98: <h4 className="text-sm font-semibold mb-2 text-slate-100">Add New User</h4>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:100: <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Display name" value={addUserDisplayName} onChange={(e) => setAddUserDisplayName(e.target.value)} />
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:101: <input className="travel-input w-full bg-gray-800 border border-gray-600 rounded p-2 text-xs" placeholder="Email" type="email" value={addUserEmail} onChange={(e) => setAddUserEmail(e.target.value)} />
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:103: <select className="travel-input flex-1 bg-gray-800 border border-gray-600 rounded p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as any)}>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:106: <option value="admin">Admin</option>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:108: <button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs" onClick={() => guarded(async () => { if (!addUserDisplayName.trim()) { setMessage('Display name required'); return; } await addUser(addUserDisplayName, addUserEmail, addUserRole); setAddUserDisplayName(''); setAddUserEmail(''); setAddUserRole('viewer'); setMessage('User added'); })}>Add</button>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:113: <h4 className="text-sm font-semibold text-slate-100">Users ({roles.length})</h4>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:114: {roles.length === 0 ? (
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:115: <div className="text-xs text-slate-400 italic">No users yet</div>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:117: roles.map((user) => (
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:118: <div key={user.user_id} className="bg-gray-900 p-4 rounded border border-slate-700">
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:120: {/* Left: User Info */}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:122: <p className="text-slate-100 font-semibold text-sm">{user.display_name || 'Unnamed'}</p>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:123: <p className="text-slate-400 text-xs break-all">{user.email || '(no email)'}</p>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:124: <p className="text-slate-500 text-xs break-all">ID: {user.user_id.substring(0, 16)}...</p>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:125: <p className="text-slate-600 text-xs pt-2">Created: {new Date(user.created_at).toLocaleDateString()}</p>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:128: {/* Middle: Status & Role Badges */}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:130: <span className={`inline-flex w-fit px-3 py-1 rounded text-xs font-semibold ${user.status === 'active' ? 'bg-emerald-900 text-emerald-100' : 'bg-red-900 text-red-100'}`}>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:131: {user.status}
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:133: <span className="inline-flex w-fit px-3 py-1 rounded text-xs font-semibold bg-blue-900 text-blue-100">{user.role}</span>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:138: <select className="travel-input text-xs bg-gray-800 border border-gray-600 rounded px-2 py-2 w-full" value={user.role} onChange={(e) => guarded(async () => { await updateUserRole(user.user_id, e.target.value as any); })}>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:141: <option value="admin">Admin</option>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:144: {user.status === 'active' && (
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:145: <button className="travel-btn travel-btn--warning px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { await disableUser(user.user_id); })}>Disable</button>
+C:\Users\akemo\guide-sources\src\components\AdminTab.tsx:147: <button className="travel-btn travel-btn--danger px-3 py-2 rounded text-xs flex-1" onClick={() => guarded(async () => { if (confirm('Delete user?')) { await deleteUser(user.user_id); } })}>Delete</button>
+
+========== ENV AUTH CHECK ==========
+NEXT_PUBLIC_SUPABASE_URL=SET
+NEXT_PUBLIC_SUPABASE_ANON_KEY=SET
+
+========== EXPECTED OUTPUT ==========
+AUTH_OWNER_FILES=?
+LOGIN_UI_EXISTS=?
+SESSION_SYSTEM_EXISTS=?
+ROLE_SYSTEM_EXISTS=?
+ROOT_CAUSE_AUTH_BLOCKER=?
+
+========== NEXT ==========
+AFTER_REPORT=Generate exact owner-file patch onepack for real auth foundation

@@ -1,0 +1,221 @@
+========== P4 FULL CHAIN AUTO RCE FIX ==========
+OBJECTIVE=Auto-detect and fix all current P4 blockers: TSX corruption, role persist, approve buttons, search export
+MODE=RCE -> FIX ONLY FAILING OWNER -> BUILD -> PROBE
+NO_COMMIT=TRUE
+========== REALITY LOCK ==========
+ M .env.example
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/components/SearchTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_ADMIN_ME_DEBUG_PATCH.txt
+?? GUIDE_SOURCES_ADMIN_ME_DIRECT_HTTP_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RCE.txt
+?? GUIDE_SOURCES_ADMIN_ME_RESPONSE_CAPTURE.txt
+?? GUIDE_SOURCES_ADMIN_ROLE_GATE_FINAL_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SESSION_SHARED_FIX.txt
+?? GUIDE_SOURCES_ADMIN_SET_PASSWORD.txt
+?? GUIDE_SOURCES_ADMIN_TAB_BEARER_FIX.txt
+?? GUIDE_SOURCES_ADMIN_TAB_ROLE_GATE_DIRECT_FIX.txt
+?? GUIDE_SOURCES_ADMIN_USE_AUTH_CONTEXT_FINAL_FIX.txt
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_DIRECT_LOGIN_RCE.txt
+?? GUIDE_SOURCES_AUTH_ENV_VERIFY.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_ROLE_GATE_EXHAUSTIVE_RCE.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_AUTH_TOKEN_DEBUG_LOG_PATCH.txt
+?? GUIDE_SOURCES_DEV_EXPLICIT_ENV.log
+?? GUIDE_SOURCES_DEV_SERVER_RCE.log
+?? GUIDE_SOURCES_DUPLICATE_DEFAULT_EXPORT_FIX.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_ROUTE_RCE_NOTEPAD.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_FINAL_DETACHED_DEV.log
+?? GUIDE_SOURCES_FINAL_EXHAUSTIVE_ROOTCAUSE_PROOF.txt
+?? GUIDE_SOURCES_FINAL_RCE_NO_HANG.txt
+?? GUIDE_SOURCES_FIX_STALE_PROCESS_ENV_FINAL.txt
+?? GUIDE_SOURCES_FORCE_KILL_PID_13248.txt
+?? GUIDE_SOURCES_FORCE_KILL_PORT_3000.txt
+?? GUIDE_SOURCES_FULL_AUTH_ROLE_GATE_RCE_AUTOMATED.txt
+?? GUIDE_SOURCES_KILL_STALE_DEV_SERVER_AND_VERIFY.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_ADMINSERVICE_REWRITE_FIX.txt
+?? GUIDE_SOURCES_P2B_BEARER_FIX.txt
+?? GUIDE_SOURCES_P2B_FINAL_USER_MANAGEMENT_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_P2B_RUNTIME_BINDING_FIX.txt
+?? GUIDE_SOURCES_P2B_SYNTAX_FIX.txt
+?? GUIDE_SOURCES_P2C_PASSWORD_RECOVERY_PATCH.txt
+?? GUIDE_SOURCES_P3A_USER_CRUD_AND_P3B_SEARCH_EXPORT.txt
+?? GUIDE_SOURCES_P3_USER_MANAGEMENT_REAL_FLOW_FIX.txt
+?? GUIDE_SOURCES_P4_ADMIN_BUTTONS_ROLE_EXPORT_RCE_FIX.txt
+?? GUIDE_SOURCES_P4_FULL_CHAIN_AUTO_RCE_FIX.txt
+?? GUIDE_SOURCES_PAGE_EXPORT_FINAL_FIX.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_JS_FIX.txt
+?? GUIDE_SOURCES_ROOT_RECOVERY_REDIRECT_PATCH.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_ENV_SETUP.txt
+?? GUIDE_SOURCES_SERVICE_ROLE_KEY_REPAIR_AND_VERIFY.txt
+?? GUIDE_SOURCES_START_FRESH_AFTER_KILL.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/api/
+?? src/app/auth/
+?? src/app/page.tsx.authbak
+?? src/app/page.tsx.rootrecoverybak
+?? src/app/page.tsx.sharedauthbak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.directrolegatebak
+?? src/components/AdminTab.tsx.finalbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AdminTab.tsx.p2bbindingbak
+?? src/components/AdminTab.tsx.p3acrudbak
+?? src/components/AdminTab.tsx.p3flowbak
+?? src/components/AdminTab.tsx.p4buttonsbak
+?? src/components/AdminTab.tsx.p4fullchainbak
+?? src/components/AdminTab.tsx.tokendebugbak
+?? src/components/AdminTab.tsx.useauthcontextbak
+?? src/components/AuthContext.tsx
+?? src/components/AuthContext.tsx.sharedauthbak
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/components/AuthPanel.tsx.finalbak
+?? src/components/AuthPanel.tsx.sharedauthbak
+?? src/components/SearchTab.tsx.p3bexportbak
+?? src/components/SearchTab.tsx.p4exportbak
+?? src/components/SearchTab.tsx.p4fullchainbak
+?? src/services/adminService.ts.finalbak
+?? src/services/adminService.ts.p2abak
+?? src/services/adminService.ts.p2bbak
+?? src/services/adminService.ts.p2bbindingbak
+?? src/services/adminService.ts.p2bsyntaxbak
+?? src/services/adminService.ts.p3acrudbak
+?? src/services/adminService.ts.p3flowbak
+?? src/services/adminService.ts.p4buttonsbak
+?? src/services/adminService.ts.p4fullchainbak
+?? src/services/adminService.ts.rolegatebak
+========== BACKUP ==========
+========== PHASE 1: FIX KNOWN TSX CORRUPTION ==========
+========== PHASE 2: BUILD AFTER SYNTAX FIX ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1609ms
+  Running TypeScript ...
+  Finished TypeScript in 1806ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 395ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD_AFTER_SYNTAX_FIX=PASS
+========== PHASE 3: ENSURE USER API HAS FULL CRUD ==========
+USER_API_CREATE_AUTH_USER=FOUND
+USER_API_DELETE_AUTH_USER=FOUND
+USER_API_DISABLE_ENABLE=FOUND
+USER_API_PATCH_REQUIRED=NO
+========== PHASE 4: ENSURE ADMIN SERVICE CALLS REAL API ==========
+SERVICE_UPDATE_ROLE_PATCH=FOUND
+SERVICE_ADD_USER_POST=FOUND
+SERVICE_DISABLE_PUT=FOUND
+========== PHASE 5: ENSURE ADMIN UI HAS CLEAR ROLE/ACTION FEEDBACK ==========
+========== PHASE 6: ENSURE SEARCH EXPORT CSV ==========
+========== PHASE 7: SOURCE VERIFY ==========
+
+src\components\AdminTab.tsx:14:  deleteUser,
+src\components\AdminTab.tsx:177:    <section className="travel-card p-4"><h3 className="travel-section-title mb-3">Doctor Gatekeeper: รออนุมัติ ({staging.length})</h3><div className="space-y-2">{staging.map((p) => <div key={p.id} className="bg-gray-900/90 p-3 rounded-xl text-sm flex flex-col md:flex-row md:items-center gap-2 justify-between border border-slate-700"><span className="text-slate-100">{p.name} — {p.province} — {p.status}</span><div className="flex gap-2 flex-wrap"><button className="travel-btn travel-btn--success px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Approving...'); setMessage('Approving...'); await approvePlace(p); setMessage('Approved and reloaded'); setMessage('Approved and reloaded'); })}>อนุมัติ</button><button className="travel-btn travel-btn--warning px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Rejecting...'); setMessage('Rejecting...'); await rejectPlace(p.id!, prompt('เหตุผลการ reject') || 'ไม่ผ่านการตรวจ'); setMessage('Rejected and reloaded'); setMessage('Rejected and reloaded'); })}>Reject</button><button className="travel-btn travel-btn--purple px-2 py-1 rounded" onClick={() => onEdit(p)}>แก้ไข</button><button className="travel-btn travel-btn--danger px-2 py-1 rounded" onClick={() => guarded(async () => { setMessage('Deleting staging record...'); setMessage('Deleting staging record...'); await deletePlace(p.id!, 'staging_places'); setMessage('Deleted and reloaded'); setMessage('Deleted and reloaded'); })}>ลบ</button></div></div>)}</div></section>
+src\components\AdminTab.tsx:196:      <p className="text-xs text-amber-200 mb-3">Runtime action status: {message || 'Ready'}</p>
+src\components\AdminTab.tsx:255:                        setMessage('Role saved as ' + nextRole + ' and verified after reload');
+src\components\AdminTab.tsx:267:                        await deleteUser(user.user_id);
+src\services\adminService.ts:83:  const payload = await adminUsersApi('POST', { display_name, email, role, password });
+src\services\adminService.ts:91:  await adminUsersApi('PATCH', { user_id, role });
+src\services\adminService.ts:120:export async function deleteUser(user_id: string): Promise<boolean> {
+src\app\api\admin\users\route.ts:129:  const authDelete = await service.auth.admin.deleteUser(user_id);
+src\app\api\admin\users\route.ts:161:    const created = await service.auth.admin.createUser({
+src\app\api\admin\users\route.ts:231:    ban_duration: action === 'disable' ? '876000h' : 'none',
+
+========== PHASE 8: BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1571ms
+  Running TypeScript ...
+  Finished TypeScript in 1830ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/8) ...
+  Generating static pages using 9 workers (2/8) 
+  Generating static pages using 9 workers (4/8) 
+  Generating static pages using 9 workers (6/8) 
+โ“ Generating static pages using 9 workers (8/8) in 398ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/diag
+โ” ฦ’ /api/admin/me
+โ” ฦ’ /api/admin/users
+โ” โ— /auth/callback
+โ” โ— /auth/update-password
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS
+========== PHASE 9: START/VERIFY SERVER NO HANG ==========
+SERVER_READY=True
+========== PHASE 10: END-TO-END API PROBES ==========
+LOGIN=PASS
+CALL=GET /api/admin/users
+STATUS=500
+BODY={"error":"Invalid API key"}
+C:\Users\akemo\guide-sources\__p4_full_chain_probe.cjs:30
+  const test = parsed.users.find(u => u.email === 'test-runtime-001@gmail.com');
+                            ^
+
+TypeError: Cannot read properties of undefined (reading 'find')
+    at C:\Users\akemo\guide-sources\__p4_full_chain_probe.cjs:30:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v24.11.1
+========== FINAL RUNTIME CHECKLIST ==========
+1. Ctrl+F5
+2. Admin: test-runtime-001 role should persist as editor after refresh.
+3. Admin: click Approve. Message must show Approved and reloaded, pending count decreases.
+4. Search: filter Lampang/food. Export current results CSV button must download current filtered result set.
+5. If any item fails, send this notepad + screenshot; next patch must target only that failed owner.

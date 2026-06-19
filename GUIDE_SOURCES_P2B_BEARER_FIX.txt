@@ -1,0 +1,38 @@
+========== GUIDE SOURCES P2B BEARER FIX ==========
+========== VERIFY ==========
+
+src\services\adminService.ts:19:async function getAccessToken() {
+src\services\adminService.ts:21:  return data.session?.access_token || '';
+src\services\adminService.ts:25:  const token = await getAccessToken();
+src\services\adminService.ts:30:      authorization: `Bearer ${token}`,
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 1820ms
+  Running TypeScript ...
+  Finished TypeScript in 1935ms ...
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/4) ...
+  Generating static pages using 5 workers (1/4) 
+  Generating static pages using 5 workers (2/4) 
+  Generating static pages using 5 workers (3/4) 
+โ“ Generating static pages using 5 workers (4/4) in 382ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ” ฦ’ /api/admin/users
+โ”” โ— /_not-found
+
+
+โ—  (Static)   prerendered as static content
+ฦ’  (Dynamic)  server-rendered on demand
+
+BUILD=PASS

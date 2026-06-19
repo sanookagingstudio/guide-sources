@@ -1,0 +1,116 @@
+========== GUIDE SOURCES P2B REAL USER DIRECTORY PATCH ==========
+OBJECTIVE=Replace Unnamed/no email with real Supabase Auth user directory via secure server route
+SCOPE=P2B user directory only
+NO_SERVICE_ROLE_IN_FRONTEND=TRUE
+NO_COMMIT=TRUE
+ D GUIDE_SOURCES_PATCH_REPORT.txt
+ M src/app/page.tsx
+ M src/components/AdminTab.tsx
+ M src/services/adminService.ts
+?? GUIDE_SOURCES_AUTH_DIAGNOSTIC_AND_BACK_UI.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH.txt
+?? GUIDE_SOURCES_AUTH_FOUNDATION_PATCH_REAL.txt
+?? GUIDE_SOURCES_AUTH_PANEL_REPAIR.txt
+?? GUIDE_SOURCES_AUTH_SCHEMA_RCE.txt
+?? GUIDE_SOURCES_DUPLICATE_INTELLIGENCE_LOCK.txt
+?? GUIDE_SOURCES_ENV_INPUT_TEMPLATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_AUTOMATE.txt
+?? GUIDE_SOURCES_ENV_SETUP_TERMINAL.txt
+?? GUIDE_SOURCES_P2A_DELETE_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2A_REAL_ROLE_ASSIGNMENT_PATCH.txt
+?? GUIDE_SOURCES_P2A_RETURN_FIX.txt
+?? GUIDE_SOURCES_P2B_REAL_USER_DIRECTORY_PATCH.txt
+?? GUIDE_SOURCES_PRODUCTION_ARCHITECTURE_RCE.txt
+?? GUIDE_SOURCES_REAL_AUTH_FOUNDATION_RCE.txt
+?? GUIDE_SOURCES_SUPABASE_ENV_RCE.txt
+?? src/app/page.tsx.authbak
+?? src/components/AdminTab.tsx.authdiagbak
+?? src/components/AdminTab.tsx.p2abak
+?? src/components/AuthContext.tsx
+?? src/components/AuthPanel.tsx
+?? src/components/AuthPanel.tsx.authdiagbak
+?? src/services/adminService.ts.p2abak
+========== PRE BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+โ“ Compiled successfully in 2.5s
+  Running TypeScript ...
+  Finished TypeScript in 2.4s ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/3) ...
+โ“ Generating static pages using 4 workers (3/3) in 364ms
+  Finalizing page optimization ...
+
+Route (app)
+โ” โ— /
+โ”” โ— /_not-found
+
+
+โ—  (Static)  prerendered as static content
+
+========== BACKUP ==========
+========== CREATE SERVER ROUTE ==========
+========== PATCH ADMIN SERVICE ==========
+========== ENV EXAMPLE UPDATE ==========
+========== SOURCE VERIFY ==========
+
+src\app\api\admin\users\route.ts:6:const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+src\app\api\admin\users\route.ts:16:    return { error: json(500, { error: 'Supabase server env missing. Set SUPABASE_SERVICE_ROLE_KEY.' }) };
+src\app\api\admin\users\route.ts:51:  const { data: authData, error: authError } = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
+src\services\adminService.ts:24:async function adminUsersApi(method: string, body?: unknown) {
+src\services\adminService.ts:83:export async function updateUserRole(user_id: string, role: AdminRole): Promise<LocalUser | null> {
+src\services\adminService.ts:85:  await adminUsersApi('PATCH', { user_id, role });
+src\services\adminService.ts:90:export async function disableUser(user_id: string): Promise<LocalUser | null> {
+src\services\adminService.ts:92:  await adminUsersApi('DELETE', { user_id });
+src\services\adminService.ts:97:export async function deleteUser(user_id: string): Promise<boolean> {
+src\services\adminService.ts:99:  await adminUsersApi('DELETE', { user_id });
+src\services\adminService.ts:104:export async function listUsers(): Promise<LocalUser[]> {
+src\services\adminService.ts:106:  const payload = await adminUsersApi('GET');
+.env.example:8:SUPABASE_SERVICE_ROLE_KEY=
+
+========== BUILD ==========
+
+> guide-sources@0.1.0 build
+> next build
+
+โ–ฒ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/services/adminService.ts:36:60
+Expected ',', got 'ident'
+  34 |
+  35 |   const payload = await response.json().catch(() => ({}));
+> 36 |   if (!response.ok) throw new Error(payload.error || Admin users API failed: );
+     |                                                            ^^^^^
+  37 |   return payload;
+  38 | }
+  39 | export type { LocalUser };
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/services/adminService.ts [Client Component Browser]
+    ./src/components/AdminTab.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/services/adminService.ts [Client Component SSR]
+    ./src/components/AdminTab.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+    at <unknown> (./src/services/adminService.ts:36:60)
+BUILD=FAIL
