@@ -149,7 +149,6 @@ UID: {authUserId || '(unknown)'}</div>;
   return <div className="space-y-6 animate-fade-in">
     {message && <div className="bg-yellow-950 border border-yellow-700 rounded p-2 text-sm">{message}</div>}
     {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
-    <div className="grid grid-cols-3 gap-2 text-xs"><div className="travel-stat-card p-3">Pending: {statusCounts.pending || 0}</div><div className="travel-stat-card p-3">Approved: {(statusCounts.approved || 0) + approved.length}</div><div className="travel-stat-card p-3">Rejected: {rejected.length}</div></div>
     <div className="travel-card p-4 flex justify-between items-center"><div><h3 className="travel-section-title">🧠 สมองส่วนกลาง (AI Routing)</h3><p className="travel-meta text-xs">Jarvis/Sentinel/Foresight provider agnostic monitoring readiness. JSF AI routing is disabled for now. Admin approval, search, import, and user management still work normally. Future use: Jarvis routes Q&A/actions, Sentinel monitors duplicates/risk/changes, Foresight predicts quality/demand/risk after JSF is installed.. AI_READY_WARNING_LOCK: Coming soon only — choosing Jarvis/Sentinel/Foresight will not change data, approval, search, import, or user management until JSF integration is installed.</p></div><select className="travel-input bg-gray-900 border border-gray-600 rounded p-2 text-xs" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}><option value="jarvis-gpt4o">Jarvis</option><option value="sentinel-claude">Sentinel</option><option value="foresight-gemini">Foresight</option></select></div>
 
     <section className="travel-card gs-admin-panel p-4">
@@ -316,6 +315,7 @@ UID: {authUserId || '(unknown)'}</div>;
     </section>
   </div>;
 }
+
 
 
 
