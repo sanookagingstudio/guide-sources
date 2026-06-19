@@ -79,8 +79,9 @@ nav button:focus-visible {
 }
 
 nav button.travel-tab--search {
-  background: linear-gradient(180deg, #38bdf8, #0ea5e9);
-  color: #082f49;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
 }
 
 nav button.travel-tab--member {
@@ -89,8 +90,9 @@ nav button.travel-tab--member {
 }
 
 nav button.travel-tab--admin {
-  background: linear-gradient(180deg, #fbbf24, #f59e0b);
-  color: #451a03;
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
 }
 
 form,
@@ -649,8 +651,9 @@ nav {
 }
 
 .travel-tab--search {
-  background: #60a5fa !important;
-  color: #0f172a !important;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
 }
 
 .travel-tab--member {
@@ -659,8 +662,9 @@ nav {
 }
 
 .travel-tab--admin {
-  background: #fbbf24 !important;
-  color: #0f172a !important;
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
 }
 
 /* profile */
@@ -1064,4 +1068,1648 @@ section.travel-card .flex.flex-wrap button {
 }
 
 /* GS_UI12_CSS_CONSOLIDATION_END */
+
+
+
+
+
+/* GS_UI14_ADMIN_STRAY_BARS_FIX_START */
+
+/* Kill the 3 stray dark decorative bars before Admin content. */
+.gs-ui14-stray-admin-bar {
+  display: none !important;
+}
+
+/* Fallback: empty dark divs inside admin area should not occupy layout. */
+.gs-ui13-admin-panel div:empty[class*="bg-slate-"],
+.gs-ui13-admin-panel div:empty[class*="bg-gray-"],
+.gs-admin-panel div:empty[class*="bg-slate-"],
+.gs-admin-panel div:empty[class*="bg-gray-"],
+.travel-card.gs-admin-panel div:empty[class*="bg-slate-"],
+.travel-card.gs-admin-panel div:empty[class*="bg-gray-"] {
+  display: none !important;
+}
+
+/* If legacy top bars are direct children before AI Routing, flatten them. */
+.gs-ui13-admin-panel + .gs-ui13-admin-panel {
+  margin-top: 14px !important;
+}
+
+/* Admin spacing after profile should go directly to first meaningful panel. */
+.gs-profile-card + .gs-ui13-admin-panel,
+.gs-profile-card + .gs-admin-panel,
+.gs-ui13-profile + .gs-ui13-admin-panel {
+  margin-top: 0 !important;
+}
+
+/* GS_UI14_ADMIN_STRAY_BARS_FIX_END */
+
+
+/* GS_UI14_DESIGN_MATCH_REBUILD_START */
+
+/* ===== closer to UI.docx mockup: bright, airy, product-like ===== */
+:root {
+  --ui14-bg: #f7fafc;
+  --ui14-ink: #0f172a;
+  --ui14-muted: #64748b;
+  --ui14-blue: #2563eb;
+  --ui14-green: #16a34a;
+  --ui14-orange: #f59e0b;
+  --ui14-border: #e5edf7;
+  --ui14-card: #ffffff;
+  --ui14-shadow: 0 14px 32px rgba(15, 23, 42, .08);
+}
+
+html, body {
+  background: linear-gradient(180deg, #ffffff, #f7fafc) !important;
+  color: var(--ui14-ink) !important;
+}
+
+.gs-ui14-shell,
+.travel-shell {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 22px !important;
+  background: transparent !important;
+  color: var(--ui14-ink) !important;
+}
+
+/* HEADER */
+.gs-ui14-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 22px 26px !important;
+  margin-bottom: 18px !important;
+  border-radius: 26px !important;
+  background: #fff !important;
+  border: 1px solid var(--ui14-border) !important;
+  box-shadow: var(--ui14-shadow) !important;
+}
+
+.gs-ui14-header-inner {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.gs-ui14-brand-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
+.gs-ui14-logo {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 18px !important;
+  object-fit: contain !important;
+  background: #fff !important;
+}
+
+.gs-ui14-kicker {
+  margin: 0 0 4px !important;
+  color: var(--ui14-blue) !important;
+  font-size: 11px !important;
+  letter-spacing: .22em !important;
+  text-transform: uppercase !important;
+  font-weight: 900 !important;
+}
+
+.gs-ui14-title {
+  margin: 0 !important;
+  color: var(--ui14-ink) !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+  letter-spacing: -0.045em !important;
+  font-weight: 950 !important;
+}
+
+.gs-ui14-subtitle {
+  margin: 7px 0 0 !important;
+  color: var(--ui14-muted) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+}
+
+/* PROFILE TOP RIGHT */
+.gs-ui14-header-account {
+  min-width: 280px !important;
+}
+
+.gs-ui14-profile {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  justify-content: flex-end !important;
+  padding: 8px 10px !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  border: 1px solid var(--ui14-border) !important;
+  box-shadow: 0 8px 20px rgba(15,23,42,.06) !important;
+}
+
+.gs-ui14-profile-avatar {
+  display: grid !important;
+  place-items: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+  background: #eff6ff !important;
+}
+
+.gs-ui14-profile-email {
+  margin: 0 !important;
+  max-width: 170px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: var(--ui14-ink) !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+}
+
+.gs-ui14-profile-out {
+  min-height: 34px !important;
+  padding: 7px 12px !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+/* TABS */
+nav {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  margin-bottom: 18px !important;
+}
+
+.travel-tab {
+  min-height: 56px !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  border: 1px solid var(--ui14-border) !important;
+  color: #334155 !important;
+  font-size: 17px !important;
+  font-weight: 850 !important;
+  box-shadow: 0 8px 20px rgba(15,23,42,.05) !important;
+}
+
+.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
+}
+
+.travel-tab--member {
+  background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+  color: #fff !important;
+}
+
+.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+/* GLOBAL CARDS */
+.travel-card,
+.search-card,
+.gs-ui14-admin-panel {
+  background: #fff !important;
+  border: 1px solid var(--ui14-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--ui14-shadow) !important;
+  color: var(--ui14-ink) !important;
+}
+
+.travel-input,
+input,
+select,
+textarea {
+  background: #fff !important;
+  color: var(--ui14-ink) !important;
+  border: 1px solid #dbe5f2 !important;
+  border-radius: 12px !important;
+  min-height: 44px !important;
+  font-size: 14px !important;
+}
+
+select[class*="bg-"],
+input[class*="bg-"],
+textarea[class*="bg-"] {
+  background: #fff !important;
+  color: var(--ui14-ink) !important;
+}
+
+/* SEARCH LIKE MOCKUP */
+.gs-ui14-search {
+  padding: 24px !important;
+  margin-bottom: 22px !important;
+}
+
+.gs-ui14-search input:first-of-type {
+  min-height: 54px !important;
+  font-size: 16px !important;
+}
+
+.gs-ui14-search select {
+  background: #fff !important;
+  color: #334155 !important;
+}
+
+.gs-search-result-head {
+  margin: 22px 0 14px !important;
+}
+
+.gs-export-bar {
+  background: #fff !important;
+  border: 1px solid var(--ui14-border) !important;
+  box-shadow: 0 8px 18px rgba(15,23,42,.05) !important;
+}
+
+.gs-ui14-results {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
+
+.gs-ui14-place-card {
+  display: grid !important;
+  grid-template-columns: 260px minmax(0, 1fr) !important;
+  gap: 22px !important;
+  padding: 16px !important;
+  align-items: stretch !important;
+  border-radius: 18px !important;
+}
+
+.gs-ui14-select {
+  grid-column: 1 / -1 !important;
+  width: fit-content !important;
+  padding: 7px 10px !important;
+  border-radius: 999px !important;
+  background: #eff6ff !important;
+  color: var(--ui14-blue) !important;
+  border: 1px solid #dbeafe !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+.gs-ui14-select input {
+  width: 15px !important;
+  height: 15px !important;
+  min-height: 15px !important;
+  padding: 0 !important;
+}
+
+.gs-ui14-media {
+  height: 190px !important;
+  min-height: 190px !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, #dbeafe, #dcfce7) !important;
+}
+
+.search-card__image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.gs-ui14-place-card h3,
+.gs-ui14-place-card h4 {
+  font-size: 24px !important;
+  line-height: 1.12 !important;
+  color: #1d4ed8 !important;
+  letter-spacing: -0.035em !important;
+  margin-bottom: 6px !important;
+}
+
+.gs-ui14-place-card button {
+  min-height: 40px !important;
+  border-radius: 12px !important;
+  font-weight: 850 !important;
+}
+
+/* MEMBER FORM CLOSER TO STEP CARD */
+.gs-ui14-member,
+form.travel-card {
+  padding: 24px !important;
+  border-radius: 20px !important;
+}
+
+.gs-ui14-member h2,
+form.travel-card h2 {
+  font-size: 28px !important;
+  color: var(--ui14-ink) !important;
+}
+
+/* ADMIN DASHBOARD CLOSER TO DOCX */
+.gs-ui14-admin-panel {
+  padding: 22px !important;
+  margin-bottom: 18px !important;
+}
+
+.gs-ui14-admin-panel h3 {
+  color: var(--ui14-ink) !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+}
+
+.gs-ui14-admin-panel .bg-gray-900,
+.gs-ui14-admin-panel .bg-slate-900,
+.gs-ui14-admin-panel .bg-gray-800,
+.gs-ui14-admin-panel .bg-slate-800 {
+  background: #fff !important;
+  color: var(--ui14-ink) !important;
+  border: 1px solid #edf2f7 !important;
+  border-radius: 14px !important;
+}
+
+.gs-ui14-admin-panel div:empty[class*="bg-"] {
+  display: none !important;
+}
+
+.gs-ui14-admin-panel button {
+  min-height: 36px !important;
+  border-radius: 11px !important;
+}
+
+/* MOBILE */
+@media (max-width: 780px) {
+  .gs-ui14-shell,
+  .travel-shell {
+    padding: 10px !important;
+  }
+
+  .gs-ui14-header {
+    display: grid !important;
+    gap: 14px !important;
+    padding: 18px !important;
+  }
+
+  .gs-ui14-header-account {
+    min-width: 0 !important;
+  }
+
+  .gs-ui14-logo {
+    width: 54px !important;
+    height: 54px !important;
+  }
+
+  .gs-ui14-title {
+    font-size: 28px !important;
+  }
+
+  .travel-tab {
+    min-height: 46px !important;
+    font-size: 13px !important;
+  }
+
+  .gs-ui14-place-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .gs-ui14-media {
+    height: 220px !important;
+  }
+}
+
+/* GS_UI14_DESIGN_MATCH_REBUILD_END */
+
+
+/* DISABLED_FAILED_OVERLAY_GS_PRODUCT_REBUILD_PATCH_V1_AUTHORITY */
+/* DISABLED_FAILED_OVERLAY_GS_PRODUCT_REBUILD_PATCH_V1_1_AUTHORITY */
+/* DISABLED_FAILED_OVERLAY_GS_MOCKUP_SEARCH_RECONSTRUCTION_V2_AUTHORITY */
+/* DISABLED_FAILED_OVERLAY_GS_MOCKUP_MEMBER_WIZARD_RECONSTRUCTION_V3_AUTHORITY */
+/* DISABLED_FAILED_OVERLAY_GS_MOCKUP_ADMIN_DASHBOARD_RECONSTRUCTION_V4_AUTHORITY */
+/* DISABLED_FAILED_OVERLAY_GS_MOCKUP_VISUAL_PARITY_POLISH_V5_AUTHORITY */
+/* DISABLED_FAILED_OVERLAY_GS_FINAL_MOCKUP_STRUCTURAL_CORRECTION_V6_AUTHORITY */
+
+
+
+
+/* =========================================================
+   GS_JSX_RECON_ONEPACK6_HEADER_AUTH_PATCH
+   Real header/auth JSX reconstruction authority.
+   ========================================================= */
+
+.gs-app-header {
+  max-width: 1180px;
+  margin: 0 auto 12px;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+.gs-app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.gs-app-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #22c55e);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+}
+
+.gs-app-title-block {
+  min-width: 0;
+}
+
+.gs-app-kicker {
+  margin: 0 0 2px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: #2563eb;
+  letter-spacing: 0.08em;
+}
+
+.gs-app-title {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.04em;
+}
+
+.gs-app-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.gs-app-auth {
+  flex: 0 0 auto;
+}
+
+.gs-auth-chip,
+.gs-auth-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 8px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.gs-auth-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #e0f2fe;
+}
+
+.gs-auth-copy {
+  display: grid;
+  gap: 1px;
+  max-width: 190px;
+}
+
+.gs-auth-copy strong {
+  font-size: 0.78rem;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gs-auth-label {
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.gs-auth-input {
+  width: 128px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  padding: 0 10px;
+  font-size: 0.75rem;
+}
+
+.gs-auth-button,
+.gs-auth-out {
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #fff;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+.gs-auth-error {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #dc2626;
+}
+
+@media (max-width: 760px) {
+  .gs-app-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .gs-auth-form {
+    flex-wrap: wrap;
+  }
+
+  .gs-auth-input {
+    flex: 1 1 120px;
+  }
+}
+
+
+/* =========================================================
+   GS_JSX_RECON_ONEPACK7B_AUTH_SEARCH_STRUCTURAL
+   Actual Auth/Search JSX structure authority.
+   ========================================================= */
+
+.gs-search-page { max-width: 1180px; margin: 0 auto; display: grid; gap: 14px; }
+.gs-search-hero,.gs-search-toolbar,.gs-search-filter-panel,.gs-search-results-panel {
+  background:#fff; border:1px solid rgba(15,23,42,.08); border-radius:16px; box-shadow:0 12px 34px rgba(15,23,42,.06);
+}
+.gs-search-hero { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 18px; }
+.gs-search-hero h2,.gs-search-toolbar h3 { margin:0; color:#0f172a; font-weight:900; letter-spacing:-.03em; }
+.gs-search-hero p,.gs-search-toolbar p { margin:4px 0 0; color:#64748b; font-weight:700; font-size:.82rem; }
+.gs-search-kicker { margin:0 0 4px!important; color:#2563eb!important; font-size:.68rem!important; letter-spacing:.08em!important; font-weight:900!important; }
+.gs-search-hero-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.gs-search-layout { display:grid; grid-template-columns:280px minmax(0,1fr); gap:14px; align-items:start; }
+.gs-search-filter-panel { padding:16px; display:grid; gap:10px; position:sticky; top:12px; }
+.gs-search-filter-panel h3 { margin:0 0 4px; color:#0f172a; font-weight:900; }
+.gs-search-results-panel { padding:14px; display:grid; gap:12px; }
+.gs-search-toolbar { box-shadow:none; padding:10px 12px; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+.gs-search-card-list { display:grid; gap:12px; }
+.gs-result-card { display:grid; grid-template-columns:230px minmax(0,1fr); gap:14px; padding:10px; border-radius:16px; border:1px solid rgba(15,23,42,.08); background:#fff; box-shadow:0 10px 26px rgba(15,23,42,.06); }
+.gs-result-media { position:relative; min-height:150px; border-radius:14px; overflow:hidden; background:linear-gradient(135deg,#dbeafe,#dcfce7); }
+.gs-result-media img { width:100%; height:100%; object-fit:cover; }
+.gs-result-placeholder { height:100%; min-height:150px; display:grid; place-items:center; color:#2563eb; font-weight:900; font-size:1.6rem; }
+.gs-result-rating { position:absolute; top:10px; right:10px; border-radius:999px; background:rgba(255,255,255,.92); padding:5px 9px; font-size:.75rem; font-weight:900; }
+.gs-result-body { display:grid; gap:10px; }
+.gs-result-title-row { display:flex; justify-content:space-between; gap:12px; }
+.gs-result-title-row h3 { margin:0; color:#1d4ed8; font-size:1.15rem; font-weight:900; }
+.gs-result-title-row p,.gs-result-summary { margin:4px 0 0; color:#64748b; font-weight:700; font-size:.82rem; }
+.gs-result-select { display:flex; align-items:center; gap:6px; color:#64748b; font-size:.75rem; font-weight:800; }
+.gs-result-tags { display:flex; flex-wrap:wrap; gap:6px; }
+.gs-result-tags span { border-radius:999px; padding:5px 9px; background:#eff6ff; color:#1d4ed8; font-size:.72rem; font-weight:800; }
+.gs-result-tags .warn { background:#fff7ed; color:#c2410c; }
+.gs-result-actions { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+.gs-result-actions .travel-btn { padding:8px 12px; border-radius:999px; font-size:.78rem; font-weight:900; }
+
+@media (max-width:860px){
+  .gs-search-hero{align-items:flex-start;flex-direction:column;}
+  .gs-search-layout{grid-template-columns:1fr;}
+  .gs-search-filter-panel{position:static;}
+  .gs-result-card{grid-template-columns:1fr;}
+}
+
+
+/* =========================================================
+   GS_JSX_RECON_ONEPACK8_MEMBER_ADMIN_STRUCTURAL
+   Actual Member/Admin JSX reconstruction authority.
+   ========================================================= */
+
+.gs-member-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.gs-member-page::before { content: none !important; display: none !important; }
+
+.gs-member-hero,
+.gs-member-form-card,
+.gs-member-submit {
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,.08);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 12px 34px rgba(15,23,42,.06);
+}
+
+.gs-member-hero {
+  grid-column: 2;
+}
+
+.gs-member-form-card,
+.gs-member-submit {
+  grid-column: 2;
+}
+
+.gs-member-input {
+  min-height: 44px;
+  border-radius: 10px;
+}
+
+.gs-member-btn {
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.gs-member-submit {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.gs-member-submit button {
+  max-width: 260px;
+}
+
+.gs-admin-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.gs-admin-page::before {
+  content: "Admin Dashboard";
+  display: block;
+  padding: 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg,#fff7ed,#ffffff);
+  color: #9a3412;
+  font-size: 1.35rem;
+  font-weight: 900;
+  box-shadow: 0 12px 34px rgba(15,23,42,.06);
+  border: 1px solid rgba(15,23,42,.08);
+}
+
+.gs-admin-page .grid-cols-3 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 12px !important;
+}
+
+.gs-admin-kpi {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,.08);
+  box-shadow: 0 12px 34px rgba(15,23,42,.06);
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.gs-admin-panel {
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  box-shadow: 0 12px 34px rgba(15,23,42,.06) !important;
+}
+
+.gs-admin-panel > div,
+.gs-admin-page .rounded-xl {
+  background: #ffffff;
+}
+
+.gs-admin-btn {
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.gs-admin-import-input {
+  min-height: 120px;
+  border-radius: 12px;
+}
+
+@media (max-width: 860px) {
+  .gs-member-page {
+    grid-template-columns: 1fr;
+  }
+
+  .gs-member-hero,
+  .gs-member-form-card,
+  .gs-member-submit {
+    grid-column: 1;
+  }
+
+  .gs-admin-page .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* =========================================================
+   GS_JSX_RECON_ONEPACK8A3_MEMBER_SAFE_RETURN
+   Member safe JSX recovery/wizard structure.
+   ========================================================= */
+
+.gs-member-page { max-width:1180px; margin:0 auto; display:grid; grid-template-columns:240px minmax(0,1fr); gap:14px; align-items:start; }
+.gs-member-steps,.gs-member-hero,.gs-member-form-card,.gs-member-media-card,.gs-member-submit {
+  background:#fff; border:1px solid rgba(15,23,42,.08); border-radius:16px; padding:16px; box-shadow:0 12px 34px rgba(15,23,42,.06);
+}
+.gs-member-steps { display:grid; gap:4px; color:#166534; font-weight:900; background:linear-gradient(180deg,#ecfdf5,#fff); }
+.gs-member-steps span { color:#64748b; font-size:.82rem; margin-bottom:10px; }
+.gs-member-hero,.gs-member-form-card,.gs-member-media-card,.gs-member-submit { grid-column:2; }
+.gs-member-form-card,.gs-member-media-card { display:grid; gap:12px; }
+.gs-member-optional { display:grid; gap:10px; }
+.gs-member-input { min-height:44px; border-radius:10px; }
+.gs-member-btn { border-radius:999px; font-weight:900; }
+.gs-member-submit { display:flex; justify-content:flex-end; }
+.gs-member-submit button { max-width:260px; }
+.gs-member-media-card h3 { margin:0; color:#166534; font-weight:900; }
+.gs-member-media-card p { margin:0; color:#64748b; font-size:.82rem; font-weight:700; }
+.gs-member-checks { display:grid; gap:8px; padding:10px; border:1px solid rgba(15,23,42,.06); border-radius:12px; background:#f8fafc; }
+
+@media (max-width:860px){
+  .gs-member-page{grid-template-columns:1fr;}
+  .gs-member-hero,.gs-member-form-card,.gs-member-media-card,.gs-member-submit{grid-column:1;}
+}
+
+
+/* =========================================================
+   GS_JSX_RECON_ONEPACK8B_LOGO_ADMIN
+   Logo asset + Admin dashboard structural authority.
+   ========================================================= */
+
+.gs-app-logo {
+  overflow: hidden;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.gs-app-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.gs-admin-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.gs-admin-page::before {
+  content: "Admin Dashboard";
+  display: block;
+  padding: 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg,#fff7ed,#ffffff);
+  color: #9a3412;
+  font-size: 1.35rem;
+  font-weight: 900;
+  box-shadow: 0 12px 34px rgba(15,23,42,.06);
+  border: 1px solid rgba(15,23,42,.08);
+}
+
+.gs-admin-page .grid-cols-3 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 12px !important;
+}
+
+.gs-admin-kpi {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,.08);
+  box-shadow: 0 12px 34px rgba(15,23,42,.06);
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.gs-admin-panel {
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  box-shadow: 0 12px 34px rgba(15,23,42,.06) !important;
+}
+
+.gs-admin-page .rounded-xl {
+  background: #ffffff;
+}
+
+.gs-admin-btn {
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.gs-admin-import-input {
+  min-height: 120px;
+  border-radius: 12px;
+}
+
+@media (max-width:860px){
+  .gs-admin-page .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* =========================================================
+   GS_LOGO_SIZE_PATCH_V14
+   Make actual owl asset visually fill logo circle.
+   ========================================================= */
+
+.gs-app-logo {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 4px solid #ef233c !important;
+  padding: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+}
+
+.gs-app-logo img {
+  width: 115% !important;
+  height: 115% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  transform: scale(1.35) !important;
+  transform-origin: center !important;
+}
+
+
+/* =========================================================
+   GS_PREDEPLOY_RCE_UI_READABILITY_AI_ROUTING_V17
+   Readability + production honesty guard.
+   ========================================================= */
+
+.travel-input,
+.gs-member-input,
+.gs-admin-import-input,
+select,
+input,
+textarea {
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+label,
+.gs-member-checks,
+.gs-member-checks label,
+.gs-result-tags span,
+.travel-meta,
+.text-xs {
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+}
+
+.gs-member-checks label {
+  min-height: 28px !important;
+  align-items: center !important;
+}
+
+.gs-member-steps {
+  font-size: 14px !important;
+}
+
+.gs-member-steps strong {
+  font-size: 14px !important;
+}
+
+.gs-member-steps span {
+  font-size: 13.5px !important;
+}
+
+@media (max-width: 860px) {
+  .travel-input,
+  .gs-member-input,
+  select,
+  input,
+  textarea,
+  label,
+  .text-xs {
+    font-size: 15px !important;
+  }
+}
+
+.gs-ai-routing-disabled {
+  opacity: 0.72 !important;
+  pointer-events: none !important;
+}
+
+.gs-ai-routing-note {
+  margin-top: 6px !important;
+  font-size: 13.5px !important;
+  color: #92400e !important;
+  font-weight: 800 !important;
+}
+
+/* =========================================================
+   GS_MEMBER_STEPPER_MOCKUP_FIX_V18
+   Mockup-like vertical member stepper.
+   ========================================================= */
+
+.gs-member-steps {
+  position: relative !important;
+  display: grid !important;
+  gap: 18px !important;
+  padding: 18px 16px !important;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+}
+
+.gs-member-steps::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 31px !important;
+  top: 44px !important;
+  bottom: 44px !important;
+  width: 2px !important;
+  background: #d1d5db !important;
+}
+
+.gs-member-step {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 32px 1fr !important;
+  gap: 10px !important;
+  align-items: start !important;
+  color: #64748b !important;
+}
+
+.gs-member-step-dot {
+  z-index: 1 !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #9ca3af !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+}
+
+.gs-member-step--active .gs-member-step-dot {
+  background: #16a34a !important;
+}
+
+.gs-member-step strong {
+  display: block !important;
+  color: #0f172a !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+.gs-member-step small {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+/* =========================================================
+   GS_TAB_THEME_STAR_GOLD_V20
+   Visual theme only: readable soft tab colors + gold stars.
+   ========================================================= */
+
+/* gold rating in select; browser support varies but selected text works */
+.gs-member-input[value],
+select.gs-member-input {
+  color: #111827 !important;
+}
+
+select.gs-member-input option {
+  color: #111827 !important;
+}
+
+select.gs-member-input option[value="5"],
+select.gs-member-input option[value="4"],
+select.gs-member-input option[value="3"] {
+  color: #d97706 !important;
+  font-weight: 900 !important;
+}
+
+/* active tab stronger; inactive tab still clean */
+.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
+}
+
+.travel-tab--member {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+}
+
+.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+/* soft theme surfaces by visible tab sections */
+.gs-search-page {
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 34%, #ffffff 100%) !important;
+  border-radius: 20px !important;
+  padding: 14px !important;
+}
+
+.gs-member-page {
+  background: linear-gradient(180deg, #ecfdf5 0%, #f7fef9 36%, #ffffff 100%) !important;
+  border-radius: 20px !important;
+  padding: 14px !important;
+}
+
+.gs-admin-page {
+  background: linear-gradient(180deg, #fff7ed 0%, #fffaf2 36%, #ffffff 100%) !important;
+  border-radius: 20px !important;
+  padding: 14px !important;
+}
+
+/* keep header in same soft product family */
+.gs-app-header {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%) !important;
+  border-color: rgba(37, 99, 235, 0.16) !important;
+}
+
+/* checkbox lists readability */
+.gs-member-checks label {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  color: #0f172a !important;
+}
+
+/* rating select visual hint */
+.gs-member-input:has(option[value="5"]) {
+  font-weight: 800 !important;
+}
+
+/* =========================================================
+   GS_ACTIVE_TAB_THEME_BINDING_V21
+   Whole-app soft theme by active tab.
+   ========================================================= */
+
+.gs-theme-search {
+  background: linear-gradient(180deg,#eff6ff 0%,#f8fbff 42%,#ffffff 100%) !important;
+}
+
+.gs-theme-member {
+  background: linear-gradient(180deg,#ecfdf5 0%,#f6fef9 42%,#ffffff 100%) !important;
+}
+
+.gs-theme-admin {
+  background: linear-gradient(180deg,#fff7ed 0%,#fffaf2 42%,#ffffff 100%) !important;
+}
+
+.gs-theme-search .gs-app-header {
+  background: linear-gradient(135deg,#ffffff 0%,#eff6ff 100%) !important;
+  border-color: rgba(37,99,235,.22) !important;
+}
+
+.gs-theme-member .gs-app-header {
+  background: linear-gradient(135deg,#ffffff 0%,#ecfdf5 100%) !important;
+  border-color: rgba(22,163,74,.22) !important;
+}
+
+.gs-theme-admin .gs-app-header {
+  background: linear-gradient(135deg,#ffffff 0%,#fff7ed 100%) !important;
+  border-color: rgba(245,158,11,.26) !important;
+}
+
+.gs-theme-search .gs-search-page,
+.gs-theme-member .gs-member-page,
+.gs-theme-admin .gs-admin-page {
+  box-shadow: 0 20px 50px rgba(15,23,42,.05) !important;
+}
+
+.gs-theme-search main,
+.gs-theme-search .travel-card {
+  background-color: rgba(239,246,255,.78) !important;
+}
+
+.gs-theme-member main,
+.gs-theme-member .travel-card {
+  background-color: rgba(236,253,245,.78) !important;
+}
+
+.gs-theme-admin main,
+.gs-theme-admin .travel-card {
+  background-color: rgba(255,247,237,.78) !important;
+}
+
+/* keep inner cards readable */
+.gs-theme-search .gs-search-filter-panel,
+.gs-theme-search .gs-search-results-panel,
+.gs-theme-member .gs-member-steps,
+.gs-theme-member .gs-member-hero,
+.gs-theme-member .gs-member-form-card,
+.gs-theme-member .gs-member-media-card,
+.gs-theme-admin .gs-admin-panel,
+.gs-theme-admin .gs-admin-kpi {
+  background: #ffffff !important;
+}
+
+/* selected rating stars gold in closed select */
+.gs-member-input {
+  color: #0f172a !important;
+}
+
+.gs-member-input option[value="5"],
+.gs-member-input option[value="4"],
+.gs-member-input option[value="3"] {
+  color: #d97706 !important;
+  font-weight: 900 !important;
+}
+
+/* =========================================================
+   GS_TAB_ALWAYS_VISIBLE_THEME_V22
+   All tabs have visible soft color even inactive.
+   ========================================================= */
+
+.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
+}
+
+.travel-tab--member {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border-color: #bbf7d0 !important;
+}
+
+.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
+}
+
+.travel-tab--member.travel-tab--active {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+}
+
+.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+/* =========================================================
+   GS_PHASE_A_CLOSE_V24_FINAL_AUTHORITY
+   Final product polish only. No function change.
+   ========================================================= */
+
+.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
+}
+
+.travel-tab--member {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border-color: #86efac !important;
+}
+
+.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+  color: #166534;
+}
+
+.travel-tab--member.travel-tab--active {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+}
+
+.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+.gs-app-header {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%) !important;
+  border-color: rgba(37, 99, 235, .18) !important;
+}
+
+.gs-member-page {
+  background: linear-gradient(180deg, #ecfdf5 0%, #f7fef9 42%, #ffffff 100%) !important;
+  border-radius: 20px !important;
+  padding: 16px !important;
+  gap: 18px !important;
+}
+
+.gs-member-steps {
+  position: relative !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  border-radius: 16px !important;
+  padding: 18px 16px !important;
+  display: grid !important;
+  gap: 18px !important;
+}
+
+.gs-member-steps::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 31px !important;
+  top: 46px !important;
+  bottom: 46px !important;
+  width: 2px !important;
+  background: #d1d5db !important;
+}
+
+.gs-member-step {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 32px 1fr !important;
+  gap: 10px !important;
+  align-items: start !important;
+}
+
+.gs-member-step-dot {
+  z-index: 1 !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #9ca3af !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+}
+
+.gs-member-step--active .gs-member-step-dot {
+  background: #16a34a !important;
+}
+
+.gs-member-step strong,
+.gs-member-steps strong {
+  display: block !important;
+  color: #0f172a !important;
+  font-size: 14.5px !important;
+  font-weight: 900 !important;
+}
+
+.gs-member-step small,
+.gs-member-steps span {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+.gs-member-hero,
+.gs-member-form-card,
+.gs-member-media-card,
+.gs-member-submit {
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 34px rgba(15,23,42,.06) !important;
+}
+
+.travel-input,
+.gs-member-input,
+select,
+input,
+textarea {
+  font-size: 14.5px !important;
+  line-height: 1.45 !important;
+}
+
+.gs-member-input,
+.travel-input {
+  min-height: 44px !important;
+}
+
+.gs-member-checks {
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+}
+
+.gs-member-checks label {
+  min-height: 34px !important;
+  background: #f8fafc !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  color: #0f172a !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  align-items: center !important;
+}
+
+select.gs-member-input {
+  color: #d97706 !important;
+  font-weight: 900 !important;
+}
+
+select.gs-member-input option {
+  color: #111827 !important;
+  font-weight: 800 !important;
+}
+
+select.gs-member-input option[value="5"],
+select.gs-member-input option[value="4"],
+select.gs-member-input option[value="3"] {
+  color: #d97706 !important;
+  font-weight: 900 !important;
+}
+
+.gs-ai-routing-disabled {
+  opacity: .7 !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 860px) {
+  .travel-input,
+  .gs-member-input,
+  select,
+  input,
+  textarea,
+  label,
+  .text-xs {
+    font-size: 15px !important;
+  }
+}
+
+/* RCE FINAL TAB COLOR OVERRIDE 25690619_075807
+   Owner: page.tsx renders travel-tab--search/admin + travel-tab--active
+   Color owner: globals.css
+   Reason: previous selector existed but did not win cascade in browser
+*/
+
+nav .travel-tab.travel-tab--search,
+nav button.travel-tab.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+
+nav .travel-tab.travel-tab--search.travel-tab--active,
+nav button.travel-tab.travel-tab--search.travel-tab--active {
+  background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%) !important;
+  border-color: #22c55e !important;
+  color: #14532d !important;
+  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.28) !important;
+}
+
+nav .travel-tab.travel-tab--admin,
+nav button.travel-tab.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%) !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+
+nav .travel-tab.travel-tab--admin.travel-tab--active,
+nav button.travel-tab.travel-tab--admin.travel-tab--active {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%) !important;
+  border-color: #f97316 !important;
+  color: #7c2d12 !important;
+  box-shadow: 0 12px 28px rgba(249, 115, 22, 0.28) !important;
+}
+
+/* RCE_FINAL_TAB_COLOR_LOCK_START
+   FACT:
+   page.tsx renders:
+   button.travel-tab.travel-tab--search
+   button.travel-tab.travel-tab--admin
+   active adds travel-tab--active
+   OWNER:
+   globals.css controls color
+*/
+nav button.travel-tab.travel-tab--search {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+
+nav button.travel-tab.travel-tab--search.travel-tab--active {
+  background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%) !important;
+  border-color: #22c55e !important;
+  color: #14532d !important;
+  box-shadow: 0 14px 32px rgba(34, 197, 94, 0.30) !important;
+}
+
+nav button.travel-tab.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%) !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+
+nav button.travel-tab.travel-tab--admin.travel-tab--active {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%) !important;
+  border-color: #f97316 !important;
+  color: #7c2d12 !important;
+  box-shadow: 0 14px 32px rgba(249, 115, 22, 0.30) !important;
+}
+/* RCE_FINAL_TAB_COLOR_LOCK_END */
+
+/* RCE_REAL_TAB_BACKGROUND_START */
+nav button.travel-tab.travel-tab--search {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+nav button.travel-tab.travel-tab--search.travel-tab--active {
+  background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%) !important;
+  border-color: #2563eb !important;
+  color: #1e3a8a !important;
+}
+
+nav button.travel-tab.travel-tab--member {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+nav button.travel-tab.travel-tab--member.travel-tab--active {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+}
+
+nav button.travel-tab.travel-tab--admin {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%) !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+nav button.travel-tab.travel-tab--admin.travel-tab--active {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+  border-color: #ea580c !important;
+  color: #7c2d12 !important;
+}
+
+.gs-active-tab-panel {
+  border-radius: 24px !important;
+  padding: 16px !important;
+  transition: background 180ms ease, box-shadow 180ms ease !important;
+}
+
+.gs-active-tab-panel--search {
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 48%, #ffffff 100%) !important;
+}
+
+.gs-active-tab-panel--member {
+  background: linear-gradient(180deg, #ecfdf5 0%, #f6fffb 48%, #ffffff 100%) !important;
+}
+
+.gs-active-tab-panel--admin {
+  background: linear-gradient(180deg, #fff7ed 0%, #fffaf5 48%, #ffffff 100%) !important;
+}
+/* RCE_REAL_TAB_BACKGROUND_END */
+
+/* RCE_ACTIVE_PANEL_BACKGROUND_START */
+.gs-active-tab-panel {
+  border-radius: 24px !important;
+  padding: 16px !important;
+  transition: background 180ms ease, box-shadow 180ms ease !important;
+}
+
+.gs-active-tab-panel--search {
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 46%, #ffffff 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.10) !important;
+}
+
+.gs-active-tab-panel--member {
+  background: linear-gradient(180deg, #ecfdf5 0%, #f6fffb 46%, #ffffff 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.12) !important;
+}
+
+.gs-active-tab-panel--admin {
+  background: linear-gradient(180deg, #fff7ed 0%, #fffaf5 46%, #ffffff 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.14) !important;
+}
+/* RCE_ACTIVE_PANEL_BACKGROUND_END */
+
+/* RCE_VISIBLE_PANEL_THEME_START
+   Root cause:
+   gs-active-tab-panel exists, but inner cards/sections are white and cover the panel background.
+   Fix:
+   Apply visible tab theme to panel and its direct content surfaces.
+*/
+
+.gs-active-tab-panel {
+  border-radius: 24px !important;
+  padding: 18px !important;
+  margin-top: 12px !important;
+}
+
+.gs-active-tab-panel--search {
+  background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 55%, #f8fbff 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.16) !important;
+}
+
+.gs-active-tab-panel--member {
+  background: linear-gradient(180deg, #dcfce7 0%, #ecfdf5 55%, #f6fffb 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0.16) !important;
+}
+
+.gs-active-tab-panel--admin {
+  background: linear-gradient(180deg, #fed7aa 0%, #fff7ed 55%, #fffaf5 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(234, 88, 12, 0.18) !important;
+}
+
+/* make inner page surfaces reveal the active tab theme */
+.gs-active-tab-panel--search > *,
+.gs-active-tab-panel--search section,
+.gs-active-tab-panel--search main,
+.gs-active-tab-panel--search .rounded-2xl,
+.gs-active-tab-panel--search .rounded-3xl {
+  background-color: rgba(239, 246, 255, 0.72) !important;
+}
+
+.gs-active-tab-panel--member > *,
+.gs-active-tab-panel--member section,
+.gs-active-tab-panel--member main,
+.gs-active-tab-panel--member .rounded-2xl,
+.gs-active-tab-panel--member .rounded-3xl {
+  background-color: rgba(236, 253, 245, 0.76) !important;
+}
+
+.gs-active-tab-panel--admin > *,
+.gs-active-tab-panel--admin section,
+.gs-active-tab-panel--admin main,
+.gs-active-tab-panel--admin .rounded-2xl,
+.gs-active-tab-panel--admin .rounded-3xl {
+  background-color: rgba(255, 247, 237, 0.80) !important;
+}
+
+/* restore correct tab colors */
+nav button.travel-tab.travel-tab--search {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+nav button.travel-tab.travel-tab--search.travel-tab--active {
+  background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%) !important;
+  border-color: #2563eb !important;
+  color: #1e3a8a !important;
+}
+
+nav button.travel-tab.travel-tab--member.travel-tab--active {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+}
+
+nav button.travel-tab.travel-tab--admin.travel-tab--active {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+  border-color: #ea580c !important;
+  color: #7c2d12 !important;
+}
+/* RCE_VISIBLE_PANEL_THEME_END */
 

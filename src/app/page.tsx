@@ -116,26 +116,31 @@ function GuideSourcesApp() {
     }
   };
 
-  return <div className="travel-shell mx-auto w-full max-w-[980px] p-3 sm:p-4 bg-gray-900 text-white min-h-screen gs-app-shell">
-    <header className="mb-4 rounded-2xl border border-slate-700/70 bg-slate-900/85 p-3 sm:p-4 shadow-xl">
-      <div className="flex items-center gap-3">
-        <div className="min-w-0">
-          <p className="gs-brand-kicker">Guide Sources</p>
-          <div className="gs-brand-row"><img className="gs-brand-logo" src="/guide-sources-tour-logo.svg" alt="Guide Sources" /><h1 className="gs-brand-title">Guide Sources</h1></div>
-          <p className="gs-brand-subtitle">Community Travel Knowledge</p>
-        </div>
-      </div>
-    </header>
-    <nav className="flex flex-wrap gap-2 rounded-2xl border border-slate-700/70 bg-slate-900/90 p-2 mb-4 sticky top-0 z-10 shadow-xl">
-      <button onClick={() => setActiveTab('search')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'search' ? 'travel-tab--search bg-sky-500 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>🔍 Search</button>
-      <button onClick={() => setActiveTab('member')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'member' ? 'travel-tab--member bg-emerald-400 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>👤 Member</button>
-      <button onClick={() => setActiveTab('admin')} className={`travel-tab flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'admin' ? 'travel-tab--admin bg-amber-400 text-slate-950' : 'bg-slate-800/90 text-slate-100 border-slate-700 hover:bg-slate-700'}`}>⚙️ Admin</button>
+  return <div className="mx-auto w-full max-w-[980px] p-3 sm:p-4 min-h-screen gs-ui14-shell">
+    <header className="gs-app-header">
+  <div className="gs-app-brand">
+    <div className="gs-app-logo"><img src="/brand/guide-sources-logo.png" alt="Guide Sources logo" /></div>
+    <div className="gs-app-title-block">
+      <p className="gs-app-kicker">TRAVEL SOURCE MANAGER</p>
+      <h1 className="gs-app-title">Guide Sources</h1>
+      <p className="gs-app-subtitle">ค้นหา • เพิ่มข้อมูล • อนุมัติแหล่งท่องเที่ยว</p>
+    </div>
+  </div>
+  <div className="gs-app-auth">
+    <AuthPanel />
+  </div>
+</header>
+    <nav className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white/85 p-2 mb-4 sticky top-0 z-10 shadow-xl">
+      <button onClick={() => setActiveTab('search')} className={`travel-tab travel-tab--search flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'search' ? 'travel-tab--active' : ''}`}>🔍 Search</button>
+      <button onClick={() => setActiveTab('member')} className={`travel-tab travel-tab--member flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'member' ? 'travel-tab--active' : ''}`}>👤 Member</button>
+      <button onClick={() => setActiveTab('admin')} className={`travel-tab travel-tab--admin flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'admin' ? 'travel-tab--active' : ''}`}>⚙️ Admin</button>
     </nav>
     {message && <div className="mb-4 rounded-xl border border-sky-700/70 bg-sky-950/60 p-3 text-sm text-sky-100">{message}</div>}
-    <AuthPanel />
+    <div className={`gs-active-tab-panel gs-active-tab-panel--${activeTab}`}>
       {activeTab === 'search' && <SearchTab refreshKey={refreshKey} onEdit={editPlace} />}
-    {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
-    {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+      {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
+      {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+    </div>
   </div>;
 }
 
@@ -150,6 +155,27 @@ export default function Home() {
     </AuthProvider>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
