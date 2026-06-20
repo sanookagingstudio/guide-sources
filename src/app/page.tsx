@@ -116,10 +116,10 @@ function GuideSourcesApp() {
     }
   };
 
-  return <div className="mx-auto w-full max-w-[980px] p-3 sm:p-4 min-h-screen gs-ui14-shell">
+  return <div className={`mx-auto w-full max-w-[980px] p-3 sm:p-4 min-h-screen gs-ui14-shell${activeTab === 'admin' ? ' gs-theme-admin' : ''}`}>
     <header className="gs-app-header">
   <div className="gs-app-brand">
-    <div className="gs-app-logo"><img src="/brand/guide-sources-logo.png" alt="Guide Sources logo" /></div>
+    <div className="gs-app-logo"><img src="/brand/guide-sources-mascot.png" alt="Guide Sources logo" /></div>
     <div className="gs-app-title-block">
       <p className="gs-app-kicker">TRAVEL SOURCE MANAGER</p>
       <h1 className="gs-app-title">Guide Sources</h1>

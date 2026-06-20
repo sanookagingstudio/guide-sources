@@ -54,17 +54,36 @@ export async function listApprovedPlaces(filters: PlaceFilters = {}, options?: {
     return localRows;
   }
 }
-export async function listStagingPlaces() { if (!isSupabaseConfigured) return listLocalStagingPlaces(); const { data, error } = await supabase.from('staging_places').select('*').order('updated_at', { ascending: false }); if (error) throw error; return (data || []) as PlaceRecord[]; }
+export async function listStagingPlaces() {
+  const localRows = listLocalStagingPlaces();
+  if (!isSupabaseConfigured) return localRows;
+  try {
+    const { data, error } = await supabase.from('staging_places').select('*').order('updated_at', { ascending: false });
+    if (error) throw error;
+    const remoteRows = (data || []) as PlaceRecord[];
+    const merged = [...remoteRows, ...localRows.filter((place) => !remoteRows.some((row) => row.id === place.id))];
+    return merged;
+  } catch {
+    return localRows;
+  }
+}
 
 export async function listRejectedPlaces() {
-  if (!isSupabaseConfigured) return listLocalRejectedPlaces();
-  const { data, error } = await supabase
-    .from('staging_places')
-    .select('*')
-    .eq('status', 'rejected')
-    .order('updated_at', { ascending: false });
-  if (error) throw error;
-  return (data || []) as PlaceRecord[];
+  const localRows = listLocalRejectedPlaces();
+  if (!isSupabaseConfigured) return localRows;
+  try {
+    const { data, error } = await supabase
+      .from('staging_places')
+      .select('*')
+      .eq('status', 'rejected')
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    const remoteRows = (data || []) as PlaceRecord[];
+    const merged = [...remoteRows, ...localRows.filter((place) => !remoteRows.some((row) => row.id === place.id))];
+    return merged;
+  } catch {
+    return localRows;
+  }
 }
 export async function getPlaceById(id: string, table: 'staging_places' | 'production_places' = 'production_places') { const { data, error } = await supabase.from(table).select('*').eq('id', id).single(); if (error) throw error; return data as PlaceRecord; }
 export async function findDuplicatePlaceName(name: string, excludeId?: string) { if (!isSupabaseConfigured) return findLocalDuplicatePlaceName(name, excludeId); let query = supabase.from('staging_places').select('id,name,status').ilike('name', text(name)); if (excludeId) query = query.neq('id', excludeId); const { data, error } = await query.limit(1); if (error) throw error; return data?.[0] || null; }
@@ -83,18 +102,29 @@ export async function saveStagingPlace(place: PlaceRecord) {
   }
 }
 export async function deletePlace(id: string, table: 'staging_places' | 'production_places') {
-  if (!isSupabaseConfigured) {
-    const { deleteLocalPlace } = await import('./localStorageProvider');
-    return deleteLocalPlace(id, table);
+  const { deleteLocalPlace } = await import('./localStorageProvider');
+  deleteLocalPlace(id, table);
+  if (!isSupabaseConfigured) return;
+  try {
+    const { error } = await supabase.from(table).delete().eq('id', id);
+    if (error) throw error;
+  } catch {
+    // Local delete already done; remote failure is non-fatal
   }
-  const { error } = await supabase.from(table).delete().eq('id', id); if (error) throw error;
 }
 
 
 
 export async function listDuplicateSuggestions() {
-  if (!isSupabaseConfigured) return listLocalDuplicateSuggestions();
-  return [];
+  const localRows = listLocalDuplicateSuggestions();
+  if (!isSupabaseConfigured) return localRows;
+  try {
+    const { data, error } = await supabase.from('staging_places').select('id,name,province,category,google_maps_url,phone,status').order('updated_at', { ascending: false });
+    if (error) throw error;
+    return localRows;
+  } catch {
+    return localRows;
+  }
 }
 
 function toSafeStagingPayload(place: PlaceRecord) {

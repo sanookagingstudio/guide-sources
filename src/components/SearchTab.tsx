@@ -111,106 +111,159 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
   };
 
 
-  return <div className="space-y-6 animate-fade-in">
-    <div className="travel-card gs-search-hero p-4 space-y-3">
-      <div className="space-y-1"><h2 className="travel-section-title">SEARCH RESULTS</h2><p className="travel-meta text-sm">Clear travel discovery cards with stronger contrast and easier scanning.</p></div>
-      <input list="search-suggestions" placeholder="🔍 ค้นหาสถานที่, หมวดหมู่, จุดเด่น..." className="travel-input w-full p-3 bg-gray-900 rounded border border-gray-600" value={filters.keyword} onChange={(e) => setFilters({...filters, keyword: e.target.value})} /><datalist id="search-suggestions">{suggestions.map((s) => <option key={s} value={s} />)}</datalist>
-      <div className="grid md:grid-cols-3 gap-2 text-sm">
-        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.province} onChange={(e) => setFilters({ ...filters, province: e.target.value })}>
-          <option value="">ทุกจังหวัด</option>
-          {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
-        </select>
-        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value, sub_category: '' })}>
-          <option value="">ทุกหมวดหมู่</option>
-          {CATEGORIES.slice(1).map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.sub_category} onChange={(e) => setFilters({ ...filters, sub_category: e.target.value })} disabled={!filters.category}>
-          <option value="">{filters.category ? 'ทุกหมวดย่อย' : 'เลือกหมวดหมู่ก่อน'}</option>
-          {subcategoryOptions.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.amenity} onChange={(e) => setFilters({ ...filters, amenity: e.target.value })}>
-          <option value="">ทุกสิ่งอำนวยความสะดวก</option>
-          {AMENITIES.map((a) => <option key={a} value={a}>{a}</option>)}
-        </select>
-        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.alert} onChange={(e) => setFilters({ ...filters, alert: e.target.value })}>
-          <option value="">ทุกข้อควรระวัง</option>
-          {ALERTS.map((a) => <option key={a} value={a}>{a}</option>)}
-        </select>
-        <select className="p-2 bg-gray-900 rounded border border-gray-600" value={filters.rating} onChange={(e) => setFilters({ ...filters, rating: Number(e.target.value) })}>
-          <option value="0">ทุกดาว</option>
-          {[5, 4, 3, 2, 1].map((r) => <option key={r} value={r}>{r}+ ดาว</option>)}
-        </select>
+  return <div className="search-tab-container animate-fade-in">
+    {/* Header Area */}
+    <div className="search-header">
+      <div className="header-text">
+        <h1 className="travel-section-title">ค้นหาสถานที่เที่ยว</h1>
+        <p className="travel-meta">ค้นหาสถานที่เที่ยวที่คุณสนใจได้ที่นี่</p>
+      </div>
+      
+      <div className="search-bar">
+        <input 
+          list="search-suggestions" 
+          placeholder="🔍 ค้นหาสถานที่, หมวดหมู่, จุดเด่น..." 
+          className="search-input" 
+          value={filters.keyword} 
+          onChange={(e) => setFilters({...filters, keyword: e.target.value})} 
+        />
+        <datalist id="search-suggestions">{suggestions.map((s) => <option key={s} value={s} />)}</datalist>
+        <button className="search-button travel-btn travel-btn--primary">ค้นหา</button>
+      </div>
+      
+      <div className="quick-filters">
+        <button onClick={() => setFilters({...filters, category: 'ร้านอาหาร'})}>ร้านอาหาร</button>
+        <button onClick={() => setFilters({...filters, category: 'ที่พัก'})}>ที่พัก</button>
+        <button onClick={() => setFilters({...filters, category: 'สถานที่เที่ยว'})}>สถานที่เที่ยว</button>
+        <button onClick={() => setFilters({...filters, rating: 4})}>ยอดนิยม</button>
       </div>
     </div>
-    {warning && <div className="bg-amber-950/80 border border-amber-700 rounded-xl p-3 text-sm text-amber-100">{warning}</div>}
-    <div className="gs-search-result-head"><h3 className="travel-section-title">ผลการค้นหา {places.length} รายการ</h3><div className="gs-export-bar"><div><p className="gs-export-label">Export</p><p className="gs-export-count">{selectedPlaces.length ? `${selectedPlaces.length} selected` : `${places.length} current results`}</p></div><div className="gs-export-actions"><button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportCsv}>CSV</button><button className="travel-btn travel-btn--secondary px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportJson}>JSON</button>{selectedPlaces.length > 0 && <button className="travel-btn px-3 py-2 rounded text-xs" type="button" onClick={clearSelectedPlaces}>Clear</button>}</div></div></div>
-    <div className="gs-results-list">
-      {places.map((p) => {
-        const normalizedCategory = normalizeCategoryLabel(p.category || '');
-        const categoryIcon = CATEGORY_ICONS[normalizedCategory] || '📍';
-        const availableMedia = media[p.id || ''] || [];
-        const localImage = p.local_media?.find((item) => item.media_type === 'image');
-        const remoteImage = availableMedia.find((item) => item.media_type === 'image');
-        const imageSource = localImage?.data_url || remoteImage?.public_url;
-        const localVideo = !imageSource ? p.local_media?.find((item) => item.media_type === 'video') : undefined;
-        const remoteVideo = !imageSource ? availableMedia.find((item) => item.media_type === 'video') : undefined;
-        const videoLabel = localVideo?.file_name || remoteVideo?.storage_path?.split('/').pop();
 
-        const placeKey = getPlaceKey(p, places.indexOf(p));
-        return <article key={p.id || p.name} className="search-card gs-place-card">
-          <label className="gs-select-export"><input type="checkbox" checked={Boolean(selectedPlaceIds[placeKey])} onChange={() => toggleSelectedPlace(placeKey)} /><span>เลือกส่งออก</span></label>
-          <div className="search-card__media">
-            {imageSource ? (
-              <img src={imageSource} alt={p.name} className="search-card__image" />
-            ) : (localVideo || remoteVideo) ? (
-              <div className="search-card__video-placeholder">
-                <span>▶ Video Available</span>
-                <p className="text-xs text-slate-300">{videoLabel || 'มีวิดีโอแนบ'}</p>
-              </div>
-            ) : (
-              <div className="search-card__placeholder">
-                <div className="search-card__placeholder-icon">{categoryIcon}</div>
-                <div className="text-sm text-slate-300">{normalizedCategory || p.category || 'สถานที่'}</div>
-              </div>
-            )}
-            <div className="search-card__media-top">
-              <div className="search-card__category-badge">
-                <span>{categoryIcon}</span>
-                <span>{normalizedCategory || p.category || 'สถานที่'}</span>
-              </div>
-              <div className="search-card__rating-badge">⭐ {p.rating || 0}</div>
-            </div>
-            <div className="search-card__subcategory">{p.sub_category || 'หมวดย่อยยังไม่ระบุ'}</div>
+    {/* Main Content Area */}
+    <div className="search-content">
+      {/* Filter Sidebar */}
+      <div className="filter-sidebar">
+        <h3>ตัวกรอง</h3>
+        
+        <div className="filter-group">
+          <label>จังหวัด</label>
+          <select value={filters.province} onChange={(e) => setFilters({ ...filters, province: e.target.value })}>
+            <option value="">ทุกจังหวัด</option>
+            {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>หมวดหมู่</label>
+          <select value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value, sub_category: '' })}>
+            <option value="">ทุกหมวดหมู่</option>
+            {CATEGORIES.slice(1).map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>ประเภท</label>
+          <select value={filters.sub_category} onChange={(e) => setFilters({ ...filters, sub_category: e.target.value })} disabled={!filters.category}>
+            <option value="">{filters.category ? 'ทุกหมวดย่อย' : 'เลือกหมวดหมู่ก่อน'}</option>
+            {subcategoryOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>ช่วงราคา</label>
+          <select>
+            <option value="">ทั้งหมด</option>
+            <option value="low">ต่ำ (น้อยกว่า 100 บาท)</option>
+            <option value="medium">กลาง (100-300 บาท)</option>
+            <option value="high">สูง (มากกว่า 300 บาท)</option>
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>คะแนนแนะนำ</label>
+          <select value={filters.rating} onChange={(e) => setFilters({ ...filters, rating: Number(e.target.value) })}>
+            <option value="0">ทุกคะแนน</option>
+            {[5, 4, 3, 2, 1].map((r) => <option key={r} value={r}>{r} ดาวขึ้นไป</option>)}
+          </select>
+        </div>
+        
+        <div className="filter-buttons">
+          <button className="travel-btn" onClick={() => setFilters({ keyword: '', province: '', category: '', sub_category: '', amenity: '', alert: '', rating: 0 })}>ล้างตัวกรอง</button>
+          <button className="travel-btn travel-btn--primary">ใช้ตัวกรอง</button>
+        </div>
+      </div>
+
+      {/* Results Area */}
+      <div className="results-area">
+        {warning && <div className="search-warning">{warning}</div>}
+        
+        <div className="results-header">
+          <h3>ผลการค้นหา {places.length} รายการ</h3>
+          <div className="export-actions">
+            <button className="travel-btn travel-btn--success" disabled={exportRows.length === 0} onClick={exportCsv}>CSV</button>
+            <button className="travel-btn travel-btn--secondary" disabled={exportRows.length === 0} onClick={exportJson}>JSON</button>
+            {selectedPlaces.length > 0 && <button className="travel-btn" onClick={clearSelectedPlaces}>Clear</button>}
           </div>
-          <div className="search-card__body gs-place-content">
-            <div className="search-card__main">
-              <h3 className="search-card__title">{p.name}</h3>
-              <p className="search-card__meta">{p.province || 'จังหวัดไม่ระบุ'}</p>
-              <p className="search-card__summary">{p.suggestion || 'คำแนะนำยังไม่ระบุ'}</p>
+        </div>
+        
+        <div className="results-list">
+          {places.length === 0 ? (
+            <div className="empty-state">
+              <p>ไม่พบผลลัพธ์ที่ตรงกับการค้นหาของคุณ</p>
+              <button className="travel-btn" onClick={() => setFilters({ keyword: '', province: '', category: '', sub_category: '', amenity: '', alert: '', rating: 0 })}>ล้างตัวกรอง</button>
             </div>
-            <div className="search-card__info-grid">
-              <div className="search-card__info-block"><span>Phone</span><p>{p.phone || '-'}</p></div>
-              <div className="search-card__info-block"><span>Line</span><p>{p.line || '-'}</p></div>
-              <div className="search-card__info-block"><span>Recommender</span><p>{p.recommender || '-'}</p></div>
-            </div>
-            {p.amenities?.length ? (
-              <div className="search-card__badges">
-                {p.amenities.map((a) => <span key={a} className="search-card__amenity">{a}</span>)}
-              </div>
-            ) : null}
-            {p.alerts?.length ? (
-              <div className="search-card__badges search-card__badges--alerts">
-                {p.alerts.map((a) => <span key={a} className="search-card__alert">{a}</span>)}
-              </div>
-            ) : null}
-            <div className="search-card__actions">
-              <a className="travel-btn travel-btn--primary search-card__action" href={p.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' ' + p.province)}`} target="_blank" rel="noreferrer">📍 Maps</a>
-              <button className="travel-btn travel-btn--secondary search-card__action" type="button" onClick={() => share(p)}>🔗 Share</button>
-              <button className="travel-btn travel-btn--warning search-card__action" type="button" onClick={() => onEdit(p)}>✏ Edit</button>
-            </div>
-          </div>
-        </article>;
-      })}
+          ) : (
+            places.map((p) => {
+              const normalizedCategory = normalizeCategoryLabel(p.category || '');
+              const categoryIcon = CATEGORY_ICONS[normalizedCategory] || '📍';
+              const availableMedia = media[p.id || ''] || [];
+              const localImage = p.local_media?.find((item) => item.media_type === 'image');
+              const remoteImage = availableMedia.find((item) => item.media_type === 'image');
+              const imageSource = localImage?.data_url || remoteImage?.public_url;
+              
+              const placeKey = getPlaceKey(p, places.indexOf(p));
+              return (
+                <article key={p.id || p.name} className="result-card">
+                  <div className="card-image">
+                    {imageSource ? (
+                      <img src={imageSource} alt={p.name} />
+                    ) : (
+                      <div className="image-placeholder">
+                        <span>{categoryIcon}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="card-content">
+                    <div className="card-header">
+                      <h3>{p.name}</h3>
+                      <span className="card-province">{p.province || 'จังหวัดไม่ระบุ'}</span>
+                    </div>
+                    
+                    <p className="card-description">{p.suggestion || 'คำแนะนำยังไม่ระบุ'}</p>
+                    
+                    <div className="card-badges">
+                      <span className="category-badge">{normalizedCategory || p.category || 'สถานที่'}</span>
+                      {p.sub_category && <span className="subcategory-badge">{p.sub_category}</span>}
+                      <span className="rating-badge">⭐ {p.rating || 0}</span>
+                    </div>
+                    
+                    <div className="card-actions">
+                      <a className="travel-btn" href={p.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' ' + p.province)}`} target="_blank" rel="noreferrer">ดูแผนที่</a>
+                      <button className="travel-btn travel-btn--secondary" onClick={() => share(p)}>แชร์</button>
+                    </div>
+                  </div>
+                  
+                  <label className="select-export">
+                    <input type="checkbox" checked={Boolean(selectedPlaceIds[placeKey])} onChange={() => toggleSelectedPlace(placeKey)} />
+                    <span>เลือก</span>
+                  </label>
+                </article>
+              );
+            })
+          )}
+        </div>
+      </div>
     </div>
   </div>;
 }

@@ -86,11 +86,12 @@ export function findLocalDuplicatePlaceName(name: string, excludeId?: string) {
   return readPlaces().find((p) => p.name.trim().toLowerCase() === text(name).toLowerCase() && p.id !== excludeId) || null;
 }
 
+let localCounter = 0;
 export function saveLocalPlace(place: PlaceRecord) {
   const rows = readPlaces();
   const saved = {
     ...place,
-    id: place.id || `local-${Date.now()}`,
+    id: place.id || `local-${Date.now()}-${++localCounter}`,
     status: place.status || 'pending',
     created_at: place.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString(),

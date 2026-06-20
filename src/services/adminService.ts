@@ -66,14 +66,39 @@ export async function logAdminAction(action: string, entityType: string, entityI
   await supabase.from('admin_audit_logs').insert({ admin_user_id: userData.user?.id, action, entity_type: entityType, entity_id: entityId, details });
 }
 export async function approvePlace(place: PlaceRecord) {
-  if (!isSupabaseConfigured) return approveLocalPlace(place);
-  const payload = { ...place, source_staging_id: place.id, status: 'approved', updated_at: new Date().toISOString() }; delete payload.id; const { data, error } = await supabase.from('production_places').upsert(payload, { onConflict: 'source_staging_id' }).select().single(); if (error) throw error; await supabase.from('staging_places').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', place.id); await logAdminAction('approve', 'place', place.id, { name: place.name }); return data as PlaceRecord;
+  // Always write to localStorage first
+  const localResult = approveLocalPlace(place);
+  if (!isSupabaseConfigured) return localResult;
+  try {
+    const payload = { ...place, source_staging_id: place.id, status: 'approved', updated_at: new Date().toISOString() }; delete payload.id; const { data, error } = await supabase.from('production_places').upsert(payload, { onConflict: 'source_staging_id' }).select().single(); if (error) throw error; await supabase.from('staging_places').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', place.id); await logAdminAction('approve', 'place', place.id, { name: place.name }); return data as PlaceRecord;
+  } catch {
+    return localResult;
+  }
 }
 export async function rejectPlace(id: string, reason: string) {
-  if (!isSupabaseConfigured) return rejectLocalPlace(id, reason);
-  const { error } = await supabase.from('staging_places').update({ status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error; await logAdminAction('reject', 'place', id, { reason });
+  // Always write to localStorage first
+  const localResult = rejectLocalPlace(id, reason);
+  if (!isSupabaseConfigured) return localResult;
+  try {
+    const { error } = await supabase.from('staging_places').update({ status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error; await logAdminAction('reject', 'place', id, { reason });
+  } catch {
+    // Local reject already done; remote failure is non-fatal
+  }
+  return localResult;
 }
-export async function listAuditLogs() { if (!isSupabaseConfigured) return listLocalAuditLogs(); const { data, error } = await supabase.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; }
+export async function listAuditLogs() {
+  const localRows = listLocalAuditLogs();
+  if (!isSupabaseConfigured) return localRows;
+  try {
+    const { data, error } = await supabase.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
+    if (error) throw error;
+    const remoteRows = data || [];
+    const merged = [...remoteRows, ...localRows.filter((l) => !remoteRows.some((r) => r.id === l.id))];
+    return merged;
+  } catch {
+    return localRows;
+  }
+}
 export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const { data, error } = await supabase.from('user_roles').select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
 export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const { error } = await supabase.from('user_roles').upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
 
@@ -127,23 +152,31 @@ export async function deleteUser(user_id: string): Promise<boolean> {
 }
 
 export async function listUsers(): Promise<LocalUser[]> {
-  if (!isSupabaseConfigured) return listLocalUsers();
+  const localRows = listLocalUsers();
+  if (!isSupabaseConfigured) return localRows;
 
-  const payload = await adminUsersApi('GET');
-  const rows = Array.isArray(payload.users) ? payload.users : [];
+  try {
+    const payload = await adminUsersApi('GET');
+    const rows = Array.isArray(payload.users) ? payload.users : [];
 
-  return rows.map((user: any) => {
-    const email = String(user.email || '').trim();
-    const displayName = String(user.display_name || '').trim() || email.split('@')[0] || 'User';
-    return {
-      user_id: String(user.user_id || ''),
-      display_name: displayName,
-      email,
-      role: (user.role || 'viewer') as AdminRole,
-      status: user.status || 'active',
-      created_at: user.created_at || new Date().toISOString(),
-    };
-  });
+    const remoteUsers = rows.map((user: any) => {
+      const email = String(user.email || '').trim();
+      const displayName = String(user.display_name || '').trim() || email.split('@')[0] || 'User';
+      return {
+        user_id: String(user.user_id || ''),
+        display_name: displayName,
+        email,
+        role: (user.role || 'viewer') as AdminRole,
+        status: user.status || 'active',
+        created_at: user.created_at || new Date().toISOString(),
+      };
+    });
+
+    const merged = [...remoteUsers, ...localRows.filter((u) => !remoteUsers.some((r: LocalUser) => r.user_id === u.user_id))];
+    return merged;
+  } catch {
+    return localRows;
+  }
 }
 
 
