@@ -90,6 +90,13 @@ const [authEmail, setAuthEmail] = useState<string>('');
   const setBusyMessage = (text: string) => setMessage(text);
   const [showAuditLogs, setShowAuditLogs] = useState(false);
   const [importText, setImportText] = useState('');
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importResults, setImportResults] = useState<{
+    fileName: string;
+    total: number;
+    success: number;
+    errors: string[];
+  } | null>(null);
   const [newRole, setNewRole] = useState<'admin'|'editor'|'viewer'>('viewer');
   const [aiProvider, setAiProvider] = useState('jarvis-gpt4o');
   
@@ -174,14 +181,49 @@ const reloadRealUsers = async () => {
 };
   const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
   useEffect(() => { load(); }, [auth.loading, auth.session?.access_token]);
+  const handleImport = async () => {
+    setMessage('Importing...');
+    setImportResults(null);
+    
+    try {
+      let dataToImport = '';
+      if (importFile) {
+        dataToImport = await importFile.text();
+      } else {
+        dataToImport = importText;
+      }
+
+      const result = await importPlaces(dataToImport);
+      await load(); // Refresh pending list
+      
+      setImportResults({
+        fileName: importFile?.name || 'text input',
+        total: result.total,
+        success: result.imported,
+        errors: []
+      });
+      
+      setMessage(false 
+        ? `Imported ${result.imported}/${result.total} with errors`
+        : `Successfully imported ${result.imported} records`);
+        
+    } catch (e) {
+      setImportResults({
+        fileName: importFile?.name || 'text input',
+        total: 0,
+        success: 0,
+        errors: [e instanceof Error ? e.message : 'Import failed']
+      });
+      setMessage('Import failed');
+    } finally {
+      setImportFile(null);
+      setImportText('');
+    }
+  };
+
   const guarded = async (fn: () => Promise<void>) => { try { await fn(); await load(); } catch (e) { setMessage(e instanceof Error ? e.message : 'Action failed'); } };
 
   // --- Admin restricted access ---
-  if (!isLocalMode && (!role || role === 'checking')) return <div className="gs-admin-panel p-4 text-sm">Admin role required or role API failed.
-Email: {authEmail || '(unknown)'}
-UID: {authUserId || '(unknown)'}</div>;
-
-  // --- Banner ---
   const banners = <>
     {message && <div className="gs-admin-banner gs-admin-banner--warning p-2 text-sm mb-3">{message}</div>}
     {isLocalMode && <div className="gs-admin-banner gs-admin-banner--info p-2 text-sm mb-3">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}
@@ -189,7 +231,7 @@ UID: {authUserId || '(unknown)'}</div>;
 
   // --- Sidebar nav items ---
   const navItems = [
-    { key: 'pending', icon: '🏥', label: 'Pending Queue', count: statusCounts.pending || 0 },
+    { key: 'pending', icon: '🏥', label: 'Pending Queue', count: staging.length },
     { key: 'approved', icon: '✅', label: 'Approved', count: approved.length },
     { key: 'rejected', icon: '❌', label: 'Rejected', count: rejected.length },
     { key: 'duplicates', icon: '🔀', label: 'Duplicates', count: duplicateSuggestions.length },
@@ -215,7 +257,12 @@ UID: {authUserId || '(unknown)'}</div>;
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [filterCategory]);
 
-  // --- Right panel content ---
+  // --- Admin restricted access ---
+  if (!isLocalMode && (!role || role === 'checking')) return <div className="gs-admin-panel p-4 text-sm">Admin role required or role API failed.
+Email: {authEmail || '(unknown)'}
+UID: {authUserId || '(unknown)'}</div>;
+
+  // --- Banner ---
   const renderMainContent = () => {
     switch (activeSection) {
       case 'pending':
@@ -423,8 +470,54 @@ UID: {authUserId || '(unknown)'}</div>;
       case 'import':
         return <div className="gs-admin-main-card">
           <h3>📥 Import CSV/JSON</h3>
-          <textarea className="travel-input gs-admin-import-input w-full p-2 text-xs" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="name,province,category,rating" />
-          <button className="travel-btn--primary gs-admin-btn mt-2 px-3 py-2 rounded" onClick={() => guarded(async () => { const result = await importPlaces(importText); setMessage(`Imported ${result.imported}/${result.total}`); })}>Import</button>
+          
+          {/* File upload */}
+          <div className="mb-3">
+            <input
+              type="file"
+              accept=".csv,.json,application/json,text/csv"
+              className="travel-input"
+              onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+            />
+            <div className="text-xs mt-1 text-slate-500">
+              {importFile ? importFile.name : 'No file selected'}
+            </div>
+          </div>
+
+          <div className="text-xs text-slate-500 mb-2">- OR -</div>
+          
+          {/* Textarea fallback */}
+          <textarea 
+            className="travel-input gs-admin-import-input w-full p-2 text-xs mb-3" 
+            value={importText} 
+            onChange={(e) => setImportText(e.target.value)} 
+            placeholder="Paste CSV data or JSON array here"
+          />
+
+          {/* Import results */}
+          {importResults && (
+            <div className="gs-admin-import-results p-3 mb-3 border rounded">
+              <div className="text-sm font-semibold">Import Results:</div>
+              <div>File: {importResults.fileName}</div>
+              <div>Total: {importResults.total}</div>
+              <div>Success: {importResults.success}</div>
+              {importResults.errors.length > 0 && (
+                <div className="text-red-600 mt-2">
+                  {importResults.errors.map((err, i) => (
+                    <div key={i} className="text-xs">• {err}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <button 
+            className="travel-btn--primary gs-admin-btn px-3 py-2 rounded" 
+            onClick={handleImport}
+            disabled={!importFile && !importText.trim()}
+          >
+            Import
+          </button>
         </div>;
 
       case 'users':
