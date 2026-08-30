@@ -41,7 +41,7 @@ export default function AdminTab() {
           <h4 className="text-xs font-bold text-purple-400 mb-2">⚡ Jarvis Alert</h4>
           <ul className="text-[10px] text-gray-300 space-y-2">
             <li className="flex gap-2"><span className="text-red-400">⚠️</span> พบ 5 สถานที่รออนุมัติ</li>
-            <li className="flex gap-2"><span className="text-green-400">💡</span> แนะนำให้เพิ่มหมวดหมู่ "เที่ยวหน้าฝน"</li>
+            <li className="flex gap-2"><span className="text-green-400">💡</span> แนะนำให้เพิ่มหมวดหมู่ &quot;เที่ยวหน้าฝน&quot;</li>
           </ul>
         </div>
       </div>

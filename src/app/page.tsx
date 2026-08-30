@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import SearchTab from '@/components/SearchTab';
+import SearchTab, { type SearchPlace } from '@/components/SearchTab';
 import AdminTab from '@/components/AdminTab';
 
 // ข้อมูลอ้างอิงมาตรฐานที่คุณต้องการให้คงไว้ทั้งหมด
@@ -19,7 +19,7 @@ export default function GuideSourcesApp() {
     map_url: '', phone: '', recommender: '', suggestion: '', amenities: [] as string[], alerts: [] as string[]
   });
 
-  const handleEdit = (place: any) => {
+  const handleEdit = (place: SearchPlace) => {
     setForm({
       id: place.id, // เก็บ ID ไว้
       name: place.name || '',
@@ -88,8 +88,9 @@ export default function GuideSourcesApp() {
         alert("บันทึกข้อมูลใหม่เรียบร้อย!");
       }
       setForm({ id: '', name: '', province: '', category: CATEGORIES[0], other_cat: '', sub_cat: '', map_url: '', phone: '', recommender: '', suggestion: '', amenities: [], alerts: [] });
-    } catch (err: any) {
-      alert("เกิดข้อผิดพลาด: " + (err.message || "โปรดดู console"));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "โปรดดู console";
+      alert("เกิดข้อผิดพลาด: " + message);
     }
   };
 

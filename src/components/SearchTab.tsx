@@ -1,8 +1,33 @@
 'use client';
 import { useState } from 'react';
 
-export default function SearchTab() {
+export type SearchPlace = {
+  id: string;
+  name?: string;
+  province?: string;
+  category?: string;
+  alerts?: string[];
+  raw_data?: {
+    other_category?: string;
+    sub_category?: string;
+    google_maps_url?: string;
+    phone?: string;
+    recommender?: string;
+    suggestion?: string;
+    amenities?: string[];
+  };
+};
+
+export default function SearchTab({ onEdit }: { onEdit?: (place: SearchPlace) => void }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const mockPlace: SearchPlace = {
+    id: 'mock-place-a',
+    name: 'ตัวอย่างสถานที่ A',
+    province: 'เชียงใหม่',
+    category: 'คาเฟ่',
+    alerts: [],
+    raw_data: { amenities: [] }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -27,7 +52,7 @@ export default function SearchTab() {
 
       {/* ส่วนแสดงผลลัพธ์หลัก */}
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-gray-300">ผลการค้นหา {searchTerm && `สำหรับ "${searchTerm}"`}</h3>
+        <h3 className="text-sm font-bold text-gray-300">ผลการค้นหา {searchTerm ? `สำหรับ ${searchTerm}` : ''}</h3>
         {/* Mockup Card ผลลัพธ์ */}
         <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex">
           <div className="w-1/3 bg-gray-700 flex items-center justify-center text-gray-500 text-xs">
@@ -35,6 +60,11 @@ export default function SearchTab() {
           </div>
           <div className="w-2/3 p-3">
             <h4 className="font-bold text-blue-400">ตัวอย่างสถานที่ A</h4>
+            {onEdit ? (
+              <button type="button" className="mt-2 text-xs underline text-blue-300" onClick={() => onEdit(mockPlace)}>
+                แก้ไขตัวอย่างนี้
+              </button>
+            ) : null}
             <p className="text-xs text-gray-400 mt-1">⭐ 5.0 | คาเฟ่ | เชียงใหม่</p>
             <div className="flex gap-1 mt-2 text-[10px]">
               <span className="bg-green-900 text-green-300 px-1.5 py-0.5 rounded">♿ รองรับรถเข็น</span>
