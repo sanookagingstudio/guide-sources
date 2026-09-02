@@ -34,7 +34,7 @@ const readRoles = (): LocalUser[] => {
   if (!canUseStorage()) return [];
   try {
     const raw = JSON.parse(window.localStorage.getItem(ROLE_KEY) || '[]');
-    return raw.map((item: any) => ({
+    return raw.map((item: Record<string, unknown>) => ({
       user_id: item.user_id,
       display_name: item.display_name || '',
       email: item.email || '',

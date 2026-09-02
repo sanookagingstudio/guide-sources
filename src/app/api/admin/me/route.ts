@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { serverEnv, maskServerKey } from '@/lib/serverEnv';
+import { serverEnv } from '@/lib/serverEnv';
 
 const supabaseUrl = serverEnv.SUPABASE_URL;
 const anonKey = serverEnv.SUPABASE_ANON_KEY;
@@ -11,64 +11,73 @@ function json(status: number, body: unknown) {
 }
 
 export async function GET(request: NextRequest) {
-  console.log('SERVER_ROUTE_ENV_ME', { service: maskServerKey(serviceRoleKey), anon: maskServerKey(anonKey), url: supabaseUrl });
   try {
-  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-    return json(500, { error: 'Supabase server env missing' });
-  }
+    if (!supabaseUrl) {
+      return json(500, { error: 'MISSING_ENV: NEXT_PUBLIC_SUPABASE_URL' });
+    }
+    if (!anonKey) {
+      return json(500, { error: 'MISSING_ENV: NEXT_PUBLIC_SUPABASE_ANON_KEY' });
+    }
+    if (!serviceRoleKey) {
+      return json(500, { error: 'MISSING_ENV: SUPABASE_SERVICE_ROLE_KEY' });
+    }
 
-  const authHeader = request.headers.get('authorization') || '';
-  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    const authHeader = request.headers.get('authorization') || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
 
-  if (!token) return json(401, { error: 'Missing bearer token', role: null });
+    if (!token) return json(401, { error: 'MISSING_TOKEN', role: null });
 
-  const userClient = createClient(supabaseUrl, anonKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+    const userClient = createClient(supabaseUrl, anonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
-  const { data: userData, error: userError } = await userClient.auth.getUser(token);
+    const { data: userData, error: userError } = await userClient.auth.getUser(token);
 
-  if (userError || !userData.user) {
-    return json(401, { error: userError?.message || 'Invalid session', role: null });
-  }
+    if (userError || !userData.user) {
+      return json(401, {
+        error: 'USER_VALIDATION_FAILED',
+        detail: userError?.message || 'Invalid session',
+        role: null,
+      });
+    }
 
-  const service = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+    const service = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
-  const { data: roleRows, error: roleError } = await service
-    .from('user_roles')
-    .select('user_id, role')
-    .eq('user_id', userData.user.id);
+    const { data: roleRows, error: roleError } = await service
+      .from('user_roles')
+      .select('user_id, role')
+      .eq('user_id', userData.user.id);
 
-  if (roleError) return json(500, { error: roleError.message, role: null });
+    if (roleError) {
+      return json(500, {
+        error: 'ROLE_QUERY_FAILED',
+        detail: roleError.message,
+        role: null,
+      });
+    }
 
-  const roles = (roleRows || []).map((row) => row.role);
-  const role = roles.includes('admin')
-    ? 'admin'
-    : roles.includes('editor')
-      ? 'editor'
-      : roles.includes('viewer')
-        ? 'viewer'
-        : null;
-
-  console.log('ADMIN_ME_DEBUG', { roleRows, roles, userId: userData.user.id });
+    const roles = (roleRows || []).map((row) => row.role);
+    const role = roles.includes('admin')
+      ? 'admin'
+      : roles.includes('editor')
+        ? 'editor'
+        : roles.includes('viewer')
+          ? 'viewer'
+          : null;
 
     return json(200, {
-    user_id: userData.user.id,
-    email: userData.user.email || '',
-    role,
-    roles,
-    debug: {
-      requested_user_id: userData.user.id,
-      requested_email: userData.user.email || '',
-      role_rows: roleRows || [],
-      role_count: (roleRows || []).length
-    },
-  });
+      user_id: userData.user.id,
+      email: userData.user.email || '',
+      role,
+      roles,
+    });
   } catch (e) {
-    console.error('ADMIN_ME_FATAL', e);
-    return json(500,{error:String(e)});
+    return json(500, {
+      error: 'UNEXPECTED_ERROR',
+      step: 'PROCESSING_REQUEST',
+      detail: e instanceof Error ? e.message : 'Unknown error',
+    });
   }
 }
-

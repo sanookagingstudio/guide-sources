@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
-type AuthState = {
+export type AuthState = {
   loading: boolean;
   session: Session | null;
   user: User | null;
@@ -17,17 +17,14 @@ type AuthState = {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
+  const configured = isSupabaseConfigured;
+  const [loading, setLoading] = useState(configured);
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    let alive = true;
+    if (!configured) return;
 
-    if (!isSupabaseConfigured) {
-      setSession(null);
-      setLoading(false);
-      return;
-    }
+    let alive = true;
 
     supabase.auth.getSession().then(({ data }) => {
       if (!alive) return;
@@ -44,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       alive = false;
       data.subscription.unsubscribe();
     };
-  }, []);
+  }, [configured]);
 
   const value = useMemo<AuthState>(() => ({
     loading,

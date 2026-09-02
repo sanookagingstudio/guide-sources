@@ -1,21 +1,21 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
-import { useAuth } from '@/components/AuthContext';
+import { useAuth, type AuthState } from '@/components/AuthContext';
 import { 
   approvePlace, 
   listAuditLogs, 
-  listUserRoles, 
   rejectPlace, 
-  upsertUserRole,
   addUser,
   updateUserRole,
   disableUser,
   deleteUser,
   listUsers,
+  type AdminRole,
   type LocalUser,
 } from '@/services/adminService';
 import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, listDuplicateSuggestions, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+import { type LocalDuplicateSuggestion } from '@/services/localStorageProvider';
 import { importPlaces } from '@/services/importService';
 
 async function getRoleFromServer(token: string) {
@@ -50,7 +50,7 @@ async function getRoleFromServer(token: string) {
 }
 
 /** Compact profile chip — top-right of main area */
-function AdminProfileChip({ auth, role, isLocalMode }: { auth: any; role: string | null; isLocalMode: boolean }) {
+function AdminProfileChip({ auth, role, isLocalMode }: { auth: AuthState; role: string | null; isLocalMode: boolean }) {
   const displayName = auth.email?.split('@')[0] || 'Admin';
   const email = auth.email || 'local@admin';
   return (
@@ -80,8 +80,8 @@ const [authEmail, setAuthEmail] = useState<string>('');
   const [staging, setStaging] = useState<PlaceRecord[]>([]);
   const [approved, setApproved] = useState<PlaceRecord[]>([]);
   const [rejected, setRejected] = useState<PlaceRecord[]>([]);
-  const [duplicateSuggestions, setDuplicateSuggestions] = useState<any[]>([]);
-  const [logs, setLogs] = useState<any[]>([]);
+  const [duplicateSuggestions, setDuplicateSuggestions] = useState<LocalDuplicateSuggestion[]>([]);
+  const [logs, setLogs] = useState<Awaited<ReturnType<typeof listAuditLogs>>>([]);
   const [roles, setRoles] = useState<LocalUser[]>([]);
   const [message, setMessage] = useState('');
   const [selectedStagingIds, setSelectedStagingIds] = useState<Set<string>>(new Set());
@@ -180,7 +180,9 @@ const reloadRealUsers = async () => {
   setDraftRoles(nextDraftRoles);
 };
   const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
-  useEffect(() => { load(); }, [auth.loading, auth.session?.access_token]);
+  useEffect(() => {
+    void Promise.resolve().then(() => load());
+  }, [auth.loading, auth.session?.access_token]);
   const handleImport = async () => {
     setMessage('Importing...');
     setImportResults(null);
@@ -254,9 +256,6 @@ const reloadRealUsers = async () => {
   const safePage = Math.min(page, totalPages);
   const pageItems = filteredStaging.slice((safePage - 1) * ROWS_PER_PAGE, safePage * ROWS_PER_PAGE);
 
-  // Reset page when filter changes
-  useEffect(() => { setPage(1); }, [filterCategory]);
-
   // --- Admin restricted access ---
   if (!isLocalMode && (!role || role === 'checking')) return <div className="gs-admin-panel p-4 text-sm">Admin role required or role API failed.
 Email: {authEmail || '(unknown)'}
@@ -276,7 +275,10 @@ UID: {authUserId || '(unknown)'}</div>;
               <button
                 key={f}
                 className={`gs-admin-filter-btn ${filterCategory === f ? 'gs-admin-filter-btn--active' : ''}`}
-                onClick={() => setFilterCategory(f)}
+                onClick={() => {
+                  setFilterCategory(f);
+                  setPage(1);
+                }}
               >
                 {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
@@ -531,7 +533,7 @@ UID: {authUserId || '(unknown)'}</div>;
               <input className="travel-input w-full p-2 text-xs" placeholder="Email" type="email" value={addUserEmail} onChange={(e) => setAddUserEmail(e.target.value)} />
               <input className="travel-input w-full p-2 text-xs" placeholder="Temporary password / new password" type="password" value={addUserPassword} onChange={(e) => setAddUserPassword(e.target.value)} />
               <div className="flex gap-2">
-                <select className="travel-input flex-1 p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as any)}>
+                <select className="travel-input flex-1 p-2 text-xs" value={addUserRole} onChange={(e) => setAddUserRole(e.target.value as AdminRole)}>
                   <option value="viewer">Viewer</option>
                   <option value="editor">Editor</option>
                   <option value="admin">Admin</option>
@@ -593,7 +595,7 @@ UID: {authUserId || '(unknown)'}</div>;
                           className="travel-btn--primary gs-admin-btn px-3 py-2 rounded text-xs"
                           type="button"
                           onClick={() => guarded(async () => {
-                            const nextRole = (draftRoles[user.user_id] || user.role) as any;
+                            const nextRole = (draftRoles[user.user_id] || user.role) as AdminRole;
                             setBusyUserId(user.user_id);
                             setMessage('Saving role...');
                             await updateUserRole(user.user_id, nextRole);

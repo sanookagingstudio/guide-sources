@@ -192,7 +192,7 @@ export function normalizeCategoryLabel(category: string): string {
   }
   const normalized = CATEGORY_NORMALIZATION_MAP[category] || category;
   // Ensure it's a valid main category
-  if (MAIN_CATEGORIES.includes(normalized as any)) {
+  if (MAIN_CATEGORIES.includes(normalized as (typeof MAIN_CATEGORIES)[number])) {
     return normalized;
   }
   // Fallback to original if not found

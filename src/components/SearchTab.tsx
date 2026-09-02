@@ -28,7 +28,9 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
     }
   };
 
-  useEffect(() => { void loadPlaces(); }, [filters, refreshKey]);
+  useEffect(() => {
+    void Promise.resolve().then(() => loadPlaces());
+  }, [filters, refreshKey]);
   useEffect(() => {
     const onRefresh = () => { void loadPlaces(); };
     window.addEventListener('guide-sources-updated', onRefresh);

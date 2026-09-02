@@ -162,7 +162,7 @@ export default function MemberTab({ form, setForm, onSubmit, attachFile }: Membe
             </div>
 
             <div className="grid md:grid-cols-3 gap-2">
-              <select className="travel-input w-full p-2 rounded border" value={form.media_type || ''} onChange={(e) => setForm({ ...form, media_type: (e.target.value || null) as any })}>
+              <select className="travel-input w-full p-2 rounded border" value={form.media_type || ''} onChange={(e) => setForm({ ...form, media_type: (e.target.value || null) as PlaceRecord['media_type'] })}>
                 <option value="">ชนิดสื่อ (ไม่บังคับ)</option>
                 <option value="image">รูปภาพ</option>
                 <option value="video">วิดีโอ</option>

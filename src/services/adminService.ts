@@ -159,7 +159,7 @@ export async function listUsers(): Promise<LocalUser[]> {
     const payload = await adminUsersApi('GET');
     const rows = Array.isArray(payload.users) ? payload.users : [];
 
-    const remoteUsers = rows.map((user: any) => {
+    const remoteUsers = rows.map((user: Record<string, unknown>) => {
       const email = String(user.email || '').trim();
       const displayName = String(user.display_name || '').trim() || email.split('@')[0] || 'User';
       return {

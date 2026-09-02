@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "contract": "node scripts/build-check.mjs",
     "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {

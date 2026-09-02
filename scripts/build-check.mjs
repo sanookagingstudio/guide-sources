@@ -19,7 +19,14 @@ if (missing.length) {
   process.exit(1);
 }
 const env = readFileSync('.env.example', 'utf8');
-for (const key of ['VITE_SUPABASE_URL=', 'VITE_SUPABASE_ANON_KEY=', 'VITE_MEDIA_UPLOAD_ENABLED=false']) {
+for (const key of [
+  'VITE_SUPABASE_URL=',
+  'VITE_SUPABASE_ANON_KEY=',
+  'NEXT_PUBLIC_SUPABASE_URL=',
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY=',
+  'VITE_MEDIA_UPLOAD_ENABLED=false',
+  'NEXT_PUBLIC_MEDIA_UPLOAD_ENABLED=false',
+]) {
   if (!env.includes(key)) {
     console.error(`Missing env key: ${key}`);
     process.exit(1);

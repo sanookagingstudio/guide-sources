@@ -8,11 +8,32 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 const hash = (value: string) => value ? crypto.createHash('sha256').update(value).digest('hex').slice(0, 16) : 'EMPTY';
 
+type DiagCheck = Record<string, unknown>;
+
+type DiagResult = {
+  runtime_env: {
+    url: string;
+    anon_length: number;
+    anon_hash: string;
+    service_length: number;
+    service_hash: string;
+  };
+  token: {
+    provided: boolean;
+    length: number;
+  };
+  checks: Record<string, DiagCheck>;
+  fatal?: {
+    message: string;
+    stack: string | null | undefined;
+  };
+};
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization') || '';
   const token = authHeader.replace(/^Bearer\s+/i, '').trim();
 
-  const result: any = {
+  const result: DiagResult = {
     runtime_env: {
       url: supabaseUrl,
       anon_length: anonKey.length,

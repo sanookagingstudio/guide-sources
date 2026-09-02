@@ -3,7 +3,7 @@
 import AuthPanel from '@/components/AuthPanel';
 import { AuthProvider } from '@/components/AuthContext';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import SearchTab from '@/components/SearchTab';
 import AdminTab from '@/components/AdminTab';
 import MemberTab, { emptyMemberPlace } from '@/components/MemberTab';
@@ -32,8 +32,11 @@ function GuideSourcesApp() {
   const [message, setMessage] = useState('');
   const [pendingFiles, setPendingFiles] = useState<{file: File; type: 'image' | 'video'}[]>([]);
 
-  useEffect(() => { setMessage(form.id ? `กำลังแก้ไข: ${form.name}` : ''); }, [form.id, form.name]);
-  const editPlace = (place: PlaceRecord) => { setForm({ ...emptyMemberPlace, ...place, status: 'pending' }); setActiveTab('member'); };
+  const editPlace = (place: PlaceRecord) => {
+    setForm({ ...emptyMemberPlace, ...place, status: 'pending' });
+    setMessage(place.name ? `กำลังแก้ไข: ${place.name}` : '');
+    setActiveTab('member');
+  };
   const attachFile = async (file: File | undefined, type: 'image' | 'video') => {
     if (!file) return;
     const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
