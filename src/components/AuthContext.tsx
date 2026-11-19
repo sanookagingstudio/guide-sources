@@ -17,10 +17,12 @@ type AuthState = {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const providerId = 'auth-provider-r5e';
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
+    console.log('AUTH_PROVIDER_MOUNT', JSON.stringify({ providerId, route: window.location.pathname }));
     let alive = true;
 
     if (!isSupabaseConfigured) {
@@ -31,11 +33,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     supabase.auth.getSession().then(({ data }) => {
       if (!alive) return;
+      console.log('AUTH_INITIAL_SESSION', JSON.stringify({ providerId, session: Boolean(data.session), user: Boolean(data.session?.user), tokenPresent: Boolean(data.session?.access_token), tokenLength: data.session?.access_token?.length ?? 0 }));
       setSession(data.session ?? null);
       setLoading(false);
     });
 
     const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      console.log('AUTH_STATE_CHANGE', JSON.stringify({ providerId, event: _event, session: Boolean(nextSession), user: Boolean(nextSession?.user), tokenPresent: Boolean(nextSession?.access_token), tokenLength: nextSession?.access_token?.length ?? 0 }));
       setSession(nextSession);
       setLoading(false);
     });
@@ -62,6 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null);
     },
   }), [loading, session]);
+
+  console.log('AUTH_CONTEXT_VALUE', JSON.stringify({ providerId, loading, session: Boolean(session), user: Boolean(session?.user), tokenPresent: Boolean(session?.access_token), tokenLength: session?.access_token?.length ?? 0 }));
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { serverEnv, maskServerKey } from '@/lib/serverEnv';
+import { gsRbacClient, gsClubUrl, gsClubAnonKey, gsClubServiceKey } from '@/lib/gsClubAuthority';
 
-const supabaseUrl = serverEnv.SUPABASE_URL;
-const anonKey = serverEnv.SUPABASE_ANON_KEY;
-const serviceRoleKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = gsClubUrl() || serverEnv.SUPABASE_URL;
+const anonKey = gsClubAnonKey() || serverEnv.SUPABASE_ANON_KEY;
+const serviceRoleKey = gsClubServiceKey() || serverEnv.SUPABASE_SERVICE_ROLE_KEY;
 
 function json(status: number, body: unknown) {
   return NextResponse.json(body, { status });
@@ -32,12 +33,10 @@ export async function GET(request: NextRequest) {
     return json(401, { error: userError?.message || 'Invalid session', role: null });
   }
 
-  const service = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const service = gsRbacClient();
 
   const { data: roleRows, error: roleError } = await service
-    .from('user_roles')
+    .from('gs_user_roles')
     .select('user_id, role')
     .eq('user_id', userData.user.id);
 

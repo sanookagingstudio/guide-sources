@@ -1,4 +1,6 @@
 'use client';
+import type { AdminRole } from '@/services/adminService';
+
 import { useEffect, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/AuthContext';
@@ -17,6 +19,10 @@ import {
 } from '@/services/adminService';
 import { deletePlace, listApprovedPlaces, listStagingPlaces, listRejectedPlaces, listDuplicateSuggestions, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
 import { importPlaces } from '@/services/importService';
+import { createRunGuard, resolveGateRole } from '@/lib/adminRoleGate';
+
+// Latest-run-wins guard: a stale async load() must never commit state.
+const loadGuard = createRunGuard();
 
 async function getRoleFromServer(token: string) {
   if (!token) {
@@ -75,62 +81,103 @@ const [authEmail, setAuthEmail] = useState<string>('');
   const [addUserPassword, setAddUserPassword] = useState('');
   const [addUserRole, setAddUserRole] = useState<'admin'|'editor'|'viewer'>('viewer');
   const isLocalMode = !isSupabaseConfigured;
-  const load = async () => {
+const load = async () => {
+  const run = loadGuard.begin();
   try {
     if (isLocalMode) {
-      setRole('admin');
+      loadGuard.commit(run, () => setRole('admin'));
     } else {
       if (auth.loading) return;
 
       const token = auth.session?.access_token || '';
-
-      console.log('AUTH_DEBUG_ADMIN_TAB', {
-        auth_loading: auth.loading,
-        auth_email: auth.email,
-        auth_user_id: auth.user?.id || '',
-        has_session: Boolean(auth.session),
-        token_length: token.length,
-        session_user_id: auth.session?.user?.id || '',
-        session_email: auth.session?.user?.email || '',
+      loadGuard.commit(run, () => {
+        setAuthUserId(auth.user?.id || '');
+        setAuthEmail(auth.email || '');
       });
 
-      console.log('AUTH_TOKEN_LENGTH', token.length);
-      setAuthUserId(auth.user?.id || '');
-      setAuthEmail(auth.email || '');
-
       if (!token) {
-        setRole(null);
-        setMessage('Missing AuthContext session token');
+        loadGuard.commit(run, () => {
+          setRole(null);
+          setMessage('Missing AuthContext session token');
+        });
         return;
       }
 
       const roleResult = await getRoleFromServer(token);
-      setAuthUserId(roleResult.user_id || auth.user?.id || '');
-      setAuthEmail(roleResult.email || auth.email || '');
+      if (!loadGuard.isCurrent(run)) return;
 
-      if (!roleResult.role) {
-        setRole(null);
-        setMessage(roleResult.error || 'Admin role required');
+      // DEF-14: align the client with the server contract (admin OR editor).
+      const rr: { role?: string | null; roles?: string[] } = roleResult;
+      const roleCandidate: string | null = rr.role || (Array.isArray(rr.roles) ? rr.roles[0] : null) || null;
+      const resolvedRole: AdminRole | null = resolveGateRole(roleCandidate);
+
+      loadGuard.commit(run, () => {
+        setAuthUserId(roleResult.user_id || auth.user?.id || '');
+        setAuthEmail(roleResult.email || auth.email || '');
+      });
+
+      if (!resolvedRole) {
+        loadGuard.commit(run, () => {
+          setRole(null);
+          setMessage(roleResult.error || 'Admin role required');
+        });
         return;
       }
 
-      setRole(roleResult.role);
+      loadGuard.commit(run, () => setRole(resolvedRole));
     }
 
-    setStaging(await listStagingPlaces());
-    setApproved(await listApprovedPlaces());
-    setRejected(await listRejectedPlaces());
-    setDuplicateSuggestions(await listDuplicateSuggestions());
-    setLogs(await listAuditLogs());
+    const stagingRows = await listStagingPlaces();
+    const approvedRows = await listApprovedPlaces();
+    const rejectedRows = await listRejectedPlaces();
+    const duplicateRows = await listDuplicateSuggestions();
+    if (!loadGuard.isCurrent(run)) return;
+    loadGuard.commit(run, () => {
+      setStaging(stagingRows);
+      setApproved(approvedRows);
+      setRejected(rejectedRows);
+      setDuplicateSuggestions(duplicateRows);
+    });
 
-    const realUsers = await listUsers();
-    setRoles(realUsers);
-  const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
-  setDraftRoles(nextDraftRoles);
-    setMessage('');
+    let notice = '';
+
+    // DEF-14: the browser cannot read gs_admin_audit_logs (RLS denies anon/authenticated).
+    // Treat that as an explicit permission-limited state instead of failing the panel.
+    try {
+      const auditRows = await listAuditLogs();
+      loadGuard.commit(run, () => setLogs(auditRows));
+    } catch {
+      loadGuard.commit(run, () => setLogs([]));
+      notice = 'Audit history is permission-limited for this role.';
+    }
+
+    // Option A: user management is admin-only. HTTP 403 is an expected
+    // permission state, not a role failure and not an authentication error.
+    try {
+      const realUsers = await listUsers();
+      const nextDraftRoles = Object.fromEntries(realUsers.map((u) => [u.user_id, u.role]));
+      loadGuard.commit(run, () => {
+        setRoles(realUsers);
+        setDraftRoles(nextDraftRoles);
+      });
+    } catch (userErr) {
+      const userMsg = userErr instanceof Error ? userErr.message : String(userErr);
+      loadGuard.commit(run, () => {
+        setRoles([]);
+        setDraftRoles({});
+      });
+      if (/403|forbidden|admin role required/i.test(userMsg)) {
+        notice = 'User management is available to administrators only.';
+      } else {
+        notice = 'Could not load users: ' + userMsg;
+      }
+    }
+
+    if (!loadGuard.isCurrent(run)) return;
+    loadGuard.commit(run, () => setMessage(notice));
   } catch (e) {
-    setRole(null);
-    setMessage(e instanceof Error ? e.message : 'Admin load failed');
+    // DEF-14: a secondary data-load failure must not clear an authorised role.
+    loadGuard.commit(run, () => setMessage(e instanceof Error ? e.message : 'Admin load failed'));
   }
 };
 
@@ -141,11 +188,12 @@ const reloadRealUsers = async () => {
   setDraftRoles(nextDraftRoles);
 };
   const statusCounts = staging.reduce((acc, place) => { const status = place.status || 'pending'; acc[status] = (acc[status] || 0) + 1; return acc; }, {} as Record<string, number>);
-  useEffect(() => { load(); }, [auth.loading, auth.session?.access_token]);
+useEffect(() => {
+  load();
+  return () => { loadGuard.invalidate(); };
+}, [auth.loading, auth.session?.access_token]);
   const guarded = async (fn: () => Promise<void>) => { try { await fn(); await load(); } catch (e) { setMessage(e instanceof Error ? e.message : 'Action failed'); } };
-  if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required or role API failed.
-Email: {authEmail || '(unknown)'}
-UID: {authUserId || '(unknown)'}</div>;
+  if (!isLocalMode && (!role || role === 'checking')) return <div className="bg-gray-800 p-4 rounded border border-gray-700">Admin role required or role API failed. Email: {authEmail || '(unknown)'} UID: {authUserId || '(unknown)'}</div>;
   return <div className="space-y-6 animate-fade-in">
     {message && <div className="bg-yellow-950 border border-yellow-700 rounded p-2 text-sm">{message}</div>}
     {isLocalMode && <div className="bg-emerald-950 border border-emerald-700 rounded p-2 text-sm">LOCAL ADMIN MODE: data is stored in browser localStorage for instant edits and import.</div>}

@@ -50,3 +50,5 @@ GUIDE_SOURCES_*.log
 *.debugbak
 *.envfilebak
 *.p*bak
+.vercel
+.env*.local

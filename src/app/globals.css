@@ -2873,7 +2873,7 @@ nav button.travel-tab.travel-tab--admin.travel-tab--active {
 .gs-active-tab-panel--member aside,
 .gs-active-tab-panel--member .travel-stepper,
 .gs-active-tab-panel--member .member-stepper {
-  display: none !important;
+  display: block !important;
 }
 
 @media (max-width: 760px) {
@@ -3121,7 +3121,7 @@ nav button.travel-tab.travel-tab--admin.travel-tab--active {
 .gs-active-tab-panel--member aside,
 .gs-active-tab-panel--member .travel-stepper,
 .gs-active-tab-panel--member .member-stepper {
-  display: none !important;
+  display: block !important;
 }
 
 .gs-active-tab-panel--member input,

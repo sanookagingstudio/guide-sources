@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { hasTourismGsConfig, getTourismGsBrowserClient } from '@/lib/tourismGs';
 import type { PlaceRecord } from './placesService';
 import { 
   approveLocalPlace, 
@@ -63,7 +64,9 @@ export async function getCurrentAdminRole() {
 export async function logAdminAction(action: string, entityType: string, entityId?: string, details?: unknown) {
   if (!isSupabaseConfigured) { logLocalAdminAction(action, entityType, entityId, details); return; }
   const { data: userData } = await supabase.auth.getUser();
-  await supabase.from('admin_audit_logs').insert({ admin_user_id: userData.user?.id, action, entity_type: entityType, entity_id: entityId, details });
+  const rbac = getTourismGsBrowserClient();
+  if (rbac) { /* DEF-14: audit rows are written server-side by /api/funaging/tourism-gs; the browser must not write this table (RLS denies it). */ }
+  else await supabase.from('admin_audit_logs').insert({ admin_user_id: userData.user?.id, action, entity_type: entityType, entity_id: entityId, details });
 }
 export async function approvePlace(place: PlaceRecord) {
   if (!isSupabaseConfigured) return approveLocalPlace(place);
@@ -84,6 +87,28 @@ export async function approvePlace(place: PlaceRecord) {
     status: 'approved',
     updated_at: new Date().toISOString()
   };
+
+  if (hasTourismGsConfig) {
+    const token = await getAccessToken();
+    const headers = { 'content-type': 'application/json', authorization: `Bearer ${token}` };
+    const prod = await fetch('/api/funaging/tourism-gs', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ table: 'production_places', row: payload }),
+    });
+    const prodBody = await prod.json().catch(() => ({}));
+    if (!prod.ok) throw new Error('Approve production insert failed: ' + (prodBody.error || prod.status));
+    if (place.id) {
+      const staging = await fetch('/api/funaging/tourism-gs', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ table: 'staging_places', id: place.id, row: { status: 'approved', updated_at: new Date().toISOString() } }),
+      });
+      const stagingBody = await staging.json().catch(() => ({}));
+      if (!staging.ok) throw new Error('Approve staging update failed: ' + (stagingBody.error || staging.status));
+    }
+    return prodBody.data as PlaceRecord;
+  }
 
   const { data, error } = await supabase
     .from('production_places')
@@ -108,11 +133,23 @@ export async function approvePlace(place: PlaceRecord) {
 }
 export async function rejectPlace(id: string, reason: string) {
   if (!isSupabaseConfigured) return rejectLocalPlace(id, reason);
+  if (hasTourismGsConfig) {
+    const token = await getAccessToken();
+    const response = await fetch('/api/funaging/tourism-gs', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+      body: JSON.stringify({ table: 'staging_places', id, row: { status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() } }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'reject adapter failed');
+    await logAdminAction('reject', 'place', id, { reason });
+    return;
+  }
   const { error } = await supabase.from('staging_places').update({ status: 'rejected', rejection_reason: reason, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error; await logAdminAction('reject', 'place', id, { reason });
 }
-export async function listAuditLogs() { if (!isSupabaseConfigured) return listLocalAuditLogs(); const { data, error } = await supabase.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; }
-export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const { data, error } = await supabase.from('user_roles').select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
-export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const { error } = await supabase.from('user_roles').upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
+export async function listAuditLogs() { if (!isSupabaseConfigured) return listLocalAuditLogs(); const rbac = getTourismGsBrowserClient(); const client = rbac || supabase; const table = rbac ? 'gs_admin_audit_logs' : 'admin_audit_logs'; const { data, error } = await client.from(table).select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; }
+export async function listUserRoles() { if (!isSupabaseConfigured) return listLocalUserRoles(); const rbac = getTourismGsBrowserClient(); const client = rbac || supabase; const table = rbac ? 'gs_user_roles' : 'user_roles'; const { data, error } = await client.from(table).select('*').order('created_at', { ascending: false }); if (error) throw error; return data || []; }
+export async function upsertUserRole(user_id: string, role: AdminRole) { if (!isSupabaseConfigured) return upsertLocalUserRole(user_id, role); const rbac = getTourismGsBrowserClient(); const client = rbac || supabase; const table = rbac ? 'gs_user_roles' : 'user_roles'; const { error } = await client.from(table).upsert({ user_id, role }); if (error) throw error; await logAdminAction('upsert_role', 'user_role', user_id, { role }); }
 
 export async function addUser(display_name: string, email: string, role: AdminRole, password?: string): Promise<LocalUser> {
   if (!isSupabaseConfigured) return addLocalUser(display_name, email, role);

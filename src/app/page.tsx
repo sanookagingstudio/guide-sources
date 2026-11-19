@@ -8,7 +8,7 @@ import SearchTab from '@/components/SearchTab';
 import AdminTab from '@/components/AdminTab';
 import MemberTab, { emptyMemberPlace } from '@/components/MemberTab';
 import { CATEGORIES, MEDIA_UPLOAD_ENABLED } from '@/lib/constants';
-import { findDuplicatePlaceName, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+import { checkMemberDuplicateName, saveStagingPlaceDetailed, submitMemberPlace, type PlaceRecord } from '@/services/placesService';
 import { uploadPlaceMedia } from '@/services/mediaService';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
@@ -95,15 +95,25 @@ function GuideSourcesApp() {
     }
 
     try {
-      const duplicate = await findDuplicatePlaceName(form.name, form.id);
+      const duplicate = await checkMemberDuplicateName(form.name, form.id);
       if (duplicate && !confirm(`พบชื่อสถานที่ซ้ำ: ${duplicate.name} ต้องการบันทึกต่อหรือไม่?`)) return;
 
-      const saved = await saveStagingPlace(form);
-      if (saved?.id) {
+      // DEF-24: a new member submission goes through the member endpoint (server
+      // forces pending + submitted_by). Editing an existing row stays on the
+      // admin adapter, which remains admin|editor only.
+      const outcome = form.id ? await saveStagingPlaceDetailed(form) : await submitMemberPlace(form);
+      const saved = outcome.record;
+      if (saved?.id && outcome.syncState === 'synced') {
         for (const pending of pendingFiles) await uploadPlaceMedia(saved.id, pending.file, pending.type, true);
       }
 
-      setMessage(`บันทึกสำเร็จแล้ว: ${saved?.name || form.name} บันทึกลง browser localStorage แล้วและ Search จะโหลดข้อมูลใหม่ทันที`);
+      if (outcome.syncState === 'synced') {
+        setMessage(`บันทึกสำเร็จแล้ว: ${saved?.name || form.name} บันทึกลงฐานข้อมูลแล้ว`);
+      } else if (outcome.syncState === 'local-only') {
+        setMessage(`บันทึกในเครื่องนี้เท่านั้น: ${saved?.name || form.name} (ยังไม่ได้เชื่อมต่อฐานข้อมูล) — ${outcome.error ?? 'local-only'}`);
+      } else {
+        setMessage(`บันทึกไม่สำเร็จ: ${saved?.name || form.name} เก็บไว้ใน browser localStorage ชั่วคราว — ${outcome.error ?? 'unknown error'}`);
+      }
       setForm(emptyMemberPlace);
       setPendingFiles([]);
       setRefreshKey((v) => v + 1);

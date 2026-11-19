@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { gsRbacClient, gsClubUrl, gsClubAnonKey, gsClubServiceKey } from '@/lib/gsClubAuthority';
 import { serverEnv, maskServerKey } from '@/lib/serverEnv';
 
-const supabaseUrl = serverEnv.SUPABASE_URL;
-const anonKey = serverEnv.SUPABASE_ANON_KEY;
-const serviceRoleKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = (gsClubUrl() || serverEnv.SUPABASE_URL);
+const anonKey = gsClubAnonKey() || serverEnv.SUPABASE_ANON_KEY;
+const serviceRoleKey = gsClubServiceKey() || serverEnv.SUPABASE_SERVICE_ROLE_KEY;
 
 type AdminRole = 'admin' | 'editor' | 'viewer';
 
@@ -33,11 +34,12 @@ async function requireAdmin(request: NextRequest) {
   }
 
   const service = createClient(supabaseUrl, serviceRoleKey, {
+    db: { schema: 'tourism_gs' },
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
   const { data: roleRows, error: roleError } = await service
-    .from('user_roles')
+    .from('gs_user_roles')
     .select('role')
     .eq('user_id', userData.user.id);
 
@@ -59,7 +61,7 @@ export async function GET(request: NextRequest) {
   if (authError) return json(500, { error: authError.message });
 
   const { data: roleRows, error: roleError } = await service
-    .from('user_roles')
+    .from('gs_user_roles')
     .select('user_id, role, created_at, updated_at')
     .order('created_at', { ascending: false });
 
@@ -107,25 +109,25 @@ export async function PATCH(request: NextRequest) {
   // Normalize: user_roles currently may have duplicate rows or no row.
   // Delete all role rows for this user, then insert exactly one verified row.
   const before = await service
-    .from('user_roles')
+    .from('gs_user_roles')
     .select('user_id, role')
     .eq('user_id', user_id);
 
   const remove = await service
-    .from('user_roles')
+    .from('gs_user_roles')
     .delete()
     .eq('user_id', user_id);
 
   if (remove.error) return json(500, { error: remove.error.message, stage: 'delete_existing_roles' });
 
   const insert = await service
-    .from('user_roles')
+    .from('gs_user_roles')
     .insert({ user_id, role, updated_at: new Date().toISOString() });
 
   if (insert.error) return json(500, { error: insert.error.message, stage: 'insert_verified_role' });
 
   const after = await service
-    .from('user_roles')
+    .from('gs_user_roles')
     .select('user_id, role')
     .eq('user_id', user_id);
 
@@ -163,7 +165,7 @@ export async function DELETE(request: NextRequest) {
   const user_id = String(body.user_id || '');
   if (!user_id) return json(400, { error: 'Invalid user_id' });
 
-  const roleDelete = await service.from('user_roles').delete().eq('user_id', user_id);
+  const roleDelete = await service.from('gs_user_roles').delete().eq('user_id', user_id);
   if (roleDelete.error) return json(500, { error: roleDelete.error.message });
 
   const authDelete = await service.auth.admin.deleteUser(user_id);
@@ -227,7 +229,7 @@ export async function POST(request: NextRequest) {
     user = updated.data.user || user;
   }
 
-  const { error: roleError } = await service.from('user_roles').upsert({
+  const { error: roleError } = await service.from('gs_user_roles').upsert({
     user_id: user.id,
     role,
     updated_at: new Date().toISOString(),
