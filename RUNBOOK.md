@@ -45,7 +45,7 @@ npm run lint
 | | |
 |---|---|
 | Deployed to production | `codex-mvp` (also the head of `feat/r5-gs-tourism-gs-repair`) at `d16eed8` |
-| Local HEAD | `main` at `25c9141` (contains the RUNBOOK / docs commits) |
+| Local HEAD | the RUNBOOK commit is on `docs/eco-7-branches` (based on `feat/r5-gs-tourism-gs-repair` at `25c9141`); `main` is at `648fbe92` |
 | Vercel Git integration | **connected** - a branch push builds a preview, a push to the deployed branch builds production |
 | Rule | **do not push `main`** while the project is Git-connected (push feature/doc branches only) |
 
@@ -63,3 +63,4 @@ git merge --no-ff <deployed-branch> -m "merge(<deployed-branch>): reconcile main
 git push origin main      # only with the Vercel Git integration disconnected
 `
 Rollback for any accidental deploy: `vercel rollback <previous dpl_ id> --scope team_UkIW1iwLo9j1Shy7ArPdFXMI`.
+
