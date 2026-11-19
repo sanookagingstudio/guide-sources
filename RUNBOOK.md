@@ -39,3 +39,27 @@ npm test                 # node --test tests/*.test.mjs
 npm run typecheck
 npm run lint
 ```
+
+## Branches and deploys (ECO-7, 2026-11-19)
+
+| | |
+|---|---|
+| Deployed to production | `codex-mvp` (also the head of `feat/r5-gs-tourism-gs-repair`) at `d16eed8` |
+| Local HEAD | `main` at `25c9141` (contains the RUNBOOK / docs commits) |
+| Vercel Git integration | **connected** - a branch push builds a preview, a push to the deployed branch builds production |
+| Rule | **do not push `main`** while the project is Git-connected (push feature/doc branches only) |
+
+Why: on 2026-11-19 a push to `main` of `sanook-master-v2` deployed `funaging` to production six times in 17 minutes.
+The same projects build any branch that is pushed, so a docs commit on `main` would either deploy or fail the
+production build.
+
+### Reconcile `main` with the deployed branch later (Owner, after disabling Git auto-deploy)
+`powershell
+git fetch origin
+git checkout main
+git merge --ff-only origin/main
+git merge --no-ff <deployed-branch> -m "merge(<deployed-branch>): reconcile main with production"
+# run the repo's own suite and require 0 failures, then:
+git push origin main      # only with the Vercel Git integration disconnected
+`
+Rollback for any accidental deploy: `vercel rollback <previous dpl_ id> --scope team_UkIW1iwLo9j1Shy7ArPdFXMI`.
