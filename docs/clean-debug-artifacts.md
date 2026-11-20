@@ -27,9 +27,14 @@ kind, size and secret-class verdict is in the Track C evidence files `guide_sour
 
 - `npm ci` failed on the old tip (`@emnapi/wasi-threads` / `@emnapi/core` drift between `package.json` and
   `package-lock.json`); the lock file is repaired in a separate commit so a clean install works.
-- `npm test` (`node --test`, 4 tests), `npm run contract`, `npm run lint`, `npm run build`, `npm run check:artifacts`
-  are the gates. `.github/workflows/validate.yml` already called `npm run contract` / `npm test` before those scripts
-  existed; they exist now.
+- `npm test` (`node --test`, 4 tests) and `npm run typecheck` already existed on the old tip. The CI workflow also called
+  `npm run contract`, which did not exist. This branch adds `contract` and `check:artifacts`, replaces CI's
+  `npm ci || npm install` with a real `npm ci`, and adds the artifact gate to CI.
+- `npm run lint` is **still red**: 13 errors (9 `no-explicit-any`, 4 `react-hooks/set-state-in-effect`) all pre-existing
+  on the deployed tip and unchanged here, because the cleanup only deletes files and never edits `src/`. Tracked as an
+  open item; CI does not run lint until they are fixed.
+- `next` was 16.2.9, inside the range of critical advisories (unauthenticated RCE in the Image Optimization API via
+  SVG/AVIF, `use cache` RCE). Bumped to 16.4.6: `npm audit` drops from 1 critical + 8 high to 0 critical + 5 high.
 
 ## Rollback
 
