@@ -40,14 +40,16 @@ npm run typecheck
 npm run lint
 ```
 
-## Branches and deploys (ECO-7, 2026-11-19)
+## Branches and deploys (ECO-7 2026-11-19; updated 2026-11-20)
 
 | | |
 |---|---|
-| Deployed to production | `codex-mvp` (also the head of `feat/r5-gs-tourism-gs-repair`) at `d16eed8` |
-| Local HEAD | the RUNBOOK commit is on `docs/eco-7-branches` (based on `feat/r5-gs-tourism-gs-repair` at `25c9141`); `main` is at `648fbe92` |
-| Vercel Git integration | **connected** - a branch push builds a preview, a push to the deployed branch builds production |
+| Deployed to production | `codex-mvp` (Vercel builds this branch on push). Since 2026-11-20 its tip is the **cleaned + reconciled** ref: `main` (`94340e5`) merged in, 111 committed debug artifacts removed, `next` 16.4.6, artifact gate in CI |
+| Local reconcile branch | `chore/reconcile-main` (the cleaned branch + the `main` merge + the admin key-fragment logging fix) |
+| Vercel Git integration | **connected** - a branch push builds a preview, a push to `codex-mvp` builds production |
 | Rule | **do not push `main`** while the project is Git-connected (push feature/doc branches only) |
+| Deploy records | deployment id + rollback id for each production change are recorded in the Track C deploy-lock record (`D:\FUNAGING_TEMP\tracks\deploy_records\`) and in `D:\FUNAGING_TEMP\tracks\C\evidence\` |
+| Residual history | the removed dumps still exist in **older commits** of this public repo; deleting them at the tip does not un-publish them (Owner history decision still open, see `OWNER_ROTATE_GUIDE_SOURCES.md`) |
 
 Why: on 2026-11-19 a push to `main` of `sanook-master-v2` deployed `funaging` to production six times in 17 minutes.
 The same projects build any branch that is pushed, so a docs commit on `main` would either deploy or fail the
