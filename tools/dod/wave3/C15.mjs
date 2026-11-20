@@ -131,16 +131,22 @@ check(
   `reported=${lambda?.size} raw=${bytes.length} gzip=${gzip} old=${PRE_ROUND_SIZE}`
 );
 
-// 5. The promotion itself came through Deploy-Lock with the rollback target recorded BEFORE the change.
+// 5. The deployment serving the alias was made through Deploy-Lock with the rollback target recorded BEFORE
+//    the change. After the C-SEC rotation the live deployment is the rotation's redeploy of this same artifact,
+//    so a verified Track C record for C-MEDIAOS-DEPLOY (the original promotion) OR C-SEC (bootstrap/rotation)
+//    that names the live deployment in this repository satisfies the invariant. An unrelated record cannot:
+//    it must be Track C, state=verified, workDir this repo, name the live id, and carry a different rollback id.
 let newest = null;
 try {
   for (const name of readdirSync(RECORDS)) {
     if (!name.endsWith(".json") || !name.includes("_C_")) continue;
     try {
       const record = JSON.parse(readFileSync(path.join(RECORDS, name), "utf8"));
-      if (record.state !== "verified" || !/C-MEDIAOS-DEPLOY/.test(String(record.action))) continue;
+      if (record.state !== "verified" || !/(C-MEDIAOS-DEPLOY|C-SEC)/.test(String(record.action))) continue;
+      if (String(record.workDir || "").toLowerCase() !== P.mediaos.toLowerCase()) continue;
       if (!String(record.change + record.verify).includes(deployment?.id)) continue;
       if (record.rollbackTarget === deployment?.id) continue;
+      if (!/^dpl_/.test(String(record.rollbackTarget || ""))) continue;
       if (!newest || String(record.finishedAt) > String(newest.finishedAt)) newest = { file: name, ...record };
     } catch { /* not a record */ }
   }
@@ -149,7 +155,7 @@ out.deployRecord = newest ? { file: newest.file, action: newest.action, rollback
 check(
   "the live deployment was promoted under Deploy-Lock with a rollback target recorded first",
   Boolean(newest) && newest.rollbackTarget !== deployment?.id && /dpl_/.test(String(newest.rollbackTarget)),
-  newest ? `${newest.file} rollback=${newest.rollbackTarget}` : "no verified C-MEDIAOS-DEPLOY record naming the live deployment"
+  newest ? `${newest.file} rollback=${newest.rollbackTarget}` : "no verified C-MEDIAOS-DEPLOY/C-SEC record naming the live deployment"
 );
 
 done(

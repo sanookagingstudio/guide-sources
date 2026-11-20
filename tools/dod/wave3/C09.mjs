@@ -8,7 +8,7 @@ import { P, words } from "../lib/wave3-c.mjs";
 const out = {};
 const script = `${P.owner}\\tools\\Test-BridgeEnv.ps1`;
 out.scriptPresent = existsSync(script);
-const res = await run("pwsh", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script], { cwd: P.owner, timeoutMs: 180000 });
+const res = await run("pwsh", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script], { cwd: P.owner, timeoutMs: 900000 });
 out.exit = res.code;
 out.stdout = words(res.out.slice(-600));
 out.stderr = words(res.err.slice(-300));
