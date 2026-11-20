@@ -54,11 +54,15 @@ export const serverEnv = {
     '',
 };
 
+/**
+ * Shape facts about a key, never key material.
+ * Do not add prefix/suffix slicing back: the service-role key must not appear in
+ * logs even in fragments (it used to log first8/last8 on every request).
+ */
 export function maskServerKey(value: string) {
   return {
+    configured: value.length > 0,
     length: value.length,
-    first8: value.slice(0, 8),
-    last8: value.slice(-8),
     hasWhitespace: /\s/.test(value),
     hasQuote: value.includes('"') || value.includes("'"),
   };

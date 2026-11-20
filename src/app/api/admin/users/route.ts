@@ -13,7 +13,7 @@ function json(status: number, body: unknown) {
 }
 
 async function requireAdmin(request: NextRequest) {
-  console.log('SERVER_ROUTE_ENV_USERS', { service: maskServerKey(serviceRoleKey), anon: maskServerKey(anonKey), url: supabaseUrl });
+  console.log('SERVER_ROUTE_ENV_USERS', { service: maskServerKey(serviceRoleKey), anon: maskServerKey(anonKey), urlConfigured: supabaseUrl.length > 0 });
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
     return { error: json(500, { error: 'Supabase server env missing. Set SUPABASE_SERVICE_ROLE_KEY.' }) };
   }
