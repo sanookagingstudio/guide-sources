@@ -22,7 +22,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci || npm install
+        run: npm ci
+
+      - name: Artifact gate
+        run: npm run check:artifacts
 
       - name: Runtime contract
         run: npm run contract
@@ -30,5 +33,5 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Vite production build
+      - name: Next production build
         run: npm run build

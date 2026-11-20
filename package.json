@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test",
+    "contract": "node scripts/build-check.mjs",
+    "check:artifacts": "node scripts/check-debug-artifacts.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs"
   },
