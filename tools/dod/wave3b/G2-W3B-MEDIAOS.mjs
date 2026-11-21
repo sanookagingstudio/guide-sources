@@ -19,6 +19,7 @@
 // Writes are local only: a throwaway foundation root under tracks\C\tmp, never production.
 // Evidence: D:\FUNAGING_TEMP\tracks\<track>\evidence\dod\G2-W3B-MEDIAOS_latest.json
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { chromePath, done, repoRoot, runId } from "../lib/harness.mjs";
@@ -689,7 +690,10 @@ async function main() {
   if (unresolved.length) return await fail(`dynamic routes without a real entity: ${unresolved.map((r) => r.route).join(", ")}`, {});
 
   // ---- browser every-button sweep
-  const { chromium } = await import("playwright");
+  // Playwright belongs to the MediaOS checkout: a bare import would resolve from the runner repo when this file is
+// copied into tools/dod/wave3b there, which has no playwright.
+  const requireFromMediaOs = createRequire(path.join(MEDIAOS_ROOT, "package.json"));
+  const { chromium } = requireFromMediaOs("playwright");
   const browser = await chromium.launch({ headless: true, ...(chromePath() ? { executablePath: chromePath() } : {}), args: ["--no-sandbox", "--disable-dev-shm-usage"] });
   try {
     const templates = inv.routes.map((r) => r.route);
