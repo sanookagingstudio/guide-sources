@@ -121,7 +121,11 @@ while (lockFd === null) {
     await new Promise((r) => setTimeout(r, 5000));
   }
 }
-const releaseLock = () => { try { if (lockFd !== null) closeSync(lockFd); } catch { /* closed */ } try { unlinkSync(lockFile); } catch { /* gone */ } };
+const releaseLock = () => {
+  if (lockFd === null) return; // never remove a lock this process did not take
+  try { closeSync(lockFd); } catch { /* closed */ }
+  try { unlinkSync(lockFile); } catch { /* gone */ }
+};
 process.on("exit", releaseLock);
 
 const emulatorEnv = { ...process.env, ANDROID_SDK_ROOT: P.sdk, ANDROID_HOME: P.sdk, ANDROID_AVD_HOME: P.avdHome };
