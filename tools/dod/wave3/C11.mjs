@@ -159,6 +159,6 @@ const p = kRetired?.fingerprint8 ?? "?";
 const c = kCurrent?.fingerprint8 ?? "?";
 const reason = problems.length
   ? problems.join("; ")
-  : `${KEY} rotated on funaging-media-os-api: retired ${p} now 401, current ${c} accepted as role automation (403), deployment ${out.state?.deployment} READY production, Deploy-Lock record verified with rollback ${out.state?.previousDeployment}; retired value was live before rotation (verified bootstrap record); ${git.keysScanned} vault values scanned across ${git.objects} guide-sources objects, 0 hits`;
+  : `${KEY} rotated on funaging-media-os-api: retired ${p} now 401, current ${c} accepted as role automation (403), rotation deployment ${out.state?.deployment} (the alias has since moved to a newer verified deployment that still refuses the retired value), Deploy-Lock record verified with rollback ${out.state?.previousDeployment}; retired value was live before rotation (verified bootstrap record); ${git.keysScanned} vault values scanned across ${git.objects} guide-sources objects, 0 hits`;
 
 done("C11", problems.length === 0, reason, out);

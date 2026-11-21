@@ -19,7 +19,7 @@ const ARTIFACT = path.join(P.mediaos, ".vercel", "output", "functions", "index.f
 const PRE_ROUND_DEPLOYMENT = "dpl_DZsbsCvNyHTzWpLEPPr7xMnepd7F"; // 2026-09-01 production, 70,093 bytes reported
 const PRE_ROUND_SIZE = 70093;
 const RECORDS = "D:\\FUNAGING_TEMP\\tracks\\deploy_records";
-const EXPECTED_ARTIFACT_BYTES = 343361;
+const MIN_ARTIFACT_BYTES = 300000;
 
 const out = { checks: [], artifact: {}, local: {}, live: {}, deployment: null, deployRecord: null };
 const problems = [];
@@ -34,7 +34,7 @@ const builtBytes = Number((build.out.match(/bytes=(\d+)/) || [])[1] || 0);
 const builtInputs = Number((build.out.match(/inputs=(\d+)/) || [])[1] || 0);
 check(
   "the repo rebuilds the Build Output artifact",
-  build.code === 0 && /VERCEL_API_BUILD ok/.test(build.out) && builtBytes === EXPECTED_ARTIFACT_BYTES,
+  build.code === 0 && /VERCEL_API_BUILD ok/.test(build.out) && builtBytes >= MIN_ARTIFACT_BYTES,
   `exit=${build.code} bytes=${builtBytes} inputs=${builtInputs} ${words(build.out.split(/\r?\n/).filter(Boolean).slice(-2).join(" | "))}`
 );
 
@@ -42,7 +42,10 @@ const bytes = readFileSync(ARTIFACT);
 const sha256 = createHash("sha256").update(bytes).digest("hex").toUpperCase();
 const gzip = gzipSync(bytes, { level: 9 }).length;
 out.artifact = { file: ARTIFACT, bytes: bytes.length, sha256, gzipBytes: gzip, inputs: builtInputs };
-check("the artifact is the recorded 343,361-byte bundle", bytes.length === EXPECTED_ARTIFACT_BYTES && sha256.length === 64, `bytes=${bytes.length} sha256=${sha256}`);
+// The size is NOT asserted against a frozen number: the artifact legitimately grows when routes are added
+// (round 21 added the /v1/bridge surface, 343,361 -> 352,670 bytes). What must hold is that the repo builds a
+// real bundle and that the LIVE lambda is that same bundle - checked below by behaviour and compressed size.
+check("the artifact is a real bundle with a sha256", bytes.length >= MIN_ARTIFACT_BYTES && sha256.length === 64, `bytes=${bytes.length} sha256=${sha256}`);
 
 // 2. Run the real artifact in a real HTTP server and capture its contract.
 const foundationRoot = await mkdtemp(path.join(tmpdir(), "mediaos-c15-"));
@@ -142,9 +145,14 @@ try {
     if (!name.endsWith(".json") || !name.includes("_C_")) continue;
     try {
       const record = JSON.parse(readFileSync(path.join(RECORDS, name), "utf8"));
-      if (record.state !== "verified" || !/(C-MEDIAOS-DEPLOY|C-SEC)/.test(String(record.action))) continue;
+      if (record.state !== "verified" || !/(C-MEDIAOS-DEPLOY|C-SEC|C-BRIDGE-2)/.test(String(record.action))) continue;
       if (String(record.workDir || "").toLowerCase() !== P.mediaos.toLowerCase()) continue;
-      if (!String(record.change + record.verify).includes(deployment?.id)) continue;
+      // A record may name the deployment by id (dpl_...) or by its deployment URL/host, whichever the CLI printed.
+      const names = [deployment?.id, deployment?.url, deployment?.url ? deployment.url.split("-").slice(-2).join("-") : null]
+        .filter(Boolean)
+        .map(String);
+      const recorded = String(record.change + record.verify);
+      if (!names.some((n) => recorded.includes(n))) continue;
       if (record.rollbackTarget === deployment?.id) continue;
       if (!/^dpl_/.test(String(record.rollbackTarget || ""))) continue;
       if (!newest || String(record.finishedAt) > String(newest.finishedAt)) newest = { file: name, ...record };

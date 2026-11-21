@@ -33,7 +33,11 @@ const dir = "D:\\FUNAGING_TEMP\\tracks\\deploy_records";
 let record = null;
 try {
   const files = readdirSync(dir).filter((f) => f.endsWith(".json") && /C-BRIDGE/i.test(f));
-  const rows = files.map((f) => { try { return { f, j: JSON.parse(readFileSync(`${dir}\\${f}`, "utf8")) }; } catch { return null; } }).filter((r) => r && r.j.state === "verified");
+  const rows = files
+    .map((f) => { try { return { f, j: JSON.parse(readFileSync(`${dir}\\${f}`, "utf8")) }; } catch { return null; } })
+    // The record must be the HUB one: the workDir pins the repo (a C-BRIDGE-2 record for MediaOS also matches the
+    // name pattern, and "newest wins" would then pick the wrong repository's change).
+    .filter((r) => r && r.j.state === "verified" && /C-BRIDGE(?!-2)/i.test(String(r.j.action)) && String(r.j.workDir || "").toLowerCase() === P.hub.toLowerCase());
   rows.sort((a, b) => String(a.j.finishedAt).localeCompare(String(b.j.finishedAt)));
   record = rows.length ? { file: rows[rows.length - 1].f, ...rows[rows.length - 1].j } : null;
 } catch { record = null; }
