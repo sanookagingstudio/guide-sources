@@ -1,4 +1,4 @@
-import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase, tourismFrom } from '@/lib/supabase';
 import { normalizeCategoryLabel } from '@/lib/constants';
 import { findLocalDuplicatePlaceName, listLocalPlaces, saveLocalPlace } from './localStorageProvider';
 import { listLocalStagingPlaces, listLocalRejectedPlaces, listLocalDuplicateSuggestions } from './localStorageProvider';
@@ -40,7 +40,7 @@ export async function listApprovedPlaces(filters: PlaceFilters = {}, options?: {
   if (!isSupabaseConfigured) return localRows;
 
   try {
-    const { data, error } = await supabase.from('production_places').select('*').eq('status', 'approved').order('updated_at', { ascending: false });
+    const { data, error } = await tourismFrom('production_places').select('*').eq('status', 'approved').order('updated_at', { ascending: false });
     if (error) throw error;
     const remoteRows = applyLocalFilters((data || []) as PlaceRecord[], filters);
     const mergedRemote = remoteRows.map((remote) => {
@@ -66,7 +66,7 @@ export async function listRejectedPlaces() {
   if (error) throw error;
   return (data || []) as PlaceRecord[];
 }
-export async function getPlaceById(id: string, table: 'staging_places' | 'production_places' = 'production_places') { const { data, error } = await supabase.from(table).select('*').eq('id', id).single(); if (error) throw error; return data as PlaceRecord; }
+export async function getPlaceById(id: string, table: 'staging_places' | 'production_places' = 'production_places') { const query = table === 'production_places' ? tourismFrom(table) : supabase.from(table); const { data, error } = await query.select('*').eq('id', id).single(); if (error) throw error; return data as PlaceRecord; }
 export async function findDuplicatePlaceName(name: string, excludeId?: string) { if (!isSupabaseConfigured) return findLocalDuplicatePlaceName(name, excludeId); let query = supabase.from('staging_places').select('id,name,status').ilike('name', text(name)); if (excludeId) query = query.neq('id', excludeId); const { data, error } = await query.limit(1); if (error) throw error; return data?.[0] || null; }
 export async function saveStagingPlace(place: PlaceRecord) {
   const localSaved = saveLocalPlace({ ...place, status: place.status || 'pending' });

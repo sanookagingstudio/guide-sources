@@ -143,6 +143,7 @@ export default function SearchTab({ refreshKey, onEdit }: { refreshKey: number; 
       </div>
     </div>
     {warning && <div className="bg-amber-950/80 border border-amber-700 rounded-xl p-3 text-sm text-amber-100">{warning}</div>}
+    {!warning && places.length === 0 && <div className="travel-card p-4 text-sm text-slate-200">ไม่พบสถานที่ที่ตรงกับเงื่อนไข — ลองลบตัวกรองหรือค้นหาด้วยคำอื่น</div>}
     <div className="gs-search-result-head"><h3 className="travel-section-title">ผลการค้นหา {places.length} รายการ</h3><div className="gs-export-bar"><div><p className="gs-export-label">Export</p><p className="gs-export-count">{selectedPlaces.length ? `${selectedPlaces.length} selected` : `${places.length} current results`}</p></div><div className="gs-export-actions"><button className="travel-btn travel-btn--success px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportCsv}>CSV</button><button className="travel-btn travel-btn--secondary px-3 py-2 rounded text-xs disabled:opacity-50" type="button" disabled={exportRows.length === 0} onClick={exportJson}>JSON</button>{selectedPlaces.length > 0 && <button className="travel-btn px-3 py-2 rounded text-xs" type="button" onClick={clearSelectedPlaces}>Clear</button>}</div></div></div>
     <div className="gs-results-list">
       {places.map((p) => {
