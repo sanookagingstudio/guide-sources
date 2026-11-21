@@ -1,0 +1,16 @@
+{
+  "name": "@guide-sources/standalone-guide-draft",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone guide-source-draft@1.0.0 service with mock adapters (no live connection).",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json",
+    "test": "node --test tests/*.test.mjs",
+    "ci": "npm run build && npm test",
+    "start": "node dist/server.js"
+  }
+}

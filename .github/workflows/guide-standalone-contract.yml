@@ -1,0 +1,28 @@
+name: guide-standalone contract
+
+# Contract tests for the standalone `guide-source-draft@1.0.0` service.
+# No secrets, no live connection: the job builds the package and runs its
+# contract tests against the mock file adapter only.
+
+on:
+  push:
+    paths:
+      - "standalone/guide-draft-service/**"
+      - ".github/workflows/guide-standalone-contract.yml"
+  pull_request:
+    paths:
+      - "standalone/guide-draft-service/**"
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install the repo toolchain (typescript is the only build dependency)
+        run: npm ci
+      - name: Build + contract tests
+        run: npm --prefix standalone/guide-draft-service run ci
