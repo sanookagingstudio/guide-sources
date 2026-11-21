@@ -72,7 +72,12 @@ else {
     const post = s.authorizedPost || {};
     if (post.status === 503) problems.push("Hub authorized brief still answers 503");
     else if (post.code === "UNAUTHORIZED") problems.push("Hub did not accept the vault HUB_INGEST_TOKEN");
-    else if (!post.code) problems.push("Hub authorized brief returned no upstream code (cannot prove forwarding)");
+    else if (!post.code && !(post.status >= 200 && post.status < 300)) problems.push(`Hub authorized brief returned no upstream code and no 2xx (status ${post.status})`);
+    // A 2xx is now the healthy end state (LPHHW accepts the certified brief); the proof of the LPHHW hop is the
+    // readback through the same route. An upstream error code is still accepted as forwarding proof (older state).
+    if (post.status >= 200 && post.status < 300 && s.authorizedReadback?.status !== 200) {
+      problems.push(`Hub authorized brief was accepted (${post.status}) but the LPHHW readback is ${JSON.stringify(s.authorizedReadback)}`);
+    }
     const liveCommit = String(s.version?.commit || "");
     const anc = liveCommit ? await run("git", ["-C", P.hub, "merge-base", "--is-ancestor", liveCommit, "HEAD"], { timeoutMs: 60000 }) : { code: 1 };
     if (anc.code !== 0) problems.push(`live Hub commit '${liveCommit}' is not contained in repo HEAD '${hubHead}'`);
@@ -106,7 +111,8 @@ else {
 }
 if (out.leaked64HexInOutput) problems.push("a 64-hex value appeared in the output (value leak)");
 
-const liveCode = probe?.hubSmoke?.authorizedPost?.code ?? "?";
+const liveCode = probe?.hubSmoke?.authorizedPost?.code
+  ?? (probe?.hubSmoke?.authorizedPost?.status ? `accepted ${probe.hubSmoke.authorizedPost.status} by LPHHW` : "?");
 const tfiReason = probe?.tfiAdapter?.reasonClass?.negotiate ?? "?";
 done(
   "C12",
