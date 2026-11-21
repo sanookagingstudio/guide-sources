@@ -38,10 +38,9 @@ if (H.track !== "C") done(ID, false, `refused: FUNAGING_TRACK is '${H.track}' bu
 const REPO = "D:\\FUNAGING_WEB\\01_ACTIVE\\guide-sources__9CC897324B2F";
 const LIVE = "https://guide-sources.vercel.app/";
 const LOCAL_PORT = 3111;
-const ROLLBACK_TARGET = "dpl_8Tzao5scWLz92HDf5UWUHjPk7Jms";
 const PLAYWRIGHT = "D:\\FUNAGING_WEB\\02_WORK\\MAINWEB_LPHHW_BRIDGE_20261116\\node_modules\\playwright\\index.js";
 const EMPTY_STATE = "ไม่พบสถานที่ที่ตรงกับเงื่อนไข";
-const DEPLOY_RECORD = "D:\\FUNAGING_TEMP\\tracks\\deploy_records\\2569-11-21T210538Z_C_GUIDE-SEARCH-TOURISM-SCHEMA__public_approved-place_search_reads_tourism_gs__was_a_dead_public.__query_.json";
+const DEPLOY_RECORD_DIR = "D:\\FUNAGING_TEMP\\tracks\\deploy_records";
 
 const out = { repo: REPO, live: LIVE, localPort: LOCAL_PORT, steps: [], browser: {}, transcripts: {} };
 const problems = [];
@@ -182,19 +181,62 @@ for (const p of scriptPaths) {
 out.bundle = { scriptsScanned: scriptPaths.length, tourismGsMarker: markerInBundle, hits: bundleHits.slice(0, 4) };
 step("the SERVED live bundle carries the tourism_gs schema marker", markerInBundle, JSON.stringify(out.bundle));
 
-const liveInspect = await run("cmd.exe", cmd("vercel inspect https://guide-sources.vercel.app"), { cwd: REPO, timeoutMs: 180000 });
-const inspectText = clean(liveInspect.out + " " + liveInspect.err);
-const liveId = (inspectText.match(/dpl_[A-Za-z0-9]{20,}/) || [])[0] || "";
-const liveTarget = (inspectText.match(/\btarget\s+(\S+)/) || [])[1] || "";
-out.provenance = { liveDeploymentId: liveId, liveTarget, rollbackTarget: ROLLBACK_TARGET, inspectExit: liveInspect.code };
-step("the live alias is a production dpl_ deployment that is NOT the recorded rollback target", /^dpl_[A-Za-z0-9]+$/.test(liveId) && liveId !== ROLLBACK_TARGET && liveTarget === "production", JSON.stringify(out.provenance));
-
-let record = null;
-try { record = JSON.parse(readFileSync(DEPLOY_RECORD, "utf8")); } catch { record = null; }
-out.deployRecord = record ? { state: record.state, rollbackTarget: record.rollbackTarget, action: record.action, finishedAt: record.finishedAt } : null;
+const liveInspect = await run("cmd.exe", cmd("vercel inspect https://guide-sources.vercel.app --json --no-color"), { cwd: REPO, timeoutMs: 180000 });
+const inspectRaw = String(liveInspect.out || "");
+let live = null;
+try { live = JSON.parse(inspectRaw.slice(inspectRaw.indexOf("{"))); } catch { live = null; }
+const listRun = await run("cmd.exe", cmd("vercel ls guide-sources --json --no-color"), { cwd: REPO, timeoutMs: 180000 });
+let entries = [];
+try {
+  const parsed = JSON.parse(String(listRun.out || "").slice(String(listRun.out || "").indexOf("{")));
+  entries = Array.isArray(parsed) ? parsed : (parsed.deployments || []);
+} catch { entries = []; }
+const liveEntry = entries.find((e) => String(e.url) === String(live?.url)) || null;
+const liveSha = liveEntry?.meta?.gitCommitSha || liveEntry?.meta?.sourceCommit || "";
+const headRun = await run("git", ["-C", REPO, "rev-parse", "HEAD"], { timeoutMs: 30000 });
+const headSha = clean(headRun.out);
+const refRun = await run("git", ["-C", REPO, "rev-parse", "origin/codex-mvp"], { timeoutMs: 30000 });
+const refSha = clean(refRun.out);
+// The deployed ref is `codex-mvp` (C01's rule). A later docs/tools commit may be HEAD, so the honest
+// application check is: the live commit IS the deployed ref AND it ships the same app tree as HEAD.
+const treeRun = liveSha
+  ? await run("git", ["-C", REPO, "diff", "--quiet", liveSha, "HEAD", "--", "src", "public", "package.json", "package-lock.json", "next.config.ts", "tsconfig.json"], { timeoutMs: 60000 })
+  : { code: 1, out: "", err: "no live commit" };
+out.provenance = {
+  liveDeploymentId: live?.id || null,
+  liveUrl: live?.url || null,
+  liveTarget: live?.target || null,
+  deployedSha: liveSha,
+  sourceKind: liveEntry?.meta?.sourceKind || null,
+  deployedRef: refSha,
+  repoHead: headSha,
+  appTreeMatchesHead: treeRun.code === 0,
+};
 step(
-  "the Deploy-Lock record for this change is verified with the recorded rollback target",
-  !!record && record.state === "verified" && record.rollbackTarget === ROLLBACK_TARGET && String(record.action).includes("GUIDE-SEARCH-TOURISM-SCHEMA"),
+  "the live alias is a production deployment of the deployed ref (codex-mvp) and ships the same app tree as HEAD",
+  !!live?.id &&
+    live.target === "production" &&
+    /^[0-9a-f]{40}$/.test(liveSha) &&
+    liveSha === refSha &&
+    treeRun.code === 0 &&
+    String(liveEntry?.meta?.sourceKind || "").length > 0,
+  JSON.stringify(out.provenance)
+);
+
+// the newest Deploy-Lock record for this work must be verified and must not name the live deployment as its rollback
+let records = [];
+try {
+  const { readdirSync } = await import("node:fs");
+  records = readdirSync(DEPLOY_RECORD_DIR).filter((f) => f.includes("GUIDE-SEARCH") && f.endsWith(".json")).sort().reverse();
+} catch { records = []; }
+let record = null;
+try { record = records.length ? JSON.parse(readFileSync(`${DEPLOY_RECORD_DIR}\\${records[0]}`, "utf8")) : null; } catch { record = null; }
+out.deployRecord = record
+  ? { file: records[0], state: record.state, rollbackTarget: record.rollbackTarget, action: record.action, finishedAt: record.finishedAt }
+  : null;
+step(
+  "the newest Deploy-Lock record for this change is verified with a real rollback target",
+  !!record && record.state === "verified" && /^dpl_/.test(String(record.rollbackTarget || "")) && record.rollbackTarget !== live?.id && String(record.action).includes("GUIDE-SEARCH"),
   JSON.stringify(out.deployRecord)
 );
 
@@ -208,6 +250,6 @@ step("no credential (client key/JWT/DSN) is recorded by this check", !leaked, le
 out.problems = problems;
 const ok = problems.length === 0;
 const reason = ok
-  ? `public search really answers: local build ${out.browser.local?.cards} card(s) and live ${out.browser.production?.cards} card(s) from tourism_gs (Accept-Profile 200), a real name narrows it, no-match shows 0 + the explicit empty state, 0 page errors; live ${liveId} (rollback ${ROLLBACK_TARGET}) verified record; typecheck+build green; no secret recorded`
+  ? `public search really answers: local build ${out.browser.local?.cards} card(s) and live ${out.browser.production?.cards} card(s) from tourism_gs (Accept-Profile 200), a real name narrows it, no-match shows 0 + the explicit empty state, 0 page errors; live ${live?.id} serves commit ${String(liveSha).slice(0, 12)} (rollback ${record?.rollbackTarget}), record verified; typecheck+build green; no secret recorded`
   : problems.join(" | ");
 done(ID, ok, reason, out);

@@ -51,8 +51,16 @@ Fail-on-old-code control: the pre-fix code (same browser probe) answered `404` w
 
 | | |
 |---|---|
-| Production fix | `dpl_ACohzLNJwcwrAZPRRGfF7sbMaNSk` (CLI, from this commit on `codex-mvp`) |
-| Rollback target (recorded first) | `dpl_8Tzao5scWLz92HDf5UWUHjPk7Jms` (commit `b94546c`, serves the dead search) |
-| Deploy-Lock records | `tracks\deploy_records\2569-11-21T210538Z_C_GUIDE-SEARCH-TOURISM-SCHEMA…` and the provenance rebuild record |
+| Production fix | `dpl_DQpXKUTy8j2KQ8TXfzRjRcehe4Cp` - clean-worktree deploy of `codex-mvp` `1d26cff`, git meta stamped with that commit, alias promoted |
+| Rollback target (recorded first) | `dpl_Bac52N5u5egFcga12aBm6qEqqEPU` (same fix, previous production deployment) |
+| Deploy-Lock records | `tracks\deploy_records\2569-11-21T211345Z_C_GUIDE-SEARCH_final_verified…` (state=verified; earlier records are the CLI deploy, the Instant-Rollback pin, and the two failed provenance attempts kept as history) |
 
-Rollback: `vercel rollback dpl_8Tzao5scWLz92HDf5UWUHjPk7Jms --yes` (or a later recorded target).
+Rollback: `vercel rollback <recorded target> --yes` - on the Hobby plan only the immediately previous
+production deployment can be rolled back to, so record the current live id before each change.
+
+Note for the next deploy of this project: an Instant Rollback PINS the production alias (a later
+`vercel deploy --prod` is created but not aliased until `vercel promote`), and the project has no Git
+integration, so the CLI does not stamp `sourceCommit`. `D:\FUNAGING_TEMP\tracks\C\tmp\deploy_guide_provenance.ps1`
+does both safely: it refuses to run on a dirty worktree, deploys with `-m gitCommitSha/sourceCommit/
+sourceKind/gitCommitRef` derived from the real HEAD, verifies the meta came back equal, and only then
+promotes. C01 requires the live meta commit to equal `origin/codex-mvp`.
