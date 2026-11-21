@@ -2,7 +2,7 @@
 // source gradle, signature verified with apksigner, then a real install + launch on an Android emulator.
 // Read-only on Track A's repo: the build itself is Track A's.
 import { spawn, execFileSync, execSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { closeSync, existsSync, mkdtempSync, openSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { done } from "../lib/harness.mjs";
@@ -11,6 +11,39 @@ import { P, sha256File, gradleVersion } from "../lib/wave3-c.mjs";
 const out = { apks: [], install: {} };
 const tmp = mkdtempSync(path.join(P.tmp, "dod-c08-"));
 const sha = (buf) => createHash("sha256").update(buf).digest("hex").toUpperCase();
+
+// ActivityManager reports the activity resumed BEFORE the Capacitor WebView paints, so a screenshot taken at that
+// moment is a blank white frame. Read the raw framebuffer (16-byte header + RGBA_8888) and require the app area to
+// hold a rendered UI: colour variety plus pixels that are not the modal background.
+const renderStats = (buf) => {
+  if (!buf || buf.length < 16) return { ok: false, reason: "short framebuffer" };
+  const w = buf.readUInt32LE(0);
+  const h = buf.readUInt32LE(4);
+  const fmt = buf.readUInt32LE(8);
+  const pixelStart = buf.length >= 16 + w * h * 4 ? 16 : 12;
+  if (fmt !== 1 || pixelStart + w * h * 4 > buf.length) return { ok: false, reason: `framebuffer ${w}x${h} fmt ${fmt}` };
+  const counts = new Map();
+  let total = 0;
+  for (let y = Math.floor(h * 0.12); y < Math.floor(h * 0.92); y += 6) {
+    for (let x = 0; x < w; x += 6) {
+      const i = pixelStart + (y * w + x) * 4;
+      const key = ((buf[i] >> 4) << 8) | ((buf[i + 1] >> 4) << 4) | (buf[i + 2] >> 4);
+      counts.set(key, (counts.get(key) || 0) + 1);
+      total += 1;
+    }
+  }
+  let modal = 0;
+  for (const v of counts.values()) modal = Math.max(modal, v);
+  const nonBackground = (total - modal) / total;
+  return {
+    ok: counts.size >= 12 && nonBackground >= 0.03,
+    width: w,
+    height: h,
+    sampled: total,
+    distinctColors: counts.size,
+    nonBackgroundFraction: Number(nonBackground.toFixed(3)),
+  };
+};
 
 const SPECS = [
   { key: "staff", file: "SANOOK_Staff_v1.0.54_release.apk", pkg: "com.sanookagingstudio.staff", gradle: `${P.mainweb}\\android\\app\\build.gradle` },
@@ -69,6 +102,28 @@ for (const spec of SPECS) {
 }
 
 // 4. Real install + launch on an emulator (AVD created by Track C in round 25).
+// The emulator is ONE shared device: a second Track C sweep (or a driver re-run) starting `am start` between this
+// check's launch and its topResumed read made C08 fail on a healthy APK (observed round 21). Serialize with a lock
+// file in Track C's temp dir so two checks never drive the device at once; a stale lock (>20 min) is taken over.
+const lockFile = path.join(P.tmp, "c08-emulator.lock");
+const lockDeadline = Date.now() + 15 * 60 * 1000;
+let lockFd = null;
+while (lockFd === null) {
+  try {
+    lockFd = openSync(lockFile, "wx");
+    writeFileSync(lockFile, JSON.stringify({ pid: process.pid, at: new Date().toISOString() }));
+  } catch {
+    try {
+      const held = JSON.parse(readFileSync(lockFile, "utf8"));
+      if (Date.now() - Date.parse(held.at) > 20 * 60 * 1000) { unlinkSync(lockFile); continue; }
+    } catch { /* half-written or vanished: retry */ }
+    if (Date.now() > lockDeadline) break; // proceed anyway rather than hang: the device state is still asserted below
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+}
+const releaseLock = () => { try { if (lockFd !== null) closeSync(lockFd); } catch { /* closed */ } try { unlinkSync(lockFile); } catch { /* gone */ } };
+process.on("exit", releaseLock);
+
 const emulatorEnv = { ...process.env, ANDROID_SDK_ROOT: P.sdk, ANDROID_HOME: P.sdk, ANDROID_AVD_HOME: P.avdHome };
 const adb = P.adb;
 const adbRun = (args, opts = {}) => execFileSync(adb, args, { encoding: "utf8", timeout: 180000, ...opts });
@@ -99,14 +154,47 @@ if (serial) {
   }
   for (const rec of out.apks) {
     const res = { key: rec.key };
+    // CLEAN install, not an upgrade: `install -r` silently keeps a newer app already on the device (round 21's build
+    // put admin 52/1.0.51 there, so -r of the published 51/1.0.50 failed INSTALL_FAILED_VERSION_DOWNGRADE while
+    // `am start` still opened the OLD app and looked like a launch). Uninstall, install without -r, then read the
+    // installed version back and require it to equal the version inside the downloaded bytes.
     try {
-      res.install = String(adbRun(["-s", serial, "install", "-r", "-t", rec.tmp])).trim().split(/\r?\n/).pop();
+      res.uninstall = String(adbRun(["-s", serial, "uninstall", rec.package])).trim() || "Success";
+    } catch (e) {
+      const msg = String(e.message);
+      res.uninstall = /Unknown package|not installed|DELETE_FAILED_INTERNAL_ERROR/i.test(msg) ? "not-installed" : `ERROR ${msg.slice(0, 160)}`;
+    }
+    try {
+      res.install = String(adbRun(["-s", serial, "install", "-t", rec.tmp])).trim().split(/\r?\n/).pop();
     } catch (e) { res.install = `ERROR ${String(e.message).slice(0, 160)}`; }
+    try {
+      const d = String(adbRun(["-s", serial, "shell", "dumpsys", "package", rec.package]));
+      res.installedVersionCode = Number((d.match(/versionCode=(\d+)/) || [])[1] || 0) || null;
+      res.installedVersionName = (d.match(/versionName=([^\s]+)/) || [])[1] || null;
+    } catch (e) { res.installedError = String(e.message).slice(0, 120); }
     try {
       const w = String(adbRun(["-s", serial, "shell", "am", "start", "-W", "-n", `${rec.package}/.MainActivity`]));
       res.startStatus = (w.match(/Status:\s*(\w+)/) || [])[1] || null;
       res.totalTime = (w.match(/TotalTime:\s*(\d+)/) || [])[1] || null;
     } catch (e) { res.startStatus = `ERROR ${String(e.message).slice(0, 120)}`; }
+    // Poll the framebuffer until the WebView has painted AND settled: three consecutive samples (2 s apart) must be
+    // identical, so a transient splash frame is not accepted as the app UI. First sample only after 6 s.
+    try {
+      const launchAt = Date.now();
+      const samples = [];
+      for (let attempt = 0; attempt < 15; attempt += 1) {
+        await new Promise((r) => setTimeout(r, attempt === 0 ? 6000 : 2000));
+        const raw = execFileSync(adb, ["-s", serial, "exec-out", "screencap"], { encoding: "buffer", maxBuffer: 64 * 1024 * 1024, timeout: 60000 });
+        const s = { ...renderStats(raw), atMs: Date.now() - launchAt };
+        samples.push(s);
+        const last3 = samples.slice(-3);
+        if (last3.length === 3 && last3.every((x) => x.ok && x.distinctColors === s.distinctColors && Math.abs(x.nonBackgroundFraction - s.nonBackgroundFraction) < 0.005)) {
+          res.render = { ...s, settleMs: s.atMs, samples: samples.length };
+          break;
+        }
+        if (attempt === 14) res.render = { ...s, samples: samples.length, settled: false, ok: false, reason: "UI never settled (splash or re-render loop)" };
+      }
+    } catch (e) { res.render = { ok: false, reason: String(e.message).slice(0, 120) }; }
     try {
       const top = String(adbRun(["-s", serial, "shell", "dumpsys", "activity", "activities"]));
       res.topResumed = (top.match(/topResumedActivity=ActivityRecord\{[^}]*\s([\w.]+)\/([\w.$]+)/) || []).slice(1).join("/") || null;
@@ -124,6 +212,7 @@ if (serial) {
   out.install.error = "no emulator device became available";
 }
 if (emu) { try { emu.kill(); } catch { /* gone */ } }
+releaseLock();
 
 const problems = [];
 const drift = [];
@@ -149,9 +238,13 @@ for (const rec of out.apks) {
 
   const inst = out.install[rec.key] || {};
   if (!/^Success$/i.test(String(inst.install || ""))) problems.push(`${rec.key}: install ${inst.install ?? "not run"}`);
+  if (inst.installedVersionCode !== rec.versionCode) {
+    problems.push(`${rec.key}: installed versionCode ${inst.installedVersionCode ?? "unknown"} != published ${rec.versionCode}`);
+  }
   if (inst.startStatus !== "ok") problems.push(`${rec.key}: launch ${inst.startStatus ?? "not run"}`);
+  if (!inst.render?.ok) problems.push(`${rec.key}: UI not rendered (${inst.render?.reason || `distinct=${inst.render?.distinctColors ?? "?"} nonBg=${inst.render?.nonBackgroundFraction ?? "?"}`})`);
   if (!inst.topResumed || !inst.topResumed.startsWith(rec.package)) problems.push(`${rec.key}: topResumedActivity ${inst.topResumed ?? "unknown"}`);
   if (!inst.screenshot?.png || (inst.screenshot.bytes || 0) < 5000) problems.push(`${rec.key}: launch screenshot not captured`);
 }
 
-done("C08", problems.length === 0, problems.length ? problems.join("; ") : `both APKs downloaded from funaging.club (SHA-256 identical in repo+evidence), recorded provenance matches the bytes, v2 signature verified, ${out.apks.map((a) => `${a.key} ${a.versionCode}/${a.versionName}`).join(", ")}, install+launch Success on ${out.install.serial}${drift.length ? `; WARN version drift vs source: ${drift.join("; ")}` : ""}`, { ...out, drift, tmp });
+done("C08", problems.length === 0, problems.length ? problems.join("; ") : `both APKs downloaded from funaging.club (SHA-256 identical in repo+evidence), recorded provenance matches the bytes, v2 signature verified, ${out.apks.map((a) => `${a.key} ${a.versionCode}/${a.versionName}`).join(", ")}, clean install (uninstall + install, installed versionCode readback) + launch Success with a painted, settled UI (${out.apks.map((a) => `${a.key} ${out.install[a.key]?.render?.distinctColors ?? "?"} colours @${out.install[a.key]?.render?.settleMs ?? "?"}ms`).join(", ")}) on ${out.install.serial}${drift.length ? `; WARN version drift vs source: ${drift.join("; ")}` : ""}`, { ...out, drift, tmp });
