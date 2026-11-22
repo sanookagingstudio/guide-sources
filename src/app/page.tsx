@@ -1,125 +1,183 @@
 'use client';
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import SearchTab from '../components/SearchTab';
-import AdminTab from '../components/AdminTab';
 
-// ข้อมูลอ้างอิงมาตรฐาน (Baseline)
-const PROVINCES = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ลำปาง', 'ลำพูน', 'เชียงราย', 'แม่ฮ่องสอน', 'พะเยา', 'แพร่', 'น่าน', 'ตาก', 'สุโขทัย', 'อุตรดิตถ์', 'พิษณุโลก', 'พิจิตร', 'กำแพงเพชร', 'เพชรบูรณ์', 'นครสวรรค์', 'อุทัยธานี', 'กาญจนบุรี', 'ราชบุรี', 'สุพรรณบุรี', 'นครปฐม', 'สมุทรสาคร', 'สมุทรสงคราม', 'เพชรบุรี', 'ประจวบคีรีขันธ์', 'ชลบุรี', 'ระยอง', 'จันทบุรี', 'ตราด', 'ฉะเชิงเทรา', 'ปราจีนบุรี', 'นครนายก', 'สระแก้ว', 'นครราชสีมา', 'บุรีรัมย์', 'สุรินทร์', 'ศรีสะเกษ', 'อุบลราชธานี', 'ยโสธร', 'ชัยภูมิ', 'อำนาจเจริญ', 'บึงกาฬ', 'หนองคาย', 'เลย', 'อุดรธานี', 'นครพนม', 'สกลนคร', 'มุกดาหาร', 'กาฬสินธุ์', 'มหาสารคาม', 'ร้อยเอ็ด', 'หนองบัวลำภู', 'ขอนแก่น', 'ชุมพร', 'ระนอง', 'สุราษฎร์ธานี', 'พังงา', 'ภูเก็ต', 'กระบี่', 'นครศรีธรรมราช', 'ตรัง', 'พัทลุง', 'สตูล', 'สงขลา', 'ปัตตานี', 'ยะลา', 'นราธิวาส'];
-const CATEGORIES = ['อาหารและเครื่องดื่ม', 'ที่พักและรีสอร์ต', 'แหล่งท่องเที่ยวเชิงสุขภาพ', 'กิจกรรมสันทนาการ', 'ศูนย์บำบัดและดูแลผู้สูงอายุ', 'การเรียนรู้และเวิร์กชอป', 'รถเช่าบริการพิเศษ', 'อื่นๆ (โปรดระบุ)'];
-const AMENITIES = ['♿ รองรับรถเข็น', '🚌 จอดรถบัสได้', '⏳ ทางเรียบ/ราวจับ', '🐾 ห้องน้ำคนพิการ', '🏥 มีเครื่อง AED', '📶 Wi-Fi ฟรี', '🦮 รองรับผู้พิการทางสายตา'];
-const ALERTS = ['🚗 จอดรถยาก', '⏳ คิวยาว', '📞 ต้องสำรองล่วงหน้า', '📐 บันไดเยอะ', '📶 สัญญาณโทรศัพท์ไม่ดี', '☀️ พื้นที่โล่ง/ร้อนจัด'];
+import AuthPanel from '@/components/AuthPanel';
+import { AuthProvider } from '@/components/AuthContext';
 
-export default function GuideSourcesApp() {
-  const [activeTab, setActiveTab] = useState<'search' | 'member' | 'admin'>('member');
-  const [rating, setRating] = useState(5);
-  const [form, setForm] = useState({
-    name: '', province: '', category: CATEGORIES[0], other_cat: '', sub_cat: '',
-    map_url: '', phone: '', recommender: '', suggestion: '', amenities: [] as string[], alerts: [] as string[]
-  });
+import { useEffect, useState } from 'react';
+import SearchTab from '@/components/SearchTab';
+import AdminTab from '@/components/AdminTab';
+import MemberTab, { emptyMemberPlace } from '@/components/MemberTab';
+import { CATEGORIES, MEDIA_UPLOAD_ENABLED } from '@/lib/constants';
+import { findDuplicatePlaceName, saveStagingPlace, type PlaceRecord } from '@/services/placesService';
+import { uploadPlaceMedia } from '@/services/mediaService';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
-  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setRating(Number(e.target.value));
-  };
+type Tab = 'search' | 'member' | 'admin';
 
-  const handleFileAttach = (type: string) => {
-    alert(`ระบบแนบ ${type} พร้อมทำงาน กรุณาเชื่อมต่อกับ Supabase Storage ในขั้นตอนถัดไป`);
-  };
+function RootRecoveryHashHandler() {
+  if (typeof window !== 'undefined') {
+    const hash = window.location.hash || '';
+    if (hash.includes('type=recovery') && !window.location.pathname.includes('/auth/update-password')) {
+      window.location.replace('/auth/update-password' + hash);
+    }
+  }
+  return null;
+}
 
-  const toggleCheck = (item: string, field: 'amenities' | 'alerts') => {
-    setForm(prev => ({
-      ...prev,
-      [field]: prev[field].includes(item) ? prev[field].filter(i => i !== item) : [...prev[field], item]
-    }));
+// Supabase recovery hash handler
+function GuideSourcesApp() {
+  const [activeTab, setActiveTab] = useState<Tab>('search');
+  const [form, setForm] = useState<PlaceRecord>(emptyMemberPlace);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [message, setMessage] = useState('');
+  const [pendingFiles, setPendingFiles] = useState<{file: File; type: 'image' | 'video'}[]>([]);
+
+  useEffect(() => { setMessage(form.id ? `กำลังแก้ไข: ${form.name}` : ''); }, [form.id, form.name]);
+  const editPlace = (place: PlaceRecord) => { setForm({ ...emptyMemberPlace, ...place, status: 'pending' }); setActiveTab('member'); };
+  const attachFile = async (file: File | undefined, type: 'image' | 'video') => {
+    if (!file) return;
+    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedVideoTypes = ['video/mp4', 'video/webm'];
+    if (type === 'image' && !allowedImageTypes.includes(file.type)) {
+      setMessage('Supported image formats: jpg, jpeg, png, webp');
+      return;
+    }
+    if (type === 'video' && !allowedVideoTypes.includes(file.type)) {
+      setMessage('Supported video formats: mp4, webm');
+      return;
+    }
+
+    const useLocalMedia = !MEDIA_UPLOAD_ENABLED || !isSupabaseConfigured;
+    if (useLocalMedia) {
+      if (type === 'image') {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result as string;
+          setForm((prev) => ({
+            ...prev,
+            local_media: [
+              ...(prev.local_media || []),
+              { media_type: 'image', file_name: file.name, data_url: dataUrl, created_at: new Date().toISOString() },
+            ],
+          }));
+          setMessage(`เพิ่มรูปแล้ว: ${file.name}`);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          local_media: [
+            ...(prev.local_media || []),
+            { media_type: 'video', file_name: file.name, created_at: new Date().toISOString() },
+          ],
+        }));
+        setMessage(`เพิ่มวิดีโอแล้ว: ${file.name}`);
+      }
+      return;
+    }
+
+    setPendingFiles((prev) => [...prev, { file, type }]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const dataToInsert = {
-      name: form.name || '',
-      province: form.province || '',
-      category: form.category || '',
-      other_category: form.other_cat || '',
-      sub_category: form.sub_cat || '',
-      google_maps_url: form.map_url || '',
-      phone: form.phone || '',
-      recommender: form.recommender || '',
-      suggestion: form.suggestion || '',
-      rating: Number(rating),
-      amenities: form.amenities,
-      alerts: form.alerts,
-      status: 'pending'
-    };
+    setMessage('');
+
+    const missing = [
+      !form.name.trim() && 'ชื่อสถานที่',
+      !form.province.trim() && 'จังหวัด',
+      !form.category.trim() || form.category === '-- เลือกหมวดหมู่หลัก --' && 'หมวดหมู่หลัก',
+    ].filter(Boolean) as string[];
+
+    if (missing.length) {
+      setMessage(`กรุณากรอกข้อมูลที่จำเป็นก่อนบันทึก: ${missing.join(', ')}`);
+      return;
+    }
 
     try {
-      const { error } = await supabase.from('staging_places').insert([dataToInsert]);
-      if (error) throw error;
-      alert("บันทึกข้อมูลเรียบร้อย!");
-      setForm({ name: '', province: '', category: CATEGORIES[0], other_cat: '', sub_cat: '', map_url: '', phone: '', recommender: '', suggestion: '', amenities: [], alerts: [] });
-    } catch (err: any) {
-      console.error("Supabase Error:", err);
-      alert("เกิดข้อผิดพลาด: " + err.message);
+      const duplicate = await findDuplicatePlaceName(form.name, form.id);
+      if (duplicate && !confirm(`พบชื่อสถานที่ซ้ำ: ${duplicate.name} ต้องการบันทึกต่อหรือไม่?`)) return;
+
+      const saved = await saveStagingPlace(form);
+      if (saved?.id) {
+        for (const pending of pendingFiles) await uploadPlaceMedia(saved.id, pending.file, pending.type, true);
+      }
+
+      setMessage(`บันทึกสำเร็จแล้ว: ${saved?.name || form.name} บันทึกลง browser localStorage แล้วและ Search จะโหลดข้อมูลใหม่ทันที`);
+      setForm(emptyMemberPlace);
+      setPendingFiles([]);
+      setRefreshKey((v) => v + 1);
+      window.dispatchEvent(new Event('guide-sources-updated'));
+      window.dispatchEvent(new Event('guide-sources:refresh'));
+      setActiveTab('search');
+    } catch (err) {
+      const text = err instanceof Error ? err.message : 'unknown error';
+      setMessage(`เกิดข้อผิดพลาด: ${text}`);
     }
   };
 
-  return (
-    <div className="max-w-md mx-auto p-4 bg-gray-900 text-white min-h-screen">
-      <nav className="flex bg-gray-800 p-2 rounded-lg mb-4">
-        <button onClick={() => setActiveTab('search')} className={`flex-1 p-2 rounded ${activeTab === 'search' ? 'bg-blue-600' : ''}`}>🔍 ค้นหา</button>
-        <button onClick={() => setActiveTab('member')} className={`flex-1 p-2 rounded ${activeTab === 'member' ? 'bg-blue-600' : ''}`}>👤 Member</button>
-        <button onClick={() => setActiveTab('admin')} className={`flex-1 p-2 rounded ${activeTab === 'admin' ? 'bg-blue-600' : ''}`}>⚙️ Admin</button>
-      </nav>
-
-      {activeTab === 'search' && <SearchTab />}
-
-      {activeTab === 'member' && (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อสถานที่" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-          <div className="flex gap-2">
-            <input list="provinces" className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="จังหวัด" value={form.province} onChange={e => setForm({...form, province: e.target.value})} />
-            <datalist id="provinces">{PROVINCES.map(p => <option key={p} value={p} />)}</datalist>
-            <select className="w-full p-2 bg-gray-700 rounded border border-gray-600" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
-              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-          {form.category === 'อื่นๆ (โปรดระบุ)' && <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ระบุหมวดหมู่" value={form.other_cat} onChange={e => setForm({...form, other_cat: e.target.value})} />}
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="หมวดหมู่ย่อย" value={form.sub_cat} onChange={e => setForm({...form, sub_cat: e.target.value})} />
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ลิงก์ Google Maps" value={form.map_url} onChange={e => setForm({...form, map_url: e.target.value})} />
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="เบอร์โทร/ไลน์" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
-          <input className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ชื่อผู้แนะนำ" value={form.recommender} onChange={e => setForm({...form, recommender: e.target.value})} />
-          <textarea className="w-full p-2 bg-gray-700 rounded border border-gray-600" placeholder="ช่องใส่ข้อแนะนำ/เหตุผล" value={form.suggestion} onChange={e => setForm({...form, suggestion: e.target.value})} />
-          
-          <div className="flex gap-2">
-            <button type="button" onClick={() => handleFileAttach('รูป')} className="flex-1 p-2 bg-gray-700 rounded text-sm border border-gray-600">📸 แนบรูป</button>
-            <button type="button" onClick={() => handleFileAttach('VDO')} className="flex-1 p-2 bg-gray-700 rounded text-sm border border-gray-600">🎥 แนบ VDO</button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Rating (ดาว):</span>
-            <select 
-              className="w-full p-2 bg-gray-700 rounded border border-gray-600" 
-              onChange={handleRatingChange} 
-              value={rating}
-            >
-              <option value="5">⭐⭐⭐⭐⭐</option>
-              <option value="4">⭐⭐⭐⭐</option>
-              <option value="3">⭐⭐⭐</option>
-              <option value="2">⭐⭐</option>
-              <option value="1">⭐</option>
-            </select>
-          </div>
-
-          <div className="text-xs font-bold text-gray-400">สิ่งอำนวยความสะดวก:</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">{AMENITIES.map(a => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.amenities.includes(a)} onChange={() => toggleCheck(a, 'amenities')} /> {a}</label>)}</div>
-          <div className="text-xs font-bold text-gray-400">ข้อควรระวัง:</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">{ALERTS.map(a => <label key={a} className="flex gap-1"><input type="checkbox" checked={form.alerts.includes(a)} onChange={() => toggleCheck(a, 'alerts')} /> {a}</label>)}</div>
-          
-          <button type="submit" className="w-full p-3 bg-blue-600 rounded font-bold hover:bg-blue-700">🚀 บันทึกเข้าคลัง</button>
-        </form>
-      )}
-
-      {activeTab === 'admin' && <AdminTab />}
+  return <div className="mx-auto w-full max-w-[980px] p-3 sm:p-4 min-h-screen gs-ui14-shell">
+    <header className="gs-app-header">
+  <div className="gs-app-brand">
+    <div className="gs-app-logo"><img src="/brand/guide-sources-logo.png" alt="Guide Sources logo" /></div>
+    <div className="gs-app-title-block">
+      <p className="gs-app-kicker">TRAVEL SOURCE MANAGER</p>
+      <h1 className="gs-app-title">Guide Sources</h1>
+      <p className="gs-app-subtitle">ค้นหา • เพิ่มข้อมูล • อนุมัติแหล่งท่องเที่ยว</p>
     </div>
+  </div>
+  <div className="gs-app-auth">
+    <AuthPanel />
+  </div>
+</header>
+    <nav className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white/85 p-2 mb-4 sticky top-0 z-10 shadow-xl">
+      <button onClick={() => setActiveTab('search')} className={`travel-tab travel-tab--search flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'search' ? 'travel-tab--active' : ''}`}>🔍 Search</button>
+      <button onClick={() => setActiveTab('member')} className={`travel-tab travel-tab--member flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'member' ? 'travel-tab--active' : ''}`}>👤 Member</button>
+      <button onClick={() => setActiveTab('admin')} className={`travel-tab travel-tab--admin flex-1 min-h-[48px] rounded-xl border px-3 py-2 text-sm font-black ${activeTab === 'admin' ? 'travel-tab--active' : ''}`}>⚙️ Admin</button>
+    </nav>
+    {message && <div className="mb-4 rounded-xl border border-sky-700/70 bg-sky-950/60 p-3 text-sm text-sky-100">{message}</div>}
+    <div className={`gs-active-tab-panel gs-active-tab-panel--${activeTab}`}>
+      {activeTab === 'search' && <SearchTab refreshKey={refreshKey} onEdit={editPlace} />}
+      {activeTab === 'member' && <MemberTab form={form} setForm={setForm} onSubmit={handleSubmit} attachFile={attachFile} />}
+      {activeTab === 'admin' && <AdminTab onEdit={editPlace} />}
+    </div>
+  </div>;
+}
+
+
+
+
+
+export default function Home() {
+  return (
+    <AuthProvider>
+      <GuideSourcesApp />
+    </AuthProvider>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

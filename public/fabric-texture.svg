@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360">
+  <filter id="noise">
+    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer>
+      <feFuncA type="table" tableValues="0 0.08"/>
+    </feComponentTransfer>
+  </filter>
+  <rect width="360" height="360" fill="#f8f6ef"/>
+  <rect width="360" height="360" filter="url(#noise)"/>
+  <path d="M0 0H360M0 24H360M0 48H360M0 72H360M0 96H360M0 120H360M0 144H360M0 168H360M0 192H360M0 216H360M0 240H360M0 264H360M0 288H360M0 312H360M0 336H360" stroke="#d8d2c4" stroke-opacity=".18"/>
+  <path d="M0 0V360M24 0V360M48 0V360M72 0V360M96 0V360M120 0V360M144 0V360M168 0V360M192 0V360M216 0V360M240 0V360M264 0V360M288 0V360M312 0V360M336 0V360" stroke="#ffffff" stroke-opacity=".18"/>
+</svg>
