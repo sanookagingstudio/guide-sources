@@ -10,9 +10,9 @@
 // PASS (exit 0) requires, measured in THIS run:
 //   1. The gate parses (PowerShell AST, 0 errors) and its record-name logic is the capped one
 //      (80-char slug + 8-hex hash of the FULL action), with a loud failure path and exit code 7.
-//   2. The old behaviour really was broken: the previous naming rule applied to a 300-char action yields a
+//   2. The old behaviour really was broken: the previous naming rule applied to a 356-char action yields a
 //      path >= 260 chars (computed here, fail-closed control).
-//   3. A REAL gate run with a 300-char action and a change command that does nothing but fail exits 6 and
+//   3. A REAL gate run with a 356-char action and a change command that does nothing but fail exits 6 and
 //      writes a record file whose name is < 240 chars, carries the capped slug, and whose JSON holds the FULL
 //      action text and state=change-failed.
 //   4. deploys.log carries the matching `record: <path>` line.
@@ -166,6 +166,6 @@ if (mine.length === 1) {
 out.problems = problems;
 const ok = problems.length === 0;
 const reason = ok
-  ? `gate AST clean; old 300-char action -> ${out.oldRule.oldPathLength}-char path (unwritable) vs new ${out.record.pathLength}-char record carrying the full action; real gate run exit 6 state=change-failed, 1 record, log line present`
+  ? `gate AST clean; old 356-char action -> ${out.oldRule.oldPathLength}-char path (unwritable) vs new ${out.record.pathLength}-char record carrying the full action; real gate run exit 6 state=change-failed, 1 record, log line present`
   : problems.join(" | ");
 done(ID, ok, reason, out);
