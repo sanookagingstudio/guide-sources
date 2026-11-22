@@ -18,6 +18,8 @@
 //      in the machine-bible repo with the icon in its committed index.html.
 //
 // CLI-level, read-only against production apart from the deploys this row already recorded under Deploy-Lock.
+import { readdirSync, readFileSync, existsSync } from "node:fs";
+import path from "node:path";
 import { done, httpGet, run } from "../lib/harness.mjs";
 import { gatePublicPage } from "../golive/lib/public-page-gate.mjs";
 import { P, words } from "../lib/wave3-c.mjs";
@@ -157,6 +159,39 @@ if (gsLive.sha) {
   else if (remoteSha !== gsLive.sha) problems.push(`origin/codex-mvp is ${remoteSha.slice(0, 7)}, deployed is ${gsLive.sha.slice(0, 7)} (the C01 deployed-ref rule)`);
 }
 
+// machine-bible's deployed commit must be carried by a durable branch (main), not only by a throwaway worktree.
+if (mbLive.sha) {
+  const onMain = await git(P.mb, ["merge-base", "--is-ancestor", mbLive.sha, "main"]);
+  evidence.provenance.machineBibleBranch = { deployed: mbLive.sha, branch: "main", contained: onMain.code === 0 };
+  if (onMain.code !== 0) problems.push(`machine-bible: deployed commit ${mbLive.sha.slice(0, 7)} is not contained in main (provenance would be a throwaway branch)`);
+}
+
+// Each page must sit on a VERIFIED Deploy-Lock change that recorded a DIFFERENT deployment as its rollback target.
+const RECORDS = "D:\\FUNAGING_TEMP\\tracks\\deploy_records";
+function deployRecordsFor(deploymentId) {
+  const out = [];
+  if (!existsSync(RECORDS)) return out;
+  for (const f of readdirSync(RECORDS)) {
+    if (!f.toLowerCase().includes("c-public-icon-404") || !f.endsWith(".json")) continue;
+    try {
+      const rec = JSON.parse(readFileSync(path.join(RECORDS, f), "utf8"));
+      const text = `${rec.change || ""} ${rec.action || ""}`;
+      if (text.includes(deploymentId)) out.push({ file: f, state: rec.state, rollbackTarget: rec.rollbackTarget || "", action: rec.action || "" });
+    } catch { /* an unreadable record cannot vouch for anything */ }
+  }
+  return out;
+}
+evidence.deployRecords = {};
+for (const [label, live] of [["machineBible", mbLive], ["guideSources", gsLive]]) {
+  const recs = live.id ? deployRecordsFor(live.id) : [];
+  evidence.deployRecords[label] = recs;
+  const verified = recs.filter((r) => r.state === "verified");
+  if (!verified.length) problems.push(`${label}: no state=verified Deploy-Lock record names the live deployment ${live.id}`);
+  else if (!verified.some((r) => /^dpl_[A-Za-z0-9]+$/.test(r.rollbackTarget) && r.rollbackTarget !== live.id)) {
+    problems.push(`${label}: the verified Deploy-Lock record does not carry a distinct dpl_ rollback target`);
+  }
+}
+
 const toleratedSummary = Object.fromEntries(
   Object.entries(evidence.pages).map(([k, p]) => [k, [...new Set(p.samples.flatMap((s) => (s.tolerated || []).map((t) => `${t.kind}:${t.status ?? ""}:${String(t.url).replace(/\?.*$/, "")}`)))]]),
 );
@@ -166,7 +201,7 @@ done(
   "C-PUBLIC-ICON-404",
   ok,
   ok
-    ? `machine-bible + guide-sources each loaded twice in a real Chromium: 200, a declared icon, 0 console errors and 0 first-party HTTP>=400 (guide-sources' only tolerated response is the recorded Supabase 402 by URL); live dpl ${mbLive.id} @${mbLive.sha.slice(0, 7)} and ${gsLive.id} @${gsLive.sha.slice(0, 7)} = origin/codex-mvp`
+    ? `machine-bible + guide-sources each loaded twice in a real Chromium: 200, a declared icon that resolves, 0 console errors and 0 first-party HTTP>=400 (guide-sources' only tolerated response is the recorded Supabase 402 by URL); live ${mbLive.id} @${mbLive.sha.slice(0, 7)} (in main) and ${gsLive.id} @${gsLive.sha.slice(0, 7)} (= origin/codex-mvp), each from a state=verified Deploy-Lock record with a distinct rollback target; machine-bible's 8 in-page links all 200`
     : problems.join("; "),
   {
     targets: { machineBible: MB, guideSources: GS },
